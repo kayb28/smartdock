@@ -137,11 +137,25 @@ import java.net.URLEncoder
 const val DOCK_SERVICE_CONNECTED = "service_connected"
 const val ACTION_BIND_NOTIFICATION_SERVICE = "bind_notification_service"
 const val ACTION_LAUNCH_APP = "launch_app"
+const val ACTION_OPEN_MENU = "open_menu"
 const val DESKTOP_APP_PINNED = "desktop_app_pinned"
 const val DOCK_SERVICE_ACTION = "dock_service_action"
 
 class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, OnTouchListener,
     OnAppClickListener, OnDockAppClickListener, OnNotificationClickListener {
+
+    companion object {
+        /**
+         * Whether the service is currently connected: set as soon as
+         * [onServiceConnected] runs and cleared in [onDestroy]. Distinguishes
+         * "the system still has to bind the service" from "the system lost
+         * the binding" — the state an OS crash-reboot can leave behind even
+         * though the service stays enabled in settings (#268).
+         */
+        @Volatile
+        var isRunning: Boolean = false
+            private set
+    }
 
     private var bluetoothButton: ImageView? = null
     private var wifiButton: ImageView? = null
@@ -181,6 +195,12 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     private var powerMenuVisible = false
     private var isPinned = false
     private var quickSettingsPanelVisible = false
+
+    // Whether Meta is currently held, and whether any other key went down
+    // during the current Meta press — releasing Meta after a Meta+X shortcut
+    // must not open the app menu (#267).
+    private var metaLeftDown = false
+    private var metaUsedAsModifier = false
     private var systemApp = false
     private var preferSecondaryDisplay = false
     private lateinit var dockLayoutParams: WindowManager.LayoutParams
@@ -260,6 +280,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        isRunning = true
         Utils.startupTime = System.currentTimeMillis()
         systemApp = AppUtils.isSystemApp(this, packageName)
         maxApps = sharedPreferences.getString("max_running_apps", "10")!!.toInt()
@@ -276,6 +297,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                         intent.getStringExtra("mode"),
                         intent.getStringExtra("app")!!
                     )
+                    ACTION_OPEN_MENU -> toggleAppMenu()
                 }
             }
         }, IntentFilter(LAUNCHER_ACTION), ContextCompat.RECEIVER_NOT_EXPORTED)
@@ -562,6 +584,21 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     //Handle keyboard shortcuts
     override fun onKeyEvent(event: KeyEvent): Boolean {
+        // Track Meta presses to distinguish "Meta pressed alone" (open the
+        // app menu) from "Meta held while other keys were used" (a modifier:
+        // its release must do nothing). Without this, every Meta+X shortcut
+        // was followed by the app menu opening on Meta's release (#267).
+        if (event.keyCode == KeyEvent.KEYCODE_META_LEFT) {
+            if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
+                metaLeftDown = true
+                metaUsedAsModifier = false
+            } else if (event.action == KeyEvent.ACTION_UP) {
+                metaLeftDown = false
+            }
+        } else if (metaLeftDown && event.action == KeyEvent.ACTION_DOWN) {
+            metaUsedAsModifier = true
+        }
+
         if (event.action == KeyEvent.ACTION_UP) {
             if (event.isAltPressed) {
                 if (event.keyCode == KeyEvent.KEYCODE_L && sharedPreferences.getBoolean(
@@ -749,6 +786,11 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                         true
                     )
                 ) {
+                    if (event.keyCode == KeyEvent.KEYCODE_META_LEFT && metaUsedAsModifier) {
+                        // Meta was used as a modifier (Meta+X shortcut); its
+                        // release is not a menu press (#267).
+                        return super.onKeyEvent(event)
+                    }
                     toggleAppMenu()
                     return true
                 }
@@ -1522,6 +1564,15 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+
+        // Everything this update touches is born in createViews(), which runs
+        // from onServiceConnected(). Until then, a configuration change —
+        // easy to hit when an external display is connected while the
+        // service is still starting — crashed the service on the lateinit
+        // properties (#270). createViews() builds from the current
+        // configuration, so nothing is lost by skipping the update here.
+        if (!::context.isInitialized) return
+
         orientation = newConfig.orientation
         orientationValue =
             if (orientation == Configuration.ORIENTATION_PORTRAIT) "" else "_landscape"
@@ -2047,6 +2098,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     override fun onDestroy() {
         //TODO: Unregister all receivers
+        isRunning = false
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
         if (::batteryReceiver.isInitialized)
             unregisterReceiver(batteryReceiver)
@@ -2136,6 +2188,12 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     if (appMenuVisible) hideAppMenu() else unpinDock()
                 } else if (direction == Direction.LEFT) {
                     performGlobalAction(GLOBAL_ACTION_BACK)
+                } else if (direction == Direction.UP) {
+                    // The swipe activation method promises this in its own
+                    // hint dialog ("Swiping up from the bottom of the
+                    // screen"), but it was never implemented: only the
+                    // pointer's hover could reveal the hidden dock (#264).
+                    if (dockLayout.isGone) showDock()
                 }
                 return true
             }

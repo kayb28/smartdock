@@ -1,8 +1,12 @@
 name: Build debug apk
 
 on:
-  workflow_dispatch
-  
+  push:
+    branches:
+      - main
+      - "bugfix/**"
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,10 +22,10 @@ jobs:
 
     - name: Grant execute permissions for gradlew
       run: chmod +x gradlew
-    
+
     - name: Build project with Gradle
       run: ./gradlew build
-    
+
     - name: Build debug apk
       run: ./gradlew assembleDebug
 

@@ -354,6 +354,19 @@ object DeviceUtils {
         putSecureSetting(context, ENABLED_ACCESSIBILITY_SERVICES, newServices)
     }
 
+    /**
+     * Whether the dock service is listed in the enabled accessibility services
+     * setting, regardless of whether the system actually bound it: the state
+     * an OS crash-reboot can leave behind is "listed but never bound", which
+     * [isAccessibilityServiceEnabled] does not reliably distinguish from
+     * "disabled by the user" (#268).
+     */
+    fun isServiceListed(context: Context): Boolean {
+        val services = getSecureSetting(context, ENABLED_ACCESSIBILITY_SERVICES, "")
+        if (services.isEmpty()) return false
+        return services.split(':').any { it.equals(SERVICE_NAME, ignoreCase = true) }
+    }
+
     fun disableService(context: Context) {
         val services = getSecureSetting(context, ENABLED_ACCESSIBILITY_SERVICES, "")
         if (!services.contains(SERVICE_NAME)) return

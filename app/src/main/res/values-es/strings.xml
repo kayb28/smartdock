@@ -297,6 +297,12 @@
 
     <!-- Desktop -->
     <string name="lets_start">Empecemos</string>
+    <string name="dock_not_running">Smart Dock no está en ejecución. Toca aquí para repararlo</string>
+    <string name="dock_restarting">Reiniciando Smart Dock…</string>
+    <string name="dock_restart_manually">Smart Dock no puede reiniciarse automáticamente en este dispositivo. Desactívalo y actívalo de nuevo en los ajustes de accesibilidad</string>
+    <string name="dock_recovery_channel">Recuperación del dock</string>
+    <string name="dock_recovery_title">Smart Dock no se inició</string>
+    <string name="dock_recovery_text">El dock no arrancó tras el último reinicio. Toca aquí para repararlo.</string>
     <string name="change_wallpaper">Cambiar el fondo de pantalla</string>
     <string name="display_settings">Configuración de pantalla</string>
 

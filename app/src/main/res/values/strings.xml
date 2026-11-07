@@ -297,6 +297,12 @@
 
     <!-- Desktop -->
     <string name="lets_start">Let\'s start</string>
+    <string name="dock_not_running">Smart Dock is not running. Tap to fix it</string>
+    <string name="dock_restarting">Restarting Smart Dock…</string>
+    <string name="dock_restart_manually">Smart Dock cannot restart automatically on this device. Turn it off and on again in Accessibility settings</string>
+    <string name="dock_recovery_channel">Dock recovery</string>
+    <string name="dock_recovery_title">Smart Dock did not start</string>
+    <string name="dock_recovery_text">The dock did not come up after the last reboot. Tap to fix it.</string>
     <string name="change_wallpaper">Change wallpaper</string>
     <string name="display_settings">Display settings</string>
 

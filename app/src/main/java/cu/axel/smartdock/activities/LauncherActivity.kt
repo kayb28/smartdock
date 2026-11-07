@@ -9,7 +9,10 @@ import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.ShortcutInfo
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
+import android.view.GestureDetector
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -36,14 +39,18 @@ import cu.axel.smartdock.adapters.AppShortcutAdapter
 import cu.axel.smartdock.models.Action
 import cu.axel.smartdock.models.App
 import cu.axel.smartdock.services.ACTION_LAUNCH_APP
+import cu.axel.smartdock.services.ACTION_OPEN_MENU
 import cu.axel.smartdock.services.DESKTOP_APP_PINNED
 import cu.axel.smartdock.services.DOCK_SERVICE_ACTION
 import cu.axel.smartdock.services.DOCK_SERVICE_CONNECTED
+import cu.axel.smartdock.services.DockService
 import cu.axel.smartdock.utils.AppUtils
 import cu.axel.smartdock.utils.ColorUtils
 import cu.axel.smartdock.utils.DeepShortcutManager
 import cu.axel.smartdock.utils.DeviceUtils
 import cu.axel.smartdock.utils.IconPackUtils
+import cu.axel.smartdock.utils.OnSwipeListener
+import cu.axel.smartdock.utils.OnSwipeListener.Direction
 import cu.axel.smartdock.utils.Utils
 import java.io.BufferedReader
 import java.io.File
@@ -54,6 +61,12 @@ import java.io.IOException
 const val LAUNCHER_ACTION = "launcher_action"
 const val LAUNCHER_RESUMED = "launcher_resumed"
 
+// How long to wait after resume before declaring the dock service dead,
+// and how long to leave it disabled before re-enabling it (a shorter gap
+// and the system may coalesce the two writes into a no-op).
+private const val SERVICE_START_GRACE_MS = 3000L
+private const val SERVICE_REBIND_DELAY_MS = 2000L
+
 open class LauncherActivity : AppCompatActivity(), OnAppClickListener,
     OnSharedPreferenceChangeListener {
     private var iconPackUtils: IconPackUtils? = null
@@ -61,6 +74,8 @@ open class LauncherActivity : AppCompatActivity(), OnAppClickListener,
     private lateinit var appsGv: RecyclerView
     private lateinit var notesEt: EditText
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var launcherGestureDetector: GestureDetector
+    private val serviceHandler = Handler(Looper.getMainLooper())
     private var x = 0f
     private var y = 0f
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +130,10 @@ open class LauncherActivity : AppCompatActivity(), OnAppClickListener,
         backgroundLayout.setOnTouchListener { _, event ->
             x = event.x
             y = event.y
+            // Phone-style gesture: swiping up on the desktop opens the app
+            // menu, the way the launcher's other activation gestures work
+            // (#264).
+            launcherGestureDetector.onTouchEvent(event)
             false
         }
         ContextCompat.registerReceiver(
@@ -132,6 +151,20 @@ open class LauncherActivity : AppCompatActivity(), OnAppClickListener,
         if (sharedPreferences.getString("icon_pack", "")!!.isNotEmpty()) {
             iconPackUtils = IconPackUtils(this)
         }
+
+        launcherGestureDetector = GestureDetector(this, object : OnSwipeListener() {
+            override fun onSwipe(direction: Direction): Boolean {
+                if (direction == Direction.UP) {
+                    sendBroadcast(
+                        Intent(LAUNCHER_ACTION)
+                            .setPackage(packageName)
+                            .putExtra("action", ACTION_OPEN_MENU)
+                    )
+                    return true
+                }
+                return false
+            }
+        })
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(
             true
@@ -157,8 +190,12 @@ open class LauncherActivity : AppCompatActivity(), OnAppClickListener,
                 .putExtra("action", LAUNCHER_RESUMED)
         )
 
-        serviceBtn.visibility =
-            if (DeviceUtils.isAccessibilityServiceEnabled(this)) View.GONE else View.VISIBLE
+        // Immediate pass reflects the never-enabled state right away; the
+        // delayed pass also detects the "enabled but never bound" state a
+        // crash-reboot leaves behind (#268).
+        updateServiceButton(deadCheck = false)
+        serviceHandler.removeCallbacks(serviceButtonCheck)
+        serviceHandler.postDelayed(serviceButtonCheck, SERVICE_START_GRACE_MS)
 
         loadDesktopApps()
 
@@ -173,8 +210,70 @@ open class LauncherActivity : AppCompatActivity(), OnAppClickListener,
 
     override fun onPause() {
         super.onPause()
+        // Only the button refresh: the pending service re-enable of
+        // reviveDock() must survive leaving the activity, or the dock would
+        // stay disabled.
+        serviceHandler.removeCallbacks(serviceButtonCheck)
         if (sharedPreferences.getBoolean("show_notes", false))
             saveNotes()
+    }
+
+    private val serviceButtonCheck = Runnable {
+        if (!isFinishing && !isDestroyed) updateServiceButton(deadCheck = true)
+    }
+
+    /**
+     * Brings the service button in line with the actual state of the dock:
+     * hidden once the service is connected, the original setup entry when
+     * the service was never enabled, and a one-tap recovery action when the
+     * service is enabled in settings but the system never bound it — the
+     * state an OS crash-reboot leaves behind, which until now left the
+     * desktop bare until the user toggled accessibility by hand (#268).
+     */
+    private fun updateServiceButton(deadCheck: Boolean) {
+        when {
+            DockService.isRunning -> serviceBtn.visibility = View.GONE
+
+            DeviceUtils.isServiceListed(this) -> {
+                if (!deadCheck) {
+                    // May still be binding after boot: don't flash the button.
+                    serviceBtn.visibility = View.GONE
+                    return
+                }
+                serviceBtn.visibility = View.VISIBLE
+                serviceBtn.text = getString(R.string.dock_not_running)
+                serviceBtn.setOnClickListener { reviveDock() }
+            }
+
+            else -> {
+                serviceBtn.visibility = View.VISIBLE
+                serviceBtn.text = getString(R.string.lets_start)
+                serviceBtn.setOnClickListener {
+                    startActivity(Intent(this, MainActivity::class.java))
+                }
+            }
+        }
+    }
+
+    /**
+     * Drops and re-adds the service in the enabled accessibility services
+     * setting, the same fix as toggling it in Accessibility settings, so the
+     * system binds a fresh instance (#268).
+     */
+    private fun reviveDock() {
+        if (DeviceUtils.hasWriteSettingsPermission(this)) {
+            Toast.makeText(this, R.string.dock_restarting, Toast.LENGTH_SHORT).show()
+            DeviceUtils.disableService(this)
+            // The re-enable must not depend on this activity still being
+            // around: the setting write is valid regardless.
+            serviceHandler.postDelayed(
+                { DeviceUtils.enableService(this) },
+                SERVICE_REBIND_DELAY_MS
+            )
+        } else {
+            Toast.makeText(this, R.string.dock_restart_manually, Toast.LENGTH_LONG).show()
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
     }
 
     private fun loadNotes() {
