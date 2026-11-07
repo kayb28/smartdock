@@ -303,8 +303,8 @@
 
     <!-- Toasts -->
     <string name="start_message">ਸਮਾਰਟ ਡੌਕ ਸ਼ੁਰੂ ਹੋਇਆ</string>
-    <string name="launched_on_main_display">ਚੁਣੀ ਹੋਈ ਡਿਸਪਲੇ ਉਪਲਬਧ ਨਹੀਂ ਸੀ, ਐਪ ਮੁੱਖ ਸਕਰੀਨ 'ਤੇ ਖੋਲ੍ਹੀ ਗਈ</string>
-    <string name="cannot_launch_on_display">ਚੁਣੀ ਹੋਈ ਡਿਸਪਲੇ 'ਤੇ ਐਪ ਨਹੀਂ ਖੋਲ੍ਹੀ ਜਾ ਸਕੀ</string>
+    <string name="launched_on_main_display">ਚੁਣੀ ਹੋਈ ਡਿਸਪਲੇ ਉਪਲਬਧ ਨਹੀਂ ਸੀ, ਐਪ ਮੁੱਖ ਸਕਰੀਨ \'ਤੇ ਖੋਲ੍ਹੀ ਗਈ</string>
+    <string name="cannot_launch_on_display">ਚੁਣੀ ਹੋਈ ਡਿਸਪਲੇ \'ਤੇ ਐਪ ਨਹੀਂ ਖੋਲ੍ਹੀ ਜਾ ਸਕੀ</string>
     <string name="enable_access_help">ਸਮਾਰਟ ਡੌਕ ਸੇਵਾ ਲੱਭੋ ਅਤੇ ਚਾਲੂ ਕਰੋ</string>
 
     <!-- Crash dialog -->
