@@ -222,17 +222,18 @@ object DeviceUtils {
      * The best display to move the dock and apps to when "prefer secondary
      * display" is on, or null when there is none.
      *
-     * Real external displays (HDMI/USB-C monitors) are the only ones
-     * regular apps are always allowed to launch on, so they come first.
-     * The previous implementation took the last display of the whole list,
-     * which on OEMs that append private virtual displays to it (Samsung One
-     * UI's virtual monitor among others) picked a display apps cannot
-     * launch on, so every launch failed (#263).
+     * Displays of the presentation category are the ones apps are allowed
+     * to show content on — real external monitors (USB-C/HDMI) always carry
+     * it. The previous implementation took the last display of the whole
+     * list, which on OEMs that append private virtual displays to it
+     * (Samsung One UI's virtual monitor among others) picked a display apps
+     * cannot launch on, so every launch failed (#263).
      */
     fun getSecondaryDisplay(context: Context): Display? {
-        val external = getDisplays(context, DisplayManager.DISPLAY_CATEGORY_EXTERNAL)
-            .firstOrNull { it.displayId != Display.DEFAULT_DISPLAY }
-        if (external != null) return external
+        val presentations = getDisplays(
+            context, DisplayManager.DISPLAY_CATEGORY_PRESENTATION
+        ).filter { it.displayId != Display.DEFAULT_DISPLAY }
+        if (presentations.isNotEmpty()) return presentations[0]
         return getDisplays(context).firstOrNull { it.displayId != Display.DEFAULT_DISPLAY }
     }
 
