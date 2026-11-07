@@ -348,17 +348,23 @@ object AppUtils {
     }
 
     fun makeActivityOptions(
-        context: Context, mode: String, dockHeight: Int, displayId: Int
+        context: Context, mode: String, dockHeight: Int, displayId: Int,
+        allowSecondary: Boolean = true
     ): ActivityOptions {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val secondary = sharedPreferences.getBoolean("prefer_last_display", false)
+        val secondary = allowSecondary
+                && sharedPreferences.getBoolean("prefer_last_display", false)
 
         val display =
             if (displayId != Display.DEFAULT_DISPLAY)
                 displayId
             else
                 if (secondary)
-                    DeviceUtils.getSecondaryDisplay(context).displayId
+                    // Null (no secondary display available) falls back to the
+                    // main screen instead of a display id apps cannot launch
+                    // on (#263).
+                    DeviceUtils.getSecondaryDisplay(context)?.displayId
+                        ?: Display.DEFAULT_DISPLAY
                 else 0
         val options: ActivityOptions = ActivityOptions.makeBasic()
 

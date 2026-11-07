@@ -127,7 +127,11 @@ object Utils {
         accessibilityWindow: Boolean = false
     ): WindowManager.LayoutParams {
         val displayId =
-            if (secondary) DeviceUtils.getSecondaryDisplay(context).displayId else Display.DEFAULT_DISPLAY
+            // Null when no secondary display is actually available: window
+            // params must then keep targeting the main screen instead of
+            // picking a leftover display id apps cannot use (#263).
+            if (secondary) DeviceUtils.getSecondaryDisplay(context)?.displayId
+                ?: Display.DEFAULT_DISPLAY else Display.DEFAULT_DISPLAY
         val displayWidth = DeviceUtils.getDisplayBounds(context, displayId).width()
         val displayHeight = DeviceUtils.getDisplayBounds(context, displayId).height()
         val layoutParams = WindowManager.LayoutParams()

@@ -915,14 +915,37 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         val options = AppUtils.makeActivityOptions(context, launchMode, dockHeight, displayId)
 
         //Used only for work apps
-        if (app != null && app.userHandle != Process.myUserHandle())
-            launcherApps.startMainActivity(
-                app.componentName,
-                app.userHandle,
-                null,
-                options.toBundle()
-            )
-        else {
+        if (app != null && app.userHandle != Process.myUserHandle()) {
+            try {
+                launcherApps.startMainActivity(
+                    app.componentName,
+                    app.userHandle,
+                    null,
+                    options.toBundle()
+                )
+            } catch (e: Exception) {
+                // The target display rejected the launch (a virtual display
+                // apps are not allowed on, a display that disappeared in
+                // between, freeform not supported there). Retry on the main
+                // screen instead of taking the whole dock down with it (#263).
+                try {
+                    launcherApps.startMainActivity(
+                        app.componentName,
+                        app.userHandle,
+                        null,
+                        AppUtils.makeActivityOptions(
+                            context, launchMode, dockHeight,
+                            Display.DEFAULT_DISPLAY, allowSecondary = false
+                        ).toBundle()
+                    )
+                    Toast.makeText(this, R.string.launched_on_main_display, Toast.LENGTH_LONG)
+                        .show()
+                } catch (e2: Exception) {
+                    Toast.makeText(this, R.string.cannot_launch_on_display, Toast.LENGTH_LONG)
+                        .show()
+                }
+            }
+        } else {
             val launchIntent: Intent? = if (intent == null && packageName != null)
                 packageManager.getLaunchIntentForPackage(packageName)
             else
@@ -934,7 +957,11 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             if (newInstance)
                 launchIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
 
-            context.startActivity(launchIntent, options.toBundle())
+            try {
+                context.startActivity(launchIntent, options.toBundle())
+            } catch (e: Exception) {
+                fallbackLaunch(launchIntent, launchMode)
+            }
         }
 
         if (appMenuVisible)
@@ -952,6 +979,33 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
         if (quickSettingsPanelVisible)
             hideQuickSettingsPanel()
+    }
+
+    /**
+     * Last-resort launch after the preferred display rejected it: without
+     * this, one failed launch on a secondary/virtual display took the whole
+     * dock down with an unhandled exception, and nothing happened at all on
+     * every attempt afterwards (#263).
+     */
+    private fun fallbackLaunch(launchIntent: Intent, launchMode: String) {
+        try {
+            val options = AppUtils.makeActivityOptions(
+                context, launchMode, dockHeight,
+                Display.DEFAULT_DISPLAY, allowSecondary = false
+            )
+            context.startActivity(launchIntent, options.toBundle())
+            Toast.makeText(this, R.string.launched_on_main_display, Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            // Not even a regular launch worked; launch without any options
+            // so the app at least opens, if possible.
+            try {
+                context.startActivity(launchIntent)
+                Toast.makeText(this, R.string.launched_on_main_display, Toast.LENGTH_LONG)
+                    .show()
+            } catch (e2: Exception) {
+                Toast.makeText(this, R.string.cannot_launch_on_display, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun setOrientation() {
@@ -973,7 +1027,8 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     fun showAppMenu() {
         val layoutParams: WindowManager.LayoutParams?
         val displayId =
-            if (preferSecondaryDisplay) DeviceUtils.getSecondaryDisplay(context).displayId else Display.DEFAULT_DISPLAY
+            if (preferSecondaryDisplay) DeviceUtils.getSecondaryDisplay(context)?.displayId
+                ?: Display.DEFAULT_DISPLAY else Display.DEFAULT_DISPLAY
         val deviceWidth = DeviceUtils.getDisplayBounds(context, displayId).width()
         val deviceHeight = DeviceUtils.getDisplayBounds(context, displayId).height()
         val margins = Utils.dpToPx(context, 2)
@@ -2123,8 +2178,8 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         }
     }
 
-    private fun createViews() {
-        context = DeviceUtils.getDisplayContext(this, preferSecondaryDisplay)
+    private fun createViews(preferSecondary: Boolean = preferSecondaryDisplay) {
+        context = DeviceUtils.getDisplayContext(this, preferSecondary)
         windowManager = context.getSystemService(WINDOW_SERVICE) as WindowManager
         orientation = context.resources.configuration.orientation
         orientationValue =
@@ -2408,7 +2463,19 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     private fun restartUI() {
         removeAllViews()
-        createViews()
+        try {
+            createViews()
+        } catch (_: Exception) {
+            // The display the dock was moving to rejected its windows — some
+            // OEMs stop non-system apps from adding windows to certain
+            // virtual or external displays. Fall back to the main screen
+            // instead of taking the whole service down (#263).
+            try {
+                removeAllViews()
+                createViews(preferSecondary = false)
+            } catch (_: Exception) {
+            }
+        }
         updateBatteryBtn()
         if (sharedPreferences.getBoolean("pin_dock", true))
             pinDock()

@@ -218,8 +218,22 @@ object DeviceUtils {
         return dm.getDisplays(category)
     }
 
-    fun getSecondaryDisplay(context: Context): Display {
-        return getDisplays(context).last()
+    /**
+     * The best display to move the dock and apps to when "prefer secondary
+     * display" is on, or null when there is none.
+     *
+     * Real external displays (HDMI/USB-C monitors) are the only ones
+     * regular apps are always allowed to launch on, so they come first.
+     * The previous implementation took the last display of the whole list,
+     * which on OEMs that append private virtual displays to it (Samsung One
+     * UI's virtual monitor among others) picked a display apps cannot
+     * launch on, so every launch failed (#263).
+     */
+    fun getSecondaryDisplay(context: Context): Display? {
+        val external = getDisplays(context, DisplayManager.DISPLAY_CATEGORY_EXTERNAL)
+            .firstOrNull { it.displayId != Display.DEFAULT_DISPLAY }
+        if (external != null) return external
+        return getDisplays(context).firstOrNull { it.displayId != Display.DEFAULT_DISPLAY }
     }
 
     fun getDisplayBounds(
@@ -227,23 +241,28 @@ object DeviceUtils {
         displayId: Int = Display.DEFAULT_DISPLAY
     ): Rect {
         return try {
-            context.display
             val dm = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+            // getDisplay() returns null for ids that no longer exist: a
+            // display that was just unplugged still shows up in cached lists
+            // for a moment, and dereferencing null here crashed the dock
+            // (#263). Fall back to the default display's metrics instead.
             val display = dm.getDisplay(displayId)
-            //FIXME: This always returns the metrics of the default display
-            //val metrics = DisplayMetrics()
-            //display.getRealMetrics(metrics)
+                ?: return getDefaultDisplayBounds(context)
             Rect(0, 0, display.width, display.height)
         } catch (_: UnsupportedOperationException) {
-            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            windowManager.currentWindowMetrics.bounds
+            getDefaultDisplayBounds(context)
         }
     }
 
+    private fun getDefaultDisplayBounds(context: Context): Rect {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        return windowManager.currentWindowMetrics.bounds
+    }
+
     fun getDisplayContext(context: Context, secondary: Boolean = false): Context {
-        return if (secondary && getDisplays(context).size > 1) context.createDisplayContext(
-            getSecondaryDisplay(context)
-        ) else context
+        if (!secondary) return context
+        val display = getSecondaryDisplay(context) ?: return context
+        return context.createDisplayContext(display)
     }
 
     @SuppressLint("PrivateApi")

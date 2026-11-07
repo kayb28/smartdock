@@ -308,6 +308,8 @@
 
     <!-- Toasts -->
     <string name="start_message">Smart Dock iniciado</string>
+    <string name="launched_on_main_display">La pantalla seleccionada no estaba disponible, la app se abrió en la pantalla principal</string>
+    <string name="cannot_launch_on_display">No se pudo abrir la app en la pantalla seleccionada</string>
     <string name="enable_access_help">Encuentre y habilite el servicio Smart Dock</string>
 
     <!-- Crash dialog -->

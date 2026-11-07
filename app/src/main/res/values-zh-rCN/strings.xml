@@ -302,6 +302,8 @@
 
     <!-- Toasts -->
     <string name="start_message">Smart Dock已启动</string>
+    <string name="launched_on_main_display">所选屏幕不可用，应用已在主屏幕上打开</string>
+    <string name="cannot_launch_on_display">无法在所选屏幕上打开应用</string>
     <string name="enable_access_help">找到并启用Smart Dock服务</string>
 
     <!-- Crash dialog -->

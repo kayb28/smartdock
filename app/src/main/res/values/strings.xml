@@ -308,6 +308,8 @@
 
     <!-- Toasts -->
     <string name="start_message">Smart Dock started</string>
+    <string name="launched_on_main_display">The selected display was unavailable, the app was opened on the main screen</string>
+    <string name="cannot_launch_on_display">The app could not be opened on the selected display</string>
     <string name="enable_access_help">Find and enable Smart Dock service</string>
 
     <!-- Crash dialog -->
