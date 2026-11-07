@@ -292,6 +292,12 @@
 
     <!-- Desktop -->
     <string name="lets_start">開始吧</string>
+    <string name="dock_not_running">Smart Dock 並未執行，點按即可修復</string>
+    <string name="dock_restarting">正在重新啟動 Smart Dock…</string>
+    <string name="dock_restart_manually">Smart Dock 無法在此裝置上自動重新啟動。請在無障礙設定中先關閉再重新開啟</string>
+    <string name="dock_recovery_channel">Dock 復原</string>
+    <string name="dock_recovery_title">Smart Dock 未啟動</string>
+    <string name="dock_recovery_text">上次重新啟動後 Dock 未啟動，點按即可修復。</string>
     <string name="change_wallpaper">更改壁紙</string>
     <string name="display_settings">顯示設置</string>
 

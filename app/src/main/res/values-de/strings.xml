@@ -292,6 +292,12 @@
 
     <!-- Desktop -->
     <string name="lets_start">Los geht\'s</string>
+    <string name="dock_not_running">Smart Dock läuft nicht. Zum Reparieren tippen</string>
+    <string name="dock_restarting">Smart Dock wird neu gestartet…</string>
+    <string name="dock_restart_manually">Smart Dock kann sich auf diesem Gerät nicht automatisch neu starten. Deaktiviere und aktiviere es in den Bedienungshilfen-Einstellungen</string>
+    <string name="dock_recovery_channel">Dock-Wiederherstellung</string>
+    <string name="dock_recovery_title">Smart Dock wurde nicht gestartet</string>
+    <string name="dock_recovery_text">Das Dock wurde nach dem letzten Neustart nicht geladen. Zum Reparieren tippen.</string>
     <string name="change_wallpaper">Hintergrundbild ändern</string>
     <string name="display_settings">Anzeigeeinstellungen</string>
 

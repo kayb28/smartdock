@@ -292,6 +292,12 @@
 
     <!-- Desktop -->
     <string name="lets_start">ਚਲੋ ਸ਼ੁਰੂ ਕਰੀਏ</string>
+    <string name="dock_not_running">ਸਮਾਰਟ ਡੌਕ ਚੱਲ ਨਹੀਂ ਰਿਹਾ। ਠੀਕ ਕਰਨ ਲਈ ਟੈਪ ਕਰੋ</string>
+    <string name="dock_restarting">ਸਮਾਰਟ ਡੌਕ ਮੁੜ ਚਾਲੂ ਹੋ ਰਿਹਾ ਹੈ…</string>
+    <string name="dock_restart_manually">ਸਮਾਰਟ ਡੌਕ ਇਸ ਡਿਵਾਈਸ ਉੱਤੇ ਆਪਣੇ ਆਪ ਮੁੜ ਚਾਲੂ ਨਹੀਂ ਹੋ ਸਕਦਾ। ਪਹੁੰਚਯੋਗਤਾ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਇਸਨੂੰ ਬੰਦ ਕਰਕੇ ਦੁਬਾਰਾ ਚਾਲੂ ਕਰੋ</string>
+    <string name="dock_recovery_channel">ਡੌਕ ਰੀਕਵਰੀ</string>
+    <string name="dock_recovery_title">ਸਮਾਰਟ ਡੌਕ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋਇਆ</string>
+    <string name="dock_recovery_text">ਪਿਛਲੇ ਰੀਸਟਾਰਟ ਤੋਂ ਬਾਅਦ ਡੌਕ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋਇਆ। ਠੀਕ ਕਰਨ ਲਈ ਟੈਪ ਕਰੋ।</string>
     <string name="change_wallpaper">ਵਾਲਪੇਪਰ ਬਦਲੋ</string>
     <string name="display_settings">ਡਿਸਪਲੇ ਸੈਟਿੰਗਜ਼</string>
 
