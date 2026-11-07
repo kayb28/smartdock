@@ -9,6 +9,7 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.content.edit
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
@@ -43,6 +44,24 @@ class AdvancedPreferences : PreferenceFragmentCompat() {
                     .setType("text/plain")
             )
             false
+        }
+
+        // Reflects the live developer-option state ("Force desktop mode"),
+        // which is what makes floating windows usable on external displays.
+        val externalDesktopMode =
+            findPreference<SwitchPreferenceCompat>("external_display_desktop_mode")!!
+        externalDesktopMode.isChecked =
+            DeviceUtils.isExternalDisplayDesktopModeEnabled(requireContext())
+        externalDesktopMode.setOnPreferenceChangeListener { _, newValue ->
+            val applied = DeviceUtils.setExternalDisplayDesktopMode(
+                requireContext(), newValue as Boolean
+            )
+            if (!applied) Toast.makeText(
+                requireContext(),
+                R.string.desktop_mode_not_applied,
+                Toast.LENGTH_LONG
+            ).show()
+            applied
         }
 
         val result = DeviceUtils.runAsRoot("cat /system/build.prop")

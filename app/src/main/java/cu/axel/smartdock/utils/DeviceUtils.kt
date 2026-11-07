@@ -40,6 +40,19 @@ object DeviceUtils {
     const val ICON_BLACKLIST = "icon_blacklist"
     const val HEADS_UP_ENABLED = "heads_up_notifications_enabled"
     const val SETTING_OVERLAYS = "secure_overlay_settings"
+
+    /**
+     * The global settings behind the developer options "Force desktop mode"
+     * and "Enable freeform windows" toggles. Without them, external
+     * monitors are second-class surfaces: apps open there in fullscreen,
+     * windows get no system-drawn title bars (nothing to drag or resize
+     * with the mouse) and the display shows no launcher or system bars.
+     * WindowManagerService observes both settings at runtime (no reboot
+     * strictly required, though reconnecting the display helps).
+     */
+    const val FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS =
+        "force_desktop_mode_on_external_displays"
+    const val ENABLE_FREEFORM_SUPPORT = "enable_freeform_support"
     private const val SERVICE_NAME = "cu.axel.smartdock/cu.axel.smartdock.services.DockService"
     private const val ENABLED_ACCESSIBILITY_SERVICES = "enabled_accessibility_services"
 
@@ -140,6 +153,49 @@ object DeviceUtils {
         } catch (_: Exception) {
             defaultValue
         }
+    }
+
+    /**
+     * Whether external displays run as full desktops (the developer
+     * options "Force desktop mode" state), which is what makes floating
+     * windows usable on a monitor.
+     */
+    fun isExternalDisplayDesktopModeEnabled(context: Context): Boolean {
+        return getGlobalSetting(
+            context, FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS, 0
+        ) != 0
+    }
+
+    /**
+     * Enables or disables desktop mode on external displays. Also turns on
+     * freeform window support when enabling, since floating windows need
+     * both. Writing global settings requires the WRITE_SECURE_SETTINGS
+     * permission (granted via ADB on a normal install); root is used as a
+     * fallback. Returns whether the setting could actually be applied.
+     */
+    fun setExternalDisplayDesktopMode(context: Context, enabled: Boolean): Boolean {
+        val value = if (enabled) 1 else 0
+        if (hasWriteSettingsPermission(context)
+            && putGlobalSetting(context, FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS, value)
+        ) {
+            // Freeform support governs the main screen as well, so it is
+            // only ever turned on here, never off.
+            if (enabled) putGlobalSetting(context, ENABLE_FREEFORM_SUPPORT, 1)
+            return true
+        }
+        if (enabled) {
+            val result = runAsRoot(
+                "settings put global $FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS 1 " +
+                        "&& settings put global $ENABLE_FREEFORM_SUPPORT 1"
+            )
+            // runAsRoot returns "error" when no su binary is available and
+            // an empty string on permission problems.
+            return result != "error" && result.isNotEmpty()
+        }
+        val result = runAsRoot(
+            "settings put global $FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS 0"
+        )
+        return result != "error" && result.isNotEmpty()
     }
 
     fun getSystemSetting(context: Context, setting: String, defaultValue: String): String {

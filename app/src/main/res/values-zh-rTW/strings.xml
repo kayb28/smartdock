@@ -194,6 +194,9 @@
     <string name="these_settings_are_intended_fo">這些設定適用於進階使用者。只有在知道自己在做什麼時才更改</string>
     <string name="prefer_last_display">偏好最後連接的螢幕</string>
     <string name="prefer_last_display_summary">偏好最後連接的螢幕顯示應用程式和 Dock</string>
+    <string name="external_display_desktop_mode">外接螢幕桌面模式</string>
+    <string name="external_display_desktop_mode_summary">將外接螢幕作為完整桌面運行，等同於開發者選項中的「強制桌面模式」：應用在外接螢幕上保留帶標題欄的浮動視窗，可用滑鼠操作。需要安全設定權限（或 root），可能需要重新連接螢幕</string>
+    <string name="desktop_mode_not_applied">無法修改系統設定。請授予安全設定權限，或在開發者選項中開啟「強制桌面模式」</string>
     <string name="open_accessibility">開啟無障礙</string>
     <string name="custom_toasts">自訂 Toast</string>
     <string name="custom_toasts_summary">在 Dock 顯示時顯示自訂 Toast</string>
@@ -304,6 +307,9 @@
     <string name="start_message">Smart Dock 已啟動</string>
     <string name="launched_on_main_display">所選螢幕無法使用，應用程式已在主螢幕上開啟</string>
     <string name="cannot_launch_on_display">無法在所選螢幕上開啟應用程式</string>
+    <string name="send_to_display">傳送至螢幕</string>
+    <string name="task_moved_to_display">正在將應用傳送至所選螢幕</string>
+    <string name="cannot_move_task">無法將此應用傳送至所選螢幕</string>
     <string name="enable_access_help">請找到並啟用 Smart Dock 服務</string>
 
     <!-- Crash dialog -->

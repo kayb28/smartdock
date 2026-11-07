@@ -446,12 +446,19 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         } else
             actions.add(Action(R.drawable.ic_pin, getString(R.string.pin)))
 
-        if (app.tasks.isNotEmpty() && app.tasks[0].id != -1 && DeviceUtils.hasShizukuPermission()) {
-            if (app.tasks[0].windowingMode == WINDOWING_MODE_FREEFORM) {
-                actions.add(Action(R.drawable.ic_launch_mode, getString(R.string.resize)))
-                actions.add(Action(R.drawable.ic_snap_top, getString(R.string.snap)))
+        if (app.tasks.isNotEmpty() && app.tasks[0].id != -1) {
+            if (DeviceUtils.hasShizukuPermission()) {
+                if (app.tasks[0].windowingMode == WINDOWING_MODE_FREEFORM) {
+                    actions.add(Action(R.drawable.ic_launch_mode, getString(R.string.resize)))
+                    actions.add(Action(R.drawable.ic_snap_top, getString(R.string.snap)))
+                }
+                actions.add(Action(R.drawable.ic_close, getString(R.string.close)))
             }
-            actions.add(Action(R.drawable.ic_close, getString(R.string.close)))
+            // Moving a running task to another display needs no special
+            // privileges: relaunching it with a different launch display
+            // reparents the existing task (see sendTaskToDisplay).
+            if (DeviceUtils.getDisplays(this).size > 1)
+                actions.add(Action(R.drawable.ic_screen, getString(R.string.send_to_display)))
         }
         return actions
     }
@@ -899,7 +906,8 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         app: App? = null,
         displayId: Int = Display.DEFAULT_DISPLAY,
         newInstance: Boolean = false,
-        rememberMode: Boolean = true
+        rememberMode: Boolean = true,
+        allowSecondary: Boolean = true
     ) {
         var launchMode = mode
         if (launchMode == null)
@@ -912,7 +920,9 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             )
                 db.saveLaunchMode(packageName, launchMode)
 
-        val options = AppUtils.makeActivityOptions(context, launchMode, dockHeight, displayId)
+        val options = AppUtils.makeActivityOptions(
+            context, launchMode, dockHeight, displayId, allowSecondary
+        )
 
         //Used only for work apps
         if (app != null && app.userHandle != Process.myUserHandle()) {
@@ -1205,6 +1215,35 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         }
     }
 
+    /**
+     * Moves a running task to another display. Relaunching an app with a
+     * different launch display reparents the existing task to the target
+     * display (ActivityStarter reuses the found task and moves it to the
+     * launch display's root task), so this needs no root, Shizuku or other
+     * special privileges. Floating windows are re-placed with bounds
+     * computed for the target display; fullscreen tasks stay fullscreen.
+     * The per-app launch mode is not modified.
+     */
+    private fun sendTaskToDisplay(task: AppTask, displayId: Int) {
+        // Work profile apps cannot be resolved through
+        // getLaunchIntentForPackage; they can still be launched on the
+        // target display through the app menu's "Launch in".
+        if (packageManager.getLaunchIntentForPackage(task.packageName) == null) {
+            Toast.makeText(context, R.string.cannot_move_task, Toast.LENGTH_LONG).show()
+            return
+        }
+        val mode =
+            if (task.windowingMode == WINDOWING_MODE_FREEFORM) "standard" else "fullscreen"
+        launchApp(
+            mode,
+            task.packageName,
+            displayId = displayId,
+            allowSecondary = false,
+            rememberMode = false
+        )
+        Toast.makeText(context, R.string.task_moved_to_display, Toast.LENGTH_SHORT).show()
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private fun showDockAppContextMenu(app: DockApp, anchor: View) {
         val view = LayoutInflater.from(context).inflate(R.layout.task_list, null)
@@ -1272,6 +1311,17 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     actions.add(Action(R.drawable.ic_snap_left, getString(R.string.left)))
                     actions.add(Action(R.drawable.ic_snap_right, getString(R.string.right)))
                     actionsLv.adapter = AppActionsAdapter(context, actions)
+                } else if (action.text == getString(R.string.send_to_display)) {
+                    val task = app.tasks.firstOrNull()
+                    if (task != null && task.id != -1) {
+                        // Only offer the screens the task is not already on.
+                        val currentDisplay =
+                            AppUtils.resolveDisplayId(context, task.displayId)
+                        val targets = DeviceUtils.getDisplays(this)
+                            .filter { it.displayId != currentDisplay }
+                        if (targets.isNotEmpty())
+                            actionsLv.adapter = DisplaysAdapter(context, targets.toTypedArray())
+                    }
                 } else if (action.text == getString(R.string.standard)) {
                     resizeTask(app, "standard")
                     windowManager.removeView(view)
@@ -1296,6 +1346,12 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 } else if (action.text.isBlank()) {
                     actionsLv.adapter = AppActionsAdapter(context, getDockAppActions(app))
                 }
+            } else if (adapterView.getItemAtPosition(position) is Display) {
+                val display = adapterView.getItemAtPosition(position) as Display
+                windowManager.removeView(view)
+                val task = app.tasks.firstOrNull()
+                if (task != null && task.id != -1)
+                    sendTaskToDisplay(task, display.displayId)
             }
         }
         windowManager.addView(view, layoutParams)
@@ -1463,7 +1519,11 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     null,
                     app,
                     display.displayId,
-                    sharedPreferences.getBoolean("launch_new_instance_secondary", true)
+                    sharedPreferences.getBoolean("launch_new_instance_secondary", true),
+                    // An explicit display choice must not be overridden by
+                    // "prefer secondary displays", otherwise picking the
+                    // main screen still sends the app to the monitor.
+                    allowSecondary = false
                 )
             }
         }

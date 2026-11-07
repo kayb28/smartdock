@@ -195,6 +195,9 @@
     <string name="these_settings_are_intended_fo">ਇਹ ਸੈਟਿੰਗਾਂ ਉੱਨਤ ਉਪਭੋਗਤਾਵਾਂ ਲਈ ਹਨ। ਉਹਨਾਂ ਨੂੰ ਕੇਵਲ ਤਾਂ ਹੀ ਬਦਲੋ ਜੇਕਰ ਤੁਸੀਂ ਜਾਣਦੇ ਹੋ ਕਿ ਤੁਸੀਂ ਕੀ ਕਰ ਰਹੇ ਹੋ</string>
     <string name="prefer_last_display">ਸੈਕੰਡਰੀ ਡਿਸਪਲੇ ਨੂੰ ਤਰਜੀਹ ਦਿਓ</string>
     <string name="prefer_last_display_summary">ਐਪਾਂ ਅਤੇ ਡੌਕ ਦਿਖਾਉਣ ਲਈ ਸੈਕੰਡਰੀ ਡਿਸਪਲੇ ਨੂੰ ਤਰਜੀਹ ਦਿਓ</string>
+    <string name="external_display_desktop_mode">ਬਾਹਰੀ ਡਿਸਪਲੇ ਡੈਸਕਟਾਪ ਮੋਡ</string>
+    <string name="external_display_desktop_mode_summary">ਬਾਹਰੀ ਡਿਸਪਲੇਆਂ ਨੂੰ ਪੂਰੇ ਡੈਸਕਟਾਪ ਵਾਂਗ ਚਲਾਓ, ਜਿਵੇਂ ਡਿਵੈਲਪਰ ਚੋਣ ਫੋਰਸ ਡੈਸਕਟਾਪ ਮੋਡ: ਐਪਾਂ ਬਾਹਰੀ ਸਕਰੀਨ ਉੱਤੇ ਟਾਈਟਲ ਬਾਰ ਵਾਲੀਆਂ ਫਲੋਟਿੰਗ ਵਿੰਡੋਆਂ ਬਰਕਰਾਰ ਰੱਖਦੀਆਂ ਹਨ ਜੋ ਮਾਊਸ ਦੇ ਜਵਾਬ ਦਿੰਦੀਆਂ ਹਨ। ਸੁਰੱਖਿਅ ਸੈਟਿੰਗਾਂ ਦੀ ਇਜਾਜ਼ਤ (ਜਾਂ root) ਚਾਹੀਦੀ ਹੈ ਅਤੇ ਸਕਰੀਨ ਨੂੰ ਦੁਬਾਰਾ ਕੁਨੈਕਟ ਕਰਨ ਦੀ ਲੋੜ ਪੈ ਸਕਦੀ ਹੈ</string>
+    <string name="desktop_mode_not_applied">ਸਿਸਟਮ ਸੈਟਿੰਗ ਨਹੀਂ ਬਦਲੀ ਜਾ ਸਕੀ। ਸੁਰੱਖਿਅ ਸੈਟਿੰਗਾਂ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ ਜਾਂ ਡਿਵੈਲਪਰ ਚੋਣਾਂ ਵਿੱਚ ਫੋਰਸ ਮੈਸਕਟਾਪ ਮੋਡ ਚਾਲੂ ਕਰੋ</string>
     <string name="open_accessibility">Accessibility ਖੋਲੋ</string>
     <string name="custom_toasts">ਕਸਟਮ ਟੋਸਟਾ</string>
     <string name="custom_toasts_summary">ਜਦੋ ਡੋਕ ਪਿਨ ਹੋਵੇ ਐਪਾ ਲਈ ਇਨ-ਵਿਲਡ ਟੋਸਟ ਦੀ ਵਰਤੋਂ ਕਰਨੀ</string>
@@ -305,6 +308,9 @@
     <string name="start_message">ਸਮਾਰਟ ਡੌਕ ਸ਼ੁਰੂ ਹੋਇਆ</string>
     <string name="launched_on_main_display">ਚੁਣੀ ਹੋਈ ਡਿਸਪਲੇ ਉਪਲਬਧ ਨਹੀਂ ਸੀ, ਐਪ ਮੁੱਖ ਸਕਰੀਨ \'ਤੇ ਖੋਲ੍ਹੀ ਗਈ</string>
     <string name="cannot_launch_on_display">ਚੁਣੀ ਹੋਈ ਡਿਸਪਲੇ \'ਤੇ ਐਪ ਨਹੀਂ ਖੋਲ੍ਹੀ ਜਾ ਸਕੀ</string>
+    <string name="send_to_display">ਸਕਰੀਨ ਉੱਤੇ ਭੇਜੋ</string>
+    <string name="task_moved_to_display">ਐਪ ਚੁਣੀ ਹੋਈ ਸਕਰੀਨ ਉੱਤੇ ਭੇਜੀ ਜਾ ਰਹੀ ਹੈ</string>
+    <string name="cannot_move_task">ਇਹ ਐਪ ਚੁਣੀ ਹੋਈ ਸਕਰੀਨ ਉੱਤੇ ਨਹੀਂ ਭੇਜੀ ਜਾ ਸਕਦੀ</string>
     <string name="enable_access_help">ਸਮਾਰਟ ਡੌਕ ਸੇਵਾ ਲੱਭੋ ਅਤੇ ਚਾਲੂ ਕਰੋ</string>
 
     <!-- Crash dialog -->

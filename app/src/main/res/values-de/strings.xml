@@ -194,6 +194,9 @@
     <string name="these_settings_are_intended_fo">Diese Einstellungen sind für fortgeschrittene Benutzer gedacht. Ändern Sie sie nur, wenn Sie wissen, was Sie tun.</string>
     <string name="prefer_last_display">Bevorzugen Sie die zuletzt angebrachte Anzeige</string>
     <string name="prefer_last_display_summary">Bevorzugen Sie das zuletzt angeschlossene Display für die Anzeige von Anwendungen und des Docks</string>
+    <string name="external_display_desktop_mode">Desktop-Modus für externe Displays</string>
+    <string name="external_display_desktop_mode_summary">Externe Displays als vollwertige Desktops betreiben, wie die Entwickleroption \"Desktop-Modus erzwingen\": Apps behalten auf dem externen Bildschirm ihre schwebenden Fenster mit Titelleisten, die auf die Maus reagieren. Benötigt die Berechtigung für sichere Einstellungen (oder Root); eventuell muss das Display neu angeschlossen werden</string>
+    <string name="desktop_mode_not_applied">Die Systemeinstellung konnte nicht geändert werden. Erteile die Berechtigung für sichere Einstellungen oder aktiviere \"Desktop-Modus erzwingen\" in den Entwickleroptionen</string>
     <string name="open_accessibility">Öffne Barrierefreiheit</string>
     <string name="custom_toasts">Eigene Toasts</string>
     <string name="custom_toasts_summary">Integrierte benutzerdefinierte Toasts für Anwendungen verwenden, wenn das Dock angeheftet ist</string>
@@ -305,6 +308,9 @@
     <string name="start_message">Smart Dock gestartet</string>
     <string name="launched_on_main_display">Die ausgewählte Anzeige war nicht verfügbar, die App wurde auf dem Hauptbildschirm geöffnet</string>
     <string name="cannot_launch_on_display">Die App konnte nicht auf der ausgewählten Anzeige geöffnet werden</string>
+    <string name="send_to_display">Auf Bildschirm senden</string>
+    <string name="task_moved_to_display">Die App wird auf den ausgewählten Bildschirm verschoben</string>
+    <string name="cannot_move_task">Diese App kann nicht auf den ausgewählten Bildschirm verschoben werden</string>
     <string name="enable_access_help">Smart Dock-Dienst suchen und aktivieren</string>
 
     <!-- Crash dialog -->

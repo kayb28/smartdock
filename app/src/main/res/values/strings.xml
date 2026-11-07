@@ -199,6 +199,9 @@
     <string name="these_settings_are_intended_fo">These settings are intended for advanced users. Only change them if you know what you are doing</string>
     <string name="prefer_last_display">Prefer secondary displays</string>
     <string name="prefer_last_display_summary">Prefer secondary displays for displaying apps and the dock</string>
+    <string name="external_display_desktop_mode">External display desktop mode</string>
+    <string name="external_display_desktop_mode_summary">Run external displays as full desktops, like the developer option \"Force desktop mode\": apps keep their floating windows with title bars that respond to the mouse on the external screen. Needs the write-secure-settings permission (or root) and may need the display to be reconnected</string>
+    <string name="desktop_mode_not_applied">Could not change the system setting. Grant the write-secure-settings permission or enable \"Force desktop mode\" in developer options</string>
     <string name="open_accessibility">Open Accessibility</string>
     <string name="custom_toasts">Custom Toasts</string>
     <string name="custom_toasts_summary">Use built-in custom Toasts for apps when the Dock is pinned</string>
@@ -310,6 +313,9 @@
     <string name="start_message">Smart Dock started</string>
     <string name="launched_on_main_display">The selected display was unavailable, the app was opened on the main screen</string>
     <string name="cannot_launch_on_display">The app could not be opened on the selected display</string>
+    <string name="send_to_display">Send to screen</string>
+    <string name="task_moved_to_display">The app is being moved to the selected screen</string>
+    <string name="cannot_move_task">This app cannot be moved to the selected screen</string>
     <string name="enable_access_help">Find and enable Smart Dock service</string>
 
     <!-- Crash dialog -->

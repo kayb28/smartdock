@@ -12,6 +12,12 @@
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
+        android:key="external_display_desktop_mode"
+        android:summary="@string/external_display_desktop_mode_summary"
+        android:title="@string/external_display_desktop_mode" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
         android:key="custom_toasts"
         android:summary="@string/custom_toasts_summary"
         android:title="@string/custom_toasts" />
