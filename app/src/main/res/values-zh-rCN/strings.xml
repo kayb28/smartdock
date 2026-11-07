@@ -195,8 +195,8 @@
     <string name="prefer_last_display">优先使用最后连接的屏幕</string>
     <string name="prefer_last_display_summary">优先在最后连接的屏幕上显示应用和Dock</string>
     <string name="external_display_desktop_mode">外接屏幕桌面模式</string>
-    <string name="external_display_desktop_mode_summary">将外接屏幕作为完整桌面运行，相当于开发者选项中的\"强制桌面模式\"：应用在外接屏幕上保留带标题栏的浮动窗口，可用鼠标操作。需要安全设置权限（或 root），可能需要重新连接屏幕</string>
-    <string name="desktop_mode_not_applied">无法修改系统设置。请授予安全设置权限，或在开发者选项中开启\"强制桌面模式\"</string>
+    <string name="external_display_desktop_mode_summary">将外接屏幕作为完整桌面运行，相当于开发者选项中的\"强制桌面模式\"：应用在外接屏幕上保留带标题栏的浮动窗口，可用鼠标操作。需要安全设置权限、Shizuku 或 root，可能需要重新连接屏幕</string>
+    <string name="desktop_mode_not_applied">无法修改系统设置。请授予安全设置权限、使用 Shizuku，或在开发者选项中开启\"强制桌面模式\"</string>
     <string name="open_accessibility">打开无障碍</string>
     <string name="custom_toasts">自定义Toast</string>
     <string name="custom_toasts_summary">在显示Dock时为应用显示自定义Toast</string>

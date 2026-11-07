@@ -200,8 +200,8 @@
     <string name="prefer_last_display">Preferir pantallas secundaries</string>
     <string name="prefer_last_display_summary">Preferir pantallas secundarias para mostrar aplicaciones y el Dock</string>
     <string name="external_display_desktop_mode">Modo escritorio en pantalla externa</string>
-    <string name="external_display_desktop_mode_summary">Usa las pantallas externas como escritorios completos, igual que la opción de desarrollador \"Forzar modo de escritorio\": las apps conservan en la pantalla externa sus ventanas flotantes con barra de título que responden al ratón. Requiere el permiso de ajustes seguros (o root) y puede que haya que reconectar la pantalla</string>
-    <string name="desktop_mode_not_applied">No se pudo cambiar el ajuste del sistema. Concede el permiso de ajustes seguros o activa \"Forzar modo de escritorio\" en las opciones de desarrollador</string>
+    <string name="external_display_desktop_mode_summary">Usa las pantallas externas como escritorios completos, igual que la opción de desarrollador \"Forzar modo de escritorio\": las apps conservan en la pantalla externa sus ventanas flotantes con barra de título que responden al ratón. Requiere el permiso de ajustes seguros, Shizuku o root, y puede que haya que reconectar la pantalla</string>
+    <string name="desktop_mode_not_applied">No se pudo cambiar el ajuste del sistema. Concede el permiso de ajustes seguros, usa Shizuku o activa \"Forzar modo de escritorio\" en las opciones de desarrollador</string>
     <string name="open_accessibility">Abrir Accesibilidad</string>
     <string name="custom_toasts">Toasts personalizados</string>
     <string name="custom_toasts_summary">Mostrar Toasts perzonalizados para apps cuando el dock se muestra</string>

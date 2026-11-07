@@ -200,8 +200,8 @@
     <string name="prefer_last_display">Prefer secondary displays</string>
     <string name="prefer_last_display_summary">Prefer secondary displays for displaying apps and the dock</string>
     <string name="external_display_desktop_mode">External display desktop mode</string>
-    <string name="external_display_desktop_mode_summary">Run external displays as full desktops, like the developer option \"Force desktop mode\": apps keep their floating windows with title bars that respond to the mouse on the external screen. Needs the write-secure-settings permission (or root) and may need the display to be reconnected</string>
-    <string name="desktop_mode_not_applied">Could not change the system setting. Grant the write-secure-settings permission or enable \"Force desktop mode\" in developer options</string>
+    <string name="external_display_desktop_mode_summary">Run external displays as full desktops, like the developer option \"Force desktop mode\": apps keep their floating windows with title bars that respond to the mouse on the external screen. Needs the write-secure-settings permission, Shizuku or root, and may need the display to be reconnected</string>
+    <string name="desktop_mode_not_applied">Could not change the system setting. Grant the write-secure-settings permission, use Shizuku or enable \"Force desktop mode\" in developer options</string>
     <string name="open_accessibility">Open Accessibility</string>
     <string name="custom_toasts">Custom Toasts</string>
     <string name="custom_toasts_summary">Use built-in custom Toasts for apps when the Dock is pinned</string>

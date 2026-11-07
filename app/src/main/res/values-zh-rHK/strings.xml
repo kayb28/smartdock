@@ -195,8 +195,8 @@
     <string name="prefer_last_display">偏好最後連接的顯示器</string>
     <string name="prefer_last_display_summary">偏好最後連接的顯示器來顯示應用程式和 Dock</string>
     <string name="external_display_desktop_mode">外接螢幕桌面模式</string>
-    <string name="external_display_desktop_mode_summary">將外接螢幕作為完整桌面運行，等同於開發者選項中的「強制桌面模式」：應用在外接螢幕上保留帶標題欄的浮動視窗，可用滑鼠操作。需要安全設定權限（或 root），可能需要重新連接螢幕</string>
-    <string name="desktop_mode_not_applied">無法修改系統設定。請授予安全設定權限，或在開發者選項中開啟「強制桌面模式」</string>
+    <string name="external_display_desktop_mode_summary">將外接螢幕作為完整桌面運行，等同於開發者選項中的「強制桌面模式」：應用在外接螢幕上保留帶標題欄的浮動視窗，可用滑鼠操作。需要安全設定權限、Shizuku 或 root，可能需要重新連接螢幕</string>
+    <string name="desktop_mode_not_applied">無法修改系統設定。請授予安全設定權限、使用 Shizuku，或在開發者選項中開啟「強制桌面模式」</string>
     <string name="open_accessibility">開啟無障礙</string>
     <string name="custom_toasts">自訂 Toasts</string>
     <string name="custom_toasts_summary">在 Dock 釘選時使用內建的自訂 Toasts</string>

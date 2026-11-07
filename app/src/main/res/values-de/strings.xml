@@ -195,8 +195,8 @@
     <string name="prefer_last_display">Bevorzugen Sie die zuletzt angebrachte Anzeige</string>
     <string name="prefer_last_display_summary">Bevorzugen Sie das zuletzt angeschlossene Display für die Anzeige von Anwendungen und des Docks</string>
     <string name="external_display_desktop_mode">Desktop-Modus für externe Displays</string>
-    <string name="external_display_desktop_mode_summary">Externe Displays als vollwertige Desktops betreiben, wie die Entwickleroption \"Desktop-Modus erzwingen\": Apps behalten auf dem externen Bildschirm ihre schwebenden Fenster mit Titelleisten, die auf die Maus reagieren. Benötigt die Berechtigung für sichere Einstellungen (oder Root); eventuell muss das Display neu angeschlossen werden</string>
-    <string name="desktop_mode_not_applied">Die Systemeinstellung konnte nicht geändert werden. Erteile die Berechtigung für sichere Einstellungen oder aktiviere \"Desktop-Modus erzwingen\" in den Entwickleroptionen</string>
+    <string name="external_display_desktop_mode_summary">Externe Displays als vollwertige Desktops betreiben, wie die Entwickleroption \"Desktop-Modus erzwingen\": Apps behalten auf dem externen Bildschirm ihre schwebenden Fenster mit Titelleisten, die auf die Maus reagieren. Benötigt die Berechtigung für sichere Einstellungen, Shizuku oder Root; eventuell muss das Display neu angeschlossen werden</string>
+    <string name="desktop_mode_not_applied">Die Systemeinstellung konnte nicht geändert werden. Erteile die Berechtigung für sichere Einstellungen, nutze Shizuku oder aktiviere \"Desktop-Modus erzwingen\" in den Entwickleroptionen</string>
     <string name="open_accessibility">Öffne Barrierefreiheit</string>
     <string name="custom_toasts">Eigene Toasts</string>
     <string name="custom_toasts_summary">Integrierte benutzerdefinierte Toasts für Anwendungen verwenden, wenn das Dock angeheftet ist</string>

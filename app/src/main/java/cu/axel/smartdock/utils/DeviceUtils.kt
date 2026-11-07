@@ -15,6 +15,7 @@ import android.graphics.Rect
 import android.hardware.display.DisplayManager
 import android.media.MediaPlayer
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.os.UserHandle
 import android.os.UserManager
 import android.provider.Settings
@@ -28,6 +29,7 @@ import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
 import cu.axel.smartdock.services.DockService
 import cu.axel.smartdock.utils.DeviceUtils
+import moe.shizuku.server.IShizukuService
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.DataOutputStream
@@ -88,6 +90,33 @@ object DeviceUtils {
             return "error"
         }
         return output.toString().trimEnd('\n')
+    }
+
+    /**
+     * Runs a shell command through Shizuku, i.e. with the privileges of
+     * its server: the shell user when started from ADB or wireless
+     * debugging (which holds WRITE_SECURE_SETTINGS), or root. This covers
+     * installs that use Shizuku instead of granting the app permissions.
+     * Returns null when Shizuku is not running, the permission has not
+     * been granted or the command failed, so callers can fall back to
+     * other methods.
+     */
+    fun runViaShizuku(command: String): String? {
+        if (!hasShizukuPermission()) return null
+        return try {
+            val service = IShizukuService.Stub.asInterface(Shizuku.getBinder())
+                ?: return null
+            val process = service.newProcess(arrayOf("sh", "-c", command), null, null)
+            // "settings" commands write nothing on success, so both
+            // streams are tiny and reading them to EOF cannot deadlock.
+            val output = ParcelFileDescriptor.AutoCloseInputStream(process.inputStream)
+                .bufferedReader().use { it.readText() }
+            val error = ParcelFileDescriptor.AutoCloseInputStream(process.errorStream)
+                .bufferedReader().use { it.readText() }
+            if (error.isNotBlank() || process.waitFor() != 0) null else output
+        } catch (_: Exception) {
+            null
+        }
     }
 
     fun softReboot() {
@@ -170,11 +199,18 @@ object DeviceUtils {
      * Enables or disables desktop mode on external displays. Also turns on
      * freeform window support when enabling, since floating windows need
      * both. Writing global settings requires the WRITE_SECURE_SETTINGS
-     * permission (granted via ADB on a normal install); root is used as a
-     * fallback. Returns whether the setting could actually be applied.
+     * permission (granted via ADB on a normal install); the Shizuku shell
+     * user holds it too (installs that use Shizuku instead of granting the
+     * app the permission), and root is the last resort. Returns whether
+     * the setting could actually be applied.
      */
     fun setExternalDisplayDesktopMode(context: Context, enabled: Boolean): Boolean {
         val value = if (enabled) 1 else 0
+        val command = if (enabled)
+            "settings put global $FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS $value " +
+                    "&& settings put global $ENABLE_FREEFORM_SUPPORT 1"
+        else
+            "settings put global $FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS $value"
         if (hasWriteSettingsPermission(context)
             && putGlobalSetting(context, FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS, value)
         ) {
@@ -183,18 +219,13 @@ object DeviceUtils {
             if (enabled) putGlobalSetting(context, ENABLE_FREEFORM_SUPPORT, 1)
             return true
         }
-        if (enabled) {
-            val result = runAsRoot(
-                "settings put global $FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS 1 " +
-                        "&& settings put global $ENABLE_FREEFORM_SUPPORT 1"
-            )
-            // runAsRoot returns "error" when no su binary is available and
-            // an empty string on permission problems.
-            return result != "error" && result.isNotEmpty()
-        }
-        val result = runAsRoot(
-            "settings put global $FORCE_DESKTOP_MODE_ON_EXTERNAL_DISPLAYS 0"
-        )
+        // runViaShizuku returns null when Shizuku is unavailable or the
+        // command failed; an empty string means the "settings" call went
+        // through without errors.
+        if (runViaShizuku(command) != null) return true
+        // runAsRoot returns "error" when no su binary is available and
+        // an empty string on permission problems.
+        val result = runAsRoot(command)
         return result != "error" && result.isNotEmpty()
     }
 
