@@ -672,7 +672,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     if (tasks.isNotEmpty()) {
                         val task = tasks[0]
                         AppUtils.resizeTask(
-                            context, "portrait", task.id, dockHeight
+                            context, "portrait", task.id, dockHeight, task.displayId
                         )
                     }
                 } else if (event.keyCode == KeyEvent.KEYCODE_DPAD_UP) {
@@ -687,7 +687,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                             )
                         else
                             AppUtils.resizeTask(
-                                context, "maximized", task.id, dockHeight
+                                context, "maximized", task.id, dockHeight, task.displayId
                             )
                     }
                 } else if (event.keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
@@ -702,7 +702,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                             )
                         else
                             AppUtils.resizeTask(
-                                context, "tiled-left", task.id, dockHeight
+                                context, "tiled-left", task.id, dockHeight, task.displayId
                             )
                         return true
                     }
@@ -718,7 +718,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                             )
                         else
                             AppUtils.resizeTask(
-                                context, "tiled-right", task.id, dockHeight
+                                context, "tiled-right", task.id, dockHeight, task.displayId
                             )
                         return true
                     }
@@ -734,7 +734,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                             )
                         else
                             AppUtils.resizeTask(
-                                context, "standard", task.id, dockHeight
+                                context, "standard", task.id, dockHeight, task.displayId
                             )
                     }
                 } else if (event.isShiftPressed) {
@@ -1172,6 +1172,39 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         }
     }
 
+    /**
+     * Resizes a running task to one of the launch modes (the Resize and
+     * Snap entries of a running app's context menu).
+     *
+     * The bounds must be computed for the display the task actually lives
+     * on: with apps on a secondary display (a USB-C monitor), tablet-screen
+     * bounds produced windows larger than the monitor that could no longer
+     * be used. A failed resize (binder hiccup, dead Shizuku, vanished task)
+     * must never take the whole dock down.
+     */
+    private fun resizeTask(app: DockApp, mode: String) {
+        val task = app.tasks.firstOrNull() ?: return
+        try {
+            activityManagerWrapper?.resizeTask(
+                task.id,
+                AppUtils.makeLaunchBounds(
+                    this, mode, dockHeight, AppUtils.resolveDisplayId(this, task.displayId)
+                )
+            )
+        } catch (e: Exception) {
+            Log.e(packageName, "resizeTask failed: $e")
+        }
+    }
+
+    private fun closeTask(app: DockApp) {
+        val task = app.tasks.firstOrNull() ?: return
+        try {
+            activityManagerWrapper?.removeTask(task.id)
+        } catch (e: Exception) {
+            Log.e(packageName, "removeTask failed: $e")
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private fun showDockAppContextMenu(app: DockApp, anchor: View) {
         val view = LayoutInflater.from(context).inflate(R.layout.task_list, null)
@@ -1240,43 +1273,25 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     actions.add(Action(R.drawable.ic_snap_right, getString(R.string.right)))
                     actionsLv.adapter = AppActionsAdapter(context, actions)
                 } else if (action.text == getString(R.string.standard)) {
-                    activityManagerWrapper?.resizeTask(
-                        app.tasks[0].id,
-                        AppUtils.makeLaunchBounds(this, "standard", dockHeight)
-                    )
+                    resizeTask(app, "standard")
                     windowManager.removeView(view)
                 } else if (action.text == getString(R.string.maximized)) {
-                    activityManagerWrapper?.resizeTask(
-                        app.tasks[0].id,
-                        AppUtils.makeLaunchBounds(this, "maximized", dockHeight)
-                    )
+                    resizeTask(app, "maximized")
                     windowManager.removeView(view)
                 } else if (action.text == getString(R.string.portrait)) {
-                    activityManagerWrapper?.resizeTask(
-                        app.tasks[0].id,
-                        AppUtils.makeLaunchBounds(this, "portrait", dockHeight)
-                    )
+                    resizeTask(app, "portrait")
                     windowManager.removeView(view)
                 } else if (action.text == getString(R.string.fullscreen)) {
-                    activityManagerWrapper?.resizeTask(
-                        app.tasks[0].id,
-                        AppUtils.makeLaunchBounds(this, "fullscreen", dockHeight)
-                    )
+                    resizeTask(app, "fullscreen")
                     windowManager.removeView(view)
                 } else if (action.text == getString(R.string.top)) {
-                    activityManagerWrapper?.resizeTask(
-                        app.tasks[0].id,
-                        AppUtils.makeLaunchBounds(this, "tiled-top", dockHeight)
-                    )
+                    resizeTask(app, "tiled-top")
                     windowManager.removeView(view)
                 } else if (action.text == getString(R.string.bottom)) {
-                    activityManagerWrapper?.resizeTask(
-                        app.tasks[0].id,
-                        AppUtils.makeLaunchBounds(this, "tiled-bottom", dockHeight)
-                    )
+                    resizeTask(app, "tiled-bottom")
                     windowManager.removeView(view)
                 } else if (action.text == getString(R.string.close)) {
-                    activityManagerWrapper?.removeTask(app.tasks[0].id)
+                    closeTask(app)
                     windowManager.removeView(view)
                 } else if (action.text.isBlank()) {
                     actionsLv.adapter = AppActionsAdapter(context, getDockAppActions(app))

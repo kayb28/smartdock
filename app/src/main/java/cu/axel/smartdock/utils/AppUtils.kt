@@ -20,6 +20,7 @@ import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
 import cu.axel.smartdock.models.App
 import cu.axel.smartdock.models.AppTask
+import cu.axel.smartdock.models.UNKNOWN_DISPLAY
 import cu.axel.smartdock.models.DockApp
 import cu.axel.smartdock.models.WINDOWING_MODE_FREEFORM
 import cu.axel.smartdock.models.WINDOWING_MODE_FULLSCREEN
@@ -182,6 +183,15 @@ object AppUtils {
             currentApp = tasksInfo.first().baseActivity!!.packageName
         val getWindowingModeMethod =
             ActivityManager.RunningTaskInfo::class.java.getMethod("getWindowingMode")
+        // displayId is not public API until API 37 (the getter) / never (the
+        // field): read it through reflection, the same way windowingMode is
+        // read, falling back to the default display. A ROM without the field
+        // must not crash the task list update.
+        val displayIdField = try {
+            ActivityManager.RunningTaskInfo::class.java.getField("displayId")
+        } catch (_: Exception) {
+            null
+        }
         val appTasks = ArrayList<AppTask>()
         for (taskInfo in tasksInfo) {
             try {
@@ -207,7 +217,12 @@ object AppUtils {
                             .loadLabel(packageManager).toString(),
                         taskInfo.topActivity!!.packageName,
                         packageManager.getActivityIcon(taskInfo.topActivity!!),
-                        getWindowingModeMethod.invoke(taskInfo) as Int
+                        getWindowingModeMethod.invoke(taskInfo) as Int,
+                        try {
+                            displayIdField?.getInt(taskInfo) ?: UNKNOWN_DISPLAY
+                        } catch (_: Exception) {
+                            UNKNOWN_DISPLAY
+                        }
                     )
                 )
             } catch (_: PackageManager.NameNotFoundException) {
@@ -343,6 +358,14 @@ object AppUtils {
                 top = (usableHeight + statusBarHeight) / 2
                 bottom = usableHeight + statusBarHeight
             }
+
+            // This case was missing: 'fullscreen' fell through the when()
+            // and produced an empty Rect(0, 0, 0, 0), resizing apps to a
+            // zero-sized window that could no longer be used.
+            "fullscreen" -> {
+                right = deviceWidth
+                bottom = deviceHeight
+            }
         }
         return Rect(left, top, right, bottom)
     }
@@ -384,9 +407,29 @@ object AppUtils {
         return options
     }
 
-    fun resizeTask(context: Context, mode: String, taskId: Int, dockHeight: Int) {
+    /**
+     * The display a task lives on, or the one the dock lives on when that
+     * could not be determined: resizes must be computed for the display the
+     * task is actually on, and apps launched from the dock go to the
+     * preferred display.
+     */
+    fun resolveDisplayId(context: Context, displayId: Int): Int {
+        if (displayId != UNKNOWN_DISPLAY) return displayId
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        if (sharedPreferences.getBoolean("prefer_last_display", false))
+            return DeviceUtils.getSecondaryDisplay(context)?.displayId
+                ?: Display.DEFAULT_DISPLAY
+        return Display.DEFAULT_DISPLAY
+    }
+
+    fun resizeTask(
+        context: Context, mode: String, taskId: Int, dockHeight: Int,
+        displayId: Int = UNKNOWN_DISPLAY
+    ) {
         if (taskId < 0) return
-        val bounds = makeLaunchBounds(context, mode, dockHeight)
+        val bounds = makeLaunchBounds(
+            context, mode, dockHeight, resolveDisplayId(context, displayId)
+        )
         DeviceUtils.runAsRoot(
             "am task resize " + taskId + " " + bounds.left + " " + bounds.top + " " + bounds.right + " " + bounds.bottom
         )
