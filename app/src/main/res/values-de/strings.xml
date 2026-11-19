@@ -360,4 +360,6 @@
     <string name="on_duckduckgo">auf DuckDuckGo</string>
     <string name="on_bing">auf Bing</string>
     <string name="pin_shortcut_to_dock">Verknüpfung an Dock anheften</string>
+    <string name="wifi_networks">WLAN-Netzwerke</string>
+    <string name="hidden_network">Verstecktes Netzwerk</string>
 </resources>

@@ -357,4 +357,6 @@
     <string name="on_duckduckgo">on DuckDuckGo</string>
     <string name="on_bing">on Bing</string>
     <string name="pin_shortcut_to_dock">Pin shortcut to dock</string>
+    <string name="wifi_networks">Wi-Fi networks</string>
+    <string name="hidden_network">Hidden network</string>
 </resources>

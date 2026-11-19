@@ -37,6 +37,7 @@ import cu.axel.smartdock.adapters.AppAdapter
 import cu.axel.smartdock.adapters.AppAdapter.OnAppClickListener
 import cu.axel.smartdock.adapters.AppShortcutAdapter
 import cu.axel.smartdock.models.Action
+import cu.axel.smartdock.models.MenuCommand
 import cu.axel.smartdock.models.App
 import cu.axel.smartdock.services.ACTION_LAUNCH_APP
 import cu.axel.smartdock.services.ACTION_OPEN_MENU
@@ -107,17 +108,27 @@ open class LauncherActivity : AppCompatActivity(), OnAppClickListener,
             }
             val actionsLv = view.findViewById<ListView>(R.id.tasks_lv)
             val actions = ArrayList<Action>()
-            actions.add(Action(R.drawable.ic_wallpaper, getString(R.string.change_wallpaper)))
-            actions.add(Action(R.drawable.ic_fullscreen, getString(R.string.display_settings)))
+            actions.add(
+                Action(
+                    R.drawable.ic_wallpaper, getString(R.string.change_wallpaper),
+                    MenuCommand.CHANGE_WALLPAPER
+                )
+            )
+            actions.add(
+                Action(
+                    R.drawable.ic_fullscreen, getString(R.string.display_settings),
+                    MenuCommand.DISPLAY_SETTINGS
+                )
+            )
             actionsLv.adapter = AppActionsAdapter(this, actions)
             actionsLv.setOnItemClickListener { adapterView, _, position, _ ->
                 val action = adapterView.getItemAtPosition(position) as Action
-                if (action.text == getString(R.string.change_wallpaper)) startActivityForResult(
+                if (action.command == MenuCommand.CHANGE_WALLPAPER) startActivityForResult(
                     Intent.createChooser(
                         Intent(Intent.ACTION_SET_WALLPAPER),
                         getString(R.string.change_wallpaper)
                     ), 18
-                ) else if (action.text == getString(R.string.display_settings)) startActivity(
+                ) else if (action.command == MenuCommand.DISPLAY_SETTINGS) startActivity(
                     Intent(
                         Settings.ACTION_DISPLAY_SETTINGS
                     )

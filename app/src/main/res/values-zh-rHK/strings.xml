@@ -361,4 +361,6 @@
     <string name="on_duckduckgo">（DuckDuckGo）</string>
     <string name="on_bing">（必應）</string>
     <string name="pin_shortcut_to_dock">將捷徑釘選到Dock</string>
+    <string name="wifi_networks">Wi-Fi 網絡</string>
+    <string name="hidden_network">隱藏網絡</string>
 </resources>

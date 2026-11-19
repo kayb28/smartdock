@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Own Wi-Fi networks panel (B2): a window with the scanned networks list,
+     replacing the fall-back to the system panel when Shizuku is available.
+     Tapping a network opens the system connect dialog for credentials
+     (Android does not let a third-party app complete a WPA handshake). -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    android:background="@drawable/round_rect"
+    android:elevation="5dp">
+
+    <TextView
+        android:id="@+id/wifi_panel_title"
+        android:layout_width="190dp"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="@string/wifi_networks"
+        android:textColor="#FFFFFFFF"
+        android:textSize="14sp" />
+
+    <ListView
+        android:divider="@null"
+        android:layout_height="wrap_content"
+        android:layout_width="190dp"
+        android:id="@+id/wifi_networks_lv"/>
+
+</LinearLayout>

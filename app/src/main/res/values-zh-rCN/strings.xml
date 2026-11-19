@@ -360,4 +360,6 @@
     <string name="on_duckduckgo">（DuckDuckGo）</string>
     <string name="on_bing">（必应）</string>
     <string name="pin_shortcut_to_dock">将快捷方式固定到Dock</string>
+    <string name="wifi_networks">WLAN 网络</string>
+    <string name="hidden_network">隐藏网络</string>
 </resources>

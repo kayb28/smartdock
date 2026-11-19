@@ -99,6 +99,7 @@ import cu.axel.smartdock.adapters.AppTaskAdapter
 import cu.axel.smartdock.adapters.DisplaysAdapter
 import cu.axel.smartdock.adapters.DockAppAdapter
 import cu.axel.smartdock.adapters.DockAppAdapter.OnDockAppClickListener
+import cu.axel.smartdock.adapters.WifiNetworkAdapter
 import cu.axel.smartdock.adapters.NotificationAdapter
 import cu.axel.smartdock.adapters.NotificationAdapter.OnNotificationClickListener
 import cu.axel.smartdock.components.NotificationLayout
@@ -110,6 +111,7 @@ import cu.axel.smartdock.models.Action
 import cu.axel.smartdock.models.App
 import cu.axel.smartdock.models.AppTask
 import cu.axel.smartdock.models.DockApp
+import cu.axel.smartdock.models.MenuCommand
 import cu.axel.smartdock.models.WINDOWING_MODE_FREEFORM
 import cu.axel.smartdock.preferences.NAV_LONG_ACTIONS
 import cu.axel.smartdock.receivers.BatteryStatsReceiver
@@ -216,6 +218,15 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     private lateinit var wifiManager: WifiManager
     private lateinit var batteryReceiver: BatteryStatsReceiver
     private lateinit var soundEventsReceiver: SoundEventsReceiver
+    // Receivers registered anonymously since the first release leaked on
+    // service recreation: only 2 of 7 could ever be unregistered. All are
+    // named now so onDestroy() can unregister every one.
+    private var launcherMessageReceiver: BroadcastReceiver? = null
+    private var notificationServiceReceiver: BroadcastReceiver? = null
+    private var wallpaperReceiver: BroadcastReceiver? = null
+    private var packageRemovedReceiver: BroadcastReceiver? = null
+    private var wifiStateReceiver: BroadcastReceiver? = null
+    private var bluetoothStateReceiver: BroadcastReceiver? = null
     private lateinit var gestureDetector: GestureDetector
     private lateinit var db: DBHelper
     private lateinit var dockHandler: Handler
@@ -294,7 +305,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         createViews()
 
         //Listen for launcher messages
-        ContextCompat.registerReceiver(this, object : BroadcastReceiver() {
+        launcherMessageReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 when (intent.getStringExtra("action")) {
                     LAUNCHER_RESUMED -> pinDock()
@@ -305,7 +316,11 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     ACTION_OPEN_MENU -> toggleAppMenu()
                 }
             }
-        }, IntentFilter(LAUNCHER_ACTION), ContextCompat.RECEIVER_NOT_EXPORTED)
+        }
+        ContextCompat.registerReceiver(
+            this, launcherMessageReceiver,
+            IntentFilter(LAUNCHER_ACTION), ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         //Tell the launcher the service has connected
         sendBroadcast(
@@ -315,16 +330,18 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         )
 
         //Register receivers
-        ContextCompat.registerReceiver(
-            this, object : BroadcastReceiver() {
-                override fun onReceive(p1: Context, intent: Intent) {
-                    when (intent.getStringExtra("action")) {
-                        NOTIFICATION_SERVICE_CONNECTED -> {
-                            bindNotificationService()
-                        }
+        notificationServiceReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p1: Context, intent: Intent) {
+                when (intent.getStringExtra("action")) {
+                    NOTIFICATION_SERVICE_CONNECTED -> {
+                        bindNotificationService()
                     }
                 }
-            }, IntentFilter(NOTIFICATION_SERVICE_ACTION),
+            }
+        }
+        ContextCompat.registerReceiver(
+            this, notificationServiceReceiver,
+            IntentFilter(NOTIFICATION_SERVICE_ACTION),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
@@ -338,18 +355,20 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             soundEventsFilter,
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
+        wallpaperReceiver = object : BroadcastReceiver() {
+            override fun onReceive(p1: Context, intent: Intent) {
+                applyTheme()
+            }
+        }
         ContextCompat.registerReceiver(
-            this, object : BroadcastReceiver() {
-                override fun onReceive(p1: Context, intent: Intent) {
-                    applyTheme()
-                }
-            }, IntentFilter(Intent.ACTION_WALLPAPER_CHANGED),
+            this, wallpaperReceiver,
+            IntentFilter(Intent.ACTION_WALLPAPER_CHANGED),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
         val filter = IntentFilter(Intent.ACTION_PACKAGE_FULLY_REMOVED)
         filter.addDataScheme("package")
-        ContextCompat.registerReceiver(this, object : BroadcastReceiver() {
+        packageRemovedReceiver = object : BroadcastReceiver() {
             override fun onReceive(
                 context: Context?,
                 intent: Intent?
@@ -357,7 +376,11 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 loadPinnedApps()
                 updateRunningTasks()
             }
-        }, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        }
+        ContextCompat.registerReceiver(
+            this, packageRemovedReceiver,
+            filter, ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         displayListener = object : DisplayManager.DisplayListener {
             override fun onDisplayAdded(displayId: Int) {
@@ -391,19 +414,25 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
-        ContextCompat.registerReceiver(this, object : BroadcastReceiver() {
+        wifiStateReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
                 updateWiFiStatus()
             }
+        }
+        ContextCompat.registerReceiver(
+            this, wifiStateReceiver,
+            IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION), ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
-        }, IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION), ContextCompat.RECEIVER_NOT_EXPORTED)
-
-        ContextCompat.registerReceiver(this, object : BroadcastReceiver() {
+        bluetoothStateReceiver = object : BroadcastReceiver() {
             override fun onReceive(p0: Context?, p1: Intent?) {
                 updateBluetoothStatus()
             }
-
-        }, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED)
+        }
+        ContextCompat.registerReceiver(
+            this, bluetoothStateReceiver,
+            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         connectivityManager.registerNetworkCallback(
             NetworkRequest.Builder().addTransportType(
@@ -429,16 +458,16 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         val actions = ArrayList<Action>()
         if (DeepShortcutManager.hasHostPermission(context)) {
             if (!DeepShortcutManager.getShortcuts(app.packageName, context).isNullOrEmpty())
-                actions.add(Action(R.drawable.ic_shortcuts, getString(R.string.shortcuts)))
+                actions.add(Action(R.drawable.ic_shortcuts, getString(R.string.shortcuts), MenuCommand.SHORTCUTS))
         }
-        actions.add(Action(R.drawable.ic_manage, getString(R.string.manage)))
-        actions.add(Action(R.drawable.ic_launch_mode, getString(R.string.open_as)))
+        actions.add(Action(R.drawable.ic_manage, getString(R.string.manage), MenuCommand.MANAGE))
+        actions.add(Action(R.drawable.ic_launch_mode, getString(R.string.open_as), MenuCommand.OPEN_AS))
         if (DeviceUtils.getDisplays(this).size > 1)
-            actions.add(Action(R.drawable.ic_add_to_desktop, getString(R.string.launch_in)))
+            actions.add(Action(R.drawable.ic_add_to_desktop, getString(R.string.launch_in), MenuCommand.LAUNCH_IN))
         if (AppUtils.isPinned(context, app, AppUtils.PINNED_LIST))
-            actions.add(Action(R.drawable.ic_remove_favorite, getString(R.string.remove)))
+            actions.add(Action(R.drawable.ic_remove_favorite, getString(R.string.remove), MenuCommand.REMOVE_FAVORITE))
         if (getPinActions(app).isNotEmpty())
-            actions.add(Action(R.drawable.ic_pin, getString(R.string.add_to)))
+            actions.add(Action(R.drawable.ic_pin, getString(R.string.add_to), MenuCommand.ADD_TO))
 
         return actions
     }
@@ -446,24 +475,24 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     private fun getDockAppActions(app: DockApp): ArrayList<Action> {
         val actions = ArrayList<Action>()
         if (AppUtils.isPinned(this, app, AppUtils.DOCK_PINNED_LIST)) {
-            actions.add(Action(R.drawable.ic_unpin, getString(R.string.unpin)))
-            actions.add(Action(R.drawable.ic_arrow_right, getString(R.string.move)))
+            actions.add(Action(R.drawable.ic_unpin, getString(R.string.unpin), MenuCommand.UNPIN))
+            actions.add(Action(R.drawable.ic_arrow_right, getString(R.string.move), MenuCommand.MOVE))
         } else
-            actions.add(Action(R.drawable.ic_pin, getString(R.string.pin)))
+            actions.add(Action(R.drawable.ic_pin, getString(R.string.pin), MenuCommand.PIN))
 
         if (app.tasks.isNotEmpty() && app.tasks[0].id != -1) {
             if (DeviceUtils.hasShizukuPermission()) {
                 if (app.tasks[0].windowingMode == WINDOWING_MODE_FREEFORM) {
-                    actions.add(Action(R.drawable.ic_launch_mode, getString(R.string.resize)))
-                    actions.add(Action(R.drawable.ic_snap_top, getString(R.string.snap)))
+                    actions.add(Action(R.drawable.ic_launch_mode, getString(R.string.resize), MenuCommand.RESIZE))
+                    actions.add(Action(R.drawable.ic_snap_top, getString(R.string.snap), MenuCommand.SNAP))
                 }
-                actions.add(Action(R.drawable.ic_close, getString(R.string.close)))
+                actions.add(Action(R.drawable.ic_close, getString(R.string.close), MenuCommand.CLOSE))
             }
             // Moving a running task to another display needs no special
             // privileges: relaunching it with a different launch display
             // reparents the existing task (see sendTaskToDisplay).
             if (DeviceUtils.getDisplays(this).size > 1)
-                actions.add(Action(R.drawable.ic_screen, getString(R.string.send_to_display)))
+                actions.add(Action(R.drawable.ic_screen, getString(R.string.send_to_display), MenuCommand.SEND_TO_DISPLAY))
         }
         return actions
     }
@@ -471,11 +500,11 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     private fun getPinActions(app: App): ArrayList<Action> {
         val actions = ArrayList<Action>()
         if (!AppUtils.isPinned(context, app, AppUtils.PINNED_LIST))
-            actions.add(Action(R.drawable.ic_add_favorite, getString(R.string.favorites)))
+            actions.add(Action(R.drawable.ic_add_favorite, getString(R.string.favorites), MenuCommand.FAVORITES))
         if (!AppUtils.isPinned(context, app, AppUtils.DESKTOP_LIST))
-            actions.add(Action(R.drawable.ic_add_to_desktop, getString(R.string.desktop)))
+            actions.add(Action(R.drawable.ic_add_to_desktop, getString(R.string.desktop), MenuCommand.DESKTOP))
         if (!AppUtils.isPinned(context, app, AppUtils.DOCK_PINNED_LIST))
-            actions.add(Action(R.drawable.ic_pin, getString(R.string.dock)))
+            actions.add(Action(R.drawable.ic_pin, getString(R.string.dock), MenuCommand.DOCK))
         // Deep shortcuts can be pinned to the dock too (C2): offered
         // whenever the app exposes at least one not already pinned.
         if (DeepShortcutManager.hasHostPermission(context)) {
@@ -485,7 +514,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     !AppUtils.isShortcutPinned(context, it, AppUtils.DOCK_PINNED_LIST)
                 }
                 if (pinnable)
-                    actions.add(Action(R.drawable.ic_pin, getString(R.string.pin_shortcut_to_dock)))
+                    actions.add(Action(R.drawable.ic_pin, getString(R.string.pin_shortcut_to_dock), MenuCommand.PIN_SHORTCUT_TO_DOCK))
             }
         }
 
@@ -1334,7 +1363,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         actionsLv.setOnItemClickListener { adapterView, _, position, _ ->
             if (adapterView.getItemAtPosition(position) is Action) {
                 val action = adapterView.getItemAtPosition(position) as Action
-                if (action.text == getString(R.string.pin) || action.text == getString(R.string.unpin)) {
+                if (action.command == MenuCommand.PIN || action.command == MenuCommand.UNPIN) {
                     if (AppUtils.isPinned(context, app, AppUtils.DOCK_PINNED_LIST))
                         AppUtils.unpinApp(
                             context,
@@ -1346,37 +1375,37 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     if (isPinned)
                         updateRunningTasks()
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.left)) {
+                } else if (action.command == MenuCommand.LEFT) {
                     AppUtils.moveApp(this, app, AppUtils.DOCK_PINNED_LIST, 0)
                     loadPinnedApps()
                     updateRunningTasks()
-                } else if (action.text == getString(R.string.right)) {
+                } else if (action.command == MenuCommand.RIGHT) {
                     AppUtils.moveApp(this, app, AppUtils.DOCK_PINNED_LIST, 1)
                     loadPinnedApps()
                     updateRunningTasks()
-                } else if (action.text == getString(R.string.move)) {
+                } else if (action.command == MenuCommand.MOVE) {
                     val actions = ArrayList<Action>()
-                    actions.add(Action(R.drawable.ic_arrow_back, ""))
-                    actions.add(Action(R.drawable.ic_arrow_back, getString(R.string.left)))
-                    actions.add(Action(R.drawable.ic_arrow_right, getString(R.string.right)))
+                    actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
+                    actions.add(Action(R.drawable.ic_arrow_back, getString(R.string.left), MenuCommand.LEFT))
+                    actions.add(Action(R.drawable.ic_arrow_right, getString(R.string.right), MenuCommand.RIGHT))
                     actionsLv.adapter = AppActionsAdapter(context, actions)
-                } else if (action.text == getString(R.string.resize)) {
+                } else if (action.command == MenuCommand.RESIZE) {
                     val actions = ArrayList<Action>()
-                    actions.add(Action(R.drawable.ic_arrow_back, ""))
-                    actions.add(Action(R.drawable.ic_standard, getString(R.string.standard)))
-                    actions.add(Action(R.drawable.ic_maximized, getString(R.string.maximized)))
-                    actions.add(Action(R.drawable.ic_portrait, getString(R.string.portrait)))
-                    actions.add(Action(R.drawable.ic_fullscreen, getString(R.string.fullscreen)))
+                    actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
+                    actions.add(Action(R.drawable.ic_standard, getString(R.string.standard), MenuCommand.STANDARD))
+                    actions.add(Action(R.drawable.ic_maximized, getString(R.string.maximized), MenuCommand.MAXIMIZED))
+                    actions.add(Action(R.drawable.ic_portrait, getString(R.string.portrait), MenuCommand.PORTRAIT))
+                    actions.add(Action(R.drawable.ic_fullscreen, getString(R.string.fullscreen), MenuCommand.FULLSCREEN))
                     actionsLv.adapter = AppActionsAdapter(context, actions)
-                } else if (action.text == getString(R.string.snap)) {
+                } else if (action.command == MenuCommand.SNAP) {
                     val actions = ArrayList<Action>()
-                    actions.add(Action(R.drawable.ic_arrow_back, ""))
-                    actions.add(Action(R.drawable.ic_snap_top, getString(R.string.top)))
-                    actions.add(Action(R.drawable.ic_snap_bottom, getString(R.string.bottom)))
-                    actions.add(Action(R.drawable.ic_snap_left, getString(R.string.left)))
-                    actions.add(Action(R.drawable.ic_snap_right, getString(R.string.right)))
+                    actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
+                    actions.add(Action(R.drawable.ic_snap_top, getString(R.string.top), MenuCommand.TOP))
+                    actions.add(Action(R.drawable.ic_snap_bottom, getString(R.string.bottom), MenuCommand.BOTTOM))
+                    actions.add(Action(R.drawable.ic_snap_left, getString(R.string.left), MenuCommand.LEFT))
+                    actions.add(Action(R.drawable.ic_snap_right, getString(R.string.right), MenuCommand.RIGHT))
                     actionsLv.adapter = AppActionsAdapter(context, actions)
-                } else if (action.text == getString(R.string.send_to_display)) {
+                } else if (action.command == MenuCommand.SEND_TO_DISPLAY) {
                     val task = app.tasks.firstOrNull()
                     if (task != null && task.id != -1) {
                         // Only offer the screens the task is not already on.
@@ -1387,28 +1416,28 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                         if (targets.isNotEmpty())
                             actionsLv.adapter = DisplaysAdapter(context, targets.toTypedArray())
                     }
-                } else if (action.text == getString(R.string.standard)) {
+                } else if (action.command == MenuCommand.STANDARD) {
                     resizeTask(app, "standard")
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.maximized)) {
+                } else if (action.command == MenuCommand.MAXIMIZED) {
                     resizeTask(app, "maximized")
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.portrait)) {
+                } else if (action.command == MenuCommand.PORTRAIT) {
                     resizeTask(app, "portrait")
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.fullscreen)) {
+                } else if (action.command == MenuCommand.FULLSCREEN) {
                     resizeTask(app, "fullscreen")
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.top)) {
+                } else if (action.command == MenuCommand.TOP) {
                     resizeTask(app, "tiled-top")
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.bottom)) {
+                } else if (action.command == MenuCommand.BOTTOM) {
                     resizeTask(app, "tiled-bottom")
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.close)) {
+                } else if (action.command == MenuCommand.CLOSE) {
                     closeTask(app)
                     windowManager.removeView(view)
-                } else if (action.text.isBlank()) {
+                } else if (action.command == MenuCommand.BACK) {
                     actionsLv.adapter = AppActionsAdapter(context, getDockAppActions(app))
                 }
             } else if (adapterView.getItemAtPosition(position) is Display) {
@@ -1445,10 +1474,10 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         actionsLv.setOnItemClickListener { adapterView, _, position, _ ->
             if (adapterView.getItemAtPosition(position) is Action) {
                 val action = adapterView.getItemAtPosition(position) as Action
-                if (action.text == getString(R.string.manage)) {
+                if (action.command == MenuCommand.MANAGE) {
                     val actions = ArrayList<Action>()
-                    actions.add(Action(R.drawable.ic_arrow_back, ""))
-                    actions.add(Action(R.drawable.ic_info, getString(R.string.app_info)))
+                    actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
+                    actions.add(Action(R.drawable.ic_info, getString(R.string.app_info), MenuCommand.APP_INFO))
                     if (sharedPreferences.getBoolean("enable_app_hiding_grid", false))
                         actions.add(
                             Action(
@@ -1460,7 +1489,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                             context,
                             app.packageName
                         ) || sharedPreferences.getBoolean("allow_sysapp_uninstall", false)
-                    ) actions.add(Action(R.drawable.ic_uninstall, getString(R.string.uninstall)))
+                    ) actions.add(Action(R.drawable.ic_uninstall, getString(R.string.uninstall), MenuCommand.UNINSTALL))
                     if (sharedPreferences.getBoolean("allow_app_freeze", false))
                         actions.add(
                             Action(
@@ -1469,7 +1498,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                             )
                         )
                     actionsLv.adapter = AppActionsAdapter(context, actions)
-                } else if (action.text == getString(R.string.shortcuts)) {
+                } else if (action.command == MenuCommand.SHORTCUTS) {
                     // The shortcut list itself: tapping a shortcut launches
                     // it (the ShortcutInfo branch below). The list is shown
                     // through AppShortcutAdapter.
@@ -1477,22 +1506,22 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                         context,
                         DeepShortcutManager.getShortcuts(app.packageName, context)!!
                     )
-                } else if (action.text == getString(R.string.pin_shortcut_to_dock)) {
+                } else if (action.command == MenuCommand.PIN_SHORTCUT_TO_DOCK) {
                     // The "add to dock" submenu for deep shortcuts: pin the
                     // shortcut itself (not the app) to the dock pin list.
                     val shortcuts = DeepShortcutManager.getShortcuts(app.packageName, context)!!
                     val actions = ArrayList<Action>()
-                    actions.add(Action(R.drawable.ic_arrow_back, ""))
+                    actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
                     appShortcutsPinning.clear()
                     for (shortcut in shortcuts) {
                         if (!AppUtils.isShortcutPinned(context, shortcut, AppUtils.DOCK_PINNED_LIST)) {
                             val label = shortcut.shortLabel ?: shortcut.id
-                            actions.add(Action(R.drawable.ic_pin, label))
+                            actions.add(Action(R.drawable.ic_pin, label, MenuCommand.PIN_SHORTCUT))
                             appShortcutsPinning.add(label)
                         }
                     }
                     actionsLv.adapter = AppActionsAdapter(context, actions)
-                } else if (action.icon == R.drawable.ic_pin && action.text in appShortcutsPinning) {
+                } else if (action.command == MenuCommand.PIN_SHORTCUT && action.text in appShortcutsPinning) {
                     // A shortcut entry inside the pin-shortcut submenu: the
                     // icon + label pair is only used there, so pin it now.
                     val shortcuts = DeepShortcutManager.getShortcuts(app.packageName, context)!!
@@ -1506,30 +1535,30 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                         windowManager.removeView(view)
                         if (appMenuVisible) hideAppMenu()
                     }
-                } else if (action.text == "") {
+                } else if (action.command == MenuCommand.BACK) {
                     actionsLv.adapter = AppActionsAdapter(context, getAppActions(app))
-                } else if (action.text == getString(R.string.open_as)) {
+                } else if (action.command == MenuCommand.OPEN_AS) {
                     val actions = ArrayList<Action>()
-                    actions.add(Action(R.drawable.ic_arrow_back, ""))
-                    actions.add(Action(R.drawable.ic_standard, getString(R.string.standard)))
-                    actions.add(Action(R.drawable.ic_maximized, getString(R.string.maximized)))
-                    actions.add(Action(R.drawable.ic_portrait, getString(R.string.portrait)))
-                    actions.add(Action(R.drawable.ic_fullscreen, getString(R.string.fullscreen)))
+                    actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
+                    actions.add(Action(R.drawable.ic_standard, getString(R.string.standard), MenuCommand.STANDARD))
+                    actions.add(Action(R.drawable.ic_maximized, getString(R.string.maximized), MenuCommand.MAXIMIZED))
+                    actions.add(Action(R.drawable.ic_portrait, getString(R.string.portrait), MenuCommand.PORTRAIT))
+                    actions.add(Action(R.drawable.ic_fullscreen, getString(R.string.fullscreen), MenuCommand.FULLSCREEN))
                     actionsLv.adapter = AppActionsAdapter(context, actions)
-                } else if (action.text == getString(R.string.add_to)) {
+                } else if (action.command == MenuCommand.ADD_TO) {
                     val actions = ArrayList<Action>()
-                    actions.add(Action(R.drawable.ic_arrow_back, ""))
+                    actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
                     actions.addAll(getPinActions(app))
                     actionsLv.adapter = AppActionsAdapter(context, actions)
-                } else if (action.text == getString(R.string.launch_in)) {
+                } else if (action.command == MenuCommand.LAUNCH_IN) {
                     actionsLv.adapter = DisplaysAdapter(context, DeviceUtils.getDisplays(this))
-                } else if (action.text == getString(R.string.app_info)) {
+                } else if (action.command == MenuCommand.APP_INFO) {
                     launchApp(
                         null, null, Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                             .setData("package:${app.packageName}".toUri())
                     )
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.hide)) {
+                } else if (action.command == MenuCommand.HIDE) {
                     val savedApps = sharedPreferences.getStringSet(
                         "hidden_apps_grid",
                         setOf()
@@ -1551,12 +1580,12 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     updateAppMenu()
                     loadFavoriteApps()
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.uninstall)) {
+                } else if (action.command == MenuCommand.UNINSTALL) {
                     AppUtils.uninstallApp(this, app.packageName)
                     if (appMenuVisible)
                         hideAppMenu()
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.freeze)) {
+                } else if (action.command == MenuCommand.FREEZE) {
                     val status = DeviceUtils.runAsRoot("pm disable ${app.packageName}")
                     if (status != "error") Toast.makeText(
                         context,
@@ -1569,15 +1598,15 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     ).show()
                     windowManager.removeView(view)
                     if (appMenuVisible) hideAppMenu()
-                } else if (action.text == getString(R.string.favorites)) {
+                } else if (action.command == MenuCommand.FAVORITES) {
                     AppUtils.pinApp(context, app, AppUtils.PINNED_LIST)
                     windowManager.removeView(view)
                     loadFavoriteApps()
-                } else if (action.text == getString(R.string.remove)) {
+                } else if (action.command == MenuCommand.REMOVE_FAVORITE) {
                     AppUtils.unpinApp(context, app.packageName, AppUtils.PINNED_LIST)
                     windowManager.removeView(view)
                     loadFavoriteApps()
-                } else if (action.text == getString(R.string.desktop)) {
+                } else if (action.command == MenuCommand.DESKTOP) {
                     AppUtils.pinApp(context, app, AppUtils.DESKTOP_LIST)
                     sendBroadcast(
                         Intent(DOCK_SERVICE_ACTION)
@@ -1585,21 +1614,21 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                             .putExtra("action", DESKTOP_APP_PINNED)
                     )
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.dock)) {
+                } else if (action.command == MenuCommand.DOCK) {
                     AppUtils.pinApp(context, app, AppUtils.DOCK_PINNED_LIST)
                     loadPinnedApps()
                     updateRunningTasks()
                     windowManager.removeView(view)
-                } else if (action.text == getString(R.string.standard)) {
+                } else if (action.command == MenuCommand.STANDARD) {
                     windowManager.removeView(view)
                     launchApp("standard", app.packageName, null, app, newInstance = true)
-                } else if (action.text == getString(R.string.maximized)) {
+                } else if (action.command == MenuCommand.MAXIMIZED) {
                     windowManager.removeView(view)
                     launchApp("maximized", app.packageName, null, app, newInstance = true)
-                } else if (action.text == getString(R.string.portrait)) {
+                } else if (action.command == MenuCommand.PORTRAIT) {
                     windowManager.removeView(view)
                     launchApp("portrait", app.packageName, null, app, newInstance = true)
-                } else if (action.text == getString(R.string.fullscreen)) {
+                } else if (action.command == MenuCommand.FULLSCREEN) {
                     windowManager.removeView(view)
                     launchApp("fullscreen", app.packageName, null, app, newInstance = true)
                 }
@@ -1908,6 +1937,55 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         startActivity(Intent(Settings.Panel.ACTION_WIFI).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
+    // Own Wi-Fi networks panel (B2): the quick settings Wi-Fi tile opened the
+    // system panel even when the Shizuku wrapper was alive. With the wrapper
+    // the dock scans and lists the networks itself; tapping one opens the
+    // system connect flow for credentials (a third-party app cannot complete
+    // the WPA handshake). Falls back to the system panel without Shizuku.
+    @SuppressLint("MissingPermission")
+    private fun showWiFiNetworksPanel() {
+        if (wifiManagerWrapper == null || wifiManagerWrapper?.isAlive() != true) {
+            showSystemWiFiPanel()
+            return
+        }
+        try {
+            wifiManagerWrapper!!.startScan()
+            val results = wifiManagerWrapper!!.getScanResults()
+                .sortedByDescending { it.level }
+                .distinctBy { it.SSID }
+            if (results.isEmpty()) {
+                showSystemWiFiPanel()
+                return
+            }
+            val view = LayoutInflater.from(context).inflate(R.layout.wifi_networks_panel, null)
+            val layoutParams = Utils.makeWindowParams(-2, -2, context, preferSecondaryDisplay)
+            ColorUtils.applyMainColor(context, sharedPreferences, view)
+            layoutParams.gravity = Gravity.BOTTOM or Gravity.END
+            layoutParams.y = Utils.dpToPx(context, 2) + dockHeight
+            layoutParams.x = Utils.dpToPx(context, 2)
+            layoutParams.flags = (WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                    or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH)
+            view.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_OUTSIDE)
+                    windowManager.removeView(view)
+                false
+            }
+            val networksLv = view.findViewById<ListView>(R.id.wifi_networks_lv)
+            networksLv.adapter = WifiNetworkAdapter(context, results)
+            networksLv.setOnItemClickListener { _, _, position, _ ->
+                val network = networksLv.adapter.getItem(position) as android.net.wifi.ScanResult
+                windowManager.removeView(view)
+                // Connecting to a specific SSID still goes through the system
+                // panel: entering WPA credentials is not possible for a
+                // third-party app.
+                showSystemWiFiPanel()
+            }
+            windowManager.addView(view, layoutParams)
+        } catch (_: Exception) {
+            showSystemWiFiPanel()
+        }
+    }
+
     private fun toggleQuickSettingsPanel(selectedTab: Int = 0) {
         if (!quickSettingsPanelVisible)
             showQuickSettingsPanel(selectedTab)
@@ -2033,7 +2111,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             }
         }
         wifiTile.setOnClickListener {
-            showSystemWiFiPanel()
+            showWiFiNetworksPanel()
             hideQuickSettingsPanel()
         }
 
@@ -2324,9 +2402,17 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     }
 
     override fun onDestroy() {
-        //TODO: Unregister all receivers
         isRunning = false
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        // Unregister every registered receiver: a recreated service left the
+        // anonymous ones registered, leaking (and double-firing) them.
+        for (receiver in listOf(
+            launcherMessageReceiver, notificationServiceReceiver,
+            wallpaperReceiver, packageRemovedReceiver, wifiStateReceiver,
+            bluetoothStateReceiver
+        )) {
+            if (receiver != null) unregisterReceiver(receiver)
+        }
         if (::batteryReceiver.isInitialized)
             unregisterReceiver(batteryReceiver)
         if (::soundEventsReceiver.isInitialized)
