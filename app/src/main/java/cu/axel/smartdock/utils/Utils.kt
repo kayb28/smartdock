@@ -32,7 +32,9 @@ import java.util.Date
 
 object Utils {
     var shouldPlayChargeComplete = false
-    var startupTime: Long = 0    fun toggleBuiltinNavigation(editor: SharedPreferences.Editor, value: Boolean) {
+    var startupTime: Long = 0
+
+    fun toggleBuiltinNavigation(editor: SharedPreferences.Editor, value: Boolean) {
         editor.putBoolean("enable_nav_back", value)
         editor.putBoolean("enable_nav_home", value)
         editor.putBoolean("enable_nav_recents", value)
