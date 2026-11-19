@@ -207,6 +207,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     private var powerMenuVisible = false
     private var isPinned = false
     private var quickSettingsPanelVisible = false
+    private var screenshotRestorePending = false
 
     // Whether Meta is currently held, and whether any other key went down
     // during the current Meta press — releasing Meta after a Meta+X shortcut
@@ -931,6 +932,8 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     }
 
     private fun showDock() {
+        //User interaction wins over a pending screenshot restore (#266)
+        screenshotRestorePending = false
         //Hack to hide the dock on the lockscreen at boot
         dock!!.isVisible = !keyguardManager.isKeyguardLocked
         dockHandle!!.visibility = View.GONE
@@ -962,6 +965,8 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     }
 
     private fun hideDock(delay: Int) {
+        //User interaction wins over a pending screenshot restore (#266)
+        screenshotRestorePending = false
         dockHandler.removeCallbacksAndMessages(null)
         dockHandler.postDelayed({
             if (!isPinned) {
@@ -2209,7 +2214,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         }
         screenshotBtn.setOnClickListener {
             hideQuickSettingsPanel()
-            takeScreenshot()
+            takeScreenshotClean()
         }
         screencapBtn.setOnClickListener {
             hideQuickSettingsPanel()
@@ -2390,6 +2395,39 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     fun takeScreenshot() {
         performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
+    }
+
+    /**
+     * Screenshots taken from quick settings captured the panel itself: the
+     * window is removed synchronously, but the compositor still had the
+     * previous frame on screen when GLOBAL_ACTION_TAKE_SCREENSHOT ran
+     * (#266). The same report asked for the dock to be hidden during the
+     * capture, so the dock (and the handle, when it is the visible
+     * activation control) is hidden here, the capture runs once the removal
+     * has definitely been composed, and everything is restored after the
+     * system screenshot flash. Any show/hide started by the user cancels
+     * the restore.
+     */
+    private fun takeScreenshotClean() {
+        val dockWasVisible = dockLayout.isVisible
+        val handleWasVisible = dockHandle?.visibility == View.VISIBLE
+        if (dockWasVisible)
+            dockLayout.visibility = View.GONE
+        if (handleWasVisible)
+            dockHandle?.visibility = View.GONE
+        screenshotRestorePending = true
+        // Timers run on the view's own handler on purpose: hideDock() wipes
+        // dockHandler, and a scheduled capture must survive it.
+        dockLayout.postDelayed({ takeScreenshot() }, 400)
+        dockLayout.postDelayed({
+            if (!screenshotRestorePending)
+                return@postDelayed
+            screenshotRestorePending = false
+            if (dockWasVisible && !dockLayout.isVisible)
+                dockLayout.visibility = View.VISIBLE
+            if (handleWasVisible && dockHandle?.visibility == View.GONE)
+                dockHandle?.visibility = View.VISIBLE
+        }, 1500)
     }
 
     private fun lockScreen() {
