@@ -119,7 +119,7 @@ Motivo del día: el usuario pidió «resuélvelo todo» — el menú de 12 opcio
 
 - Bump: versionCode **1152**, versionName **1.15.2** (convenio: estrictamente creciente).
 - Tag **`v1.15.2-fork.6`** → el workflow de releases construye el APK y crea la Release automáticamente (keystore fijo del repo → actualizable encima de fork.5 sin desinstalar).
-- Estado: **pendiente de CI verde del tag**.
+- Estado: **v1.15.2-fork.6 publicada y verificada**: CI verde en los 4 runs (Build project y Build debug apk sobre main `fc23cad`, y Build project + Release debug apk sobre el tag); el workflow de releases creó la Release automáticamente con el APK adjunto.
 
 ## Cierre de la consolidación (verificado)
 
