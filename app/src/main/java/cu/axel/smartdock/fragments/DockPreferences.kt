@@ -63,11 +63,32 @@ class DockPreferences : PreferenceFragmentCompat() {
         })
         val handlePosition = findPreference<Preference>("handle_position")
         handlePosition!!.isVisible = handleOpacity.isVisible
+        val handleOffset = findPreference<SliderPreference>("handle_edge_offset")
+        handleOffset!!.isVisible = handleOpacity.isVisible
+        handleOffset.setOnDialogShownListener(object : SliderPreference.OnDialogShownListener {
+            override fun onDialogShown() {
+                val slider = handleOffset.slider
+                slider.isTickVisible = false
+                slider.labelBehavior = LabelFormatter.LABEL_GONE
+                slider.stepSize = 1f
+                slider.value =
+                    handleOffset.sharedPreferences!!.getString(handleOffset.key, "8")!!
+                        .toFloat()
+                slider.valueFrom = 0f
+                slider.valueTo = 64f
+                slider.addOnChangeListener { _, value, _ ->
+                    handleOffset.sharedPreferences!!.edit {
+                        putString(handleOffset.key, value.toInt().toString())
+                    }
+                }
+            }
+        })
         val activationMethod = findPreference<Preference>("activation_method")
         activationMethod!!.setOnPreferenceChangeListener { _, newValue ->
             handleOpacity.isVisible = newValue.toString() == "handle"
             activationArea.isVisible = newValue.toString() == "swipe"
             handlePosition.isVisible = handleOpacity.isVisible
+            handleOffset.isVisible = handleOpacity.isVisible
             true
         }
     }

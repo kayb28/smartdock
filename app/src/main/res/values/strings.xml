@@ -114,6 +114,8 @@
     <string name="handle">Handle</string>
     <string name="handle_opacity">Handle opacity</string>
     <string name="handle_position">Handle position</string>
+    <string name="handle_edge_offset_title">Handle offset from edge</string>
+    <string name="handle_edge_offset_summary">Move the handle inward from the screen corner - useful on screens with rounded corners</string>
     <string name="left">Left</string>
     <string name="right">Right</string>
     <string name="auto_pin_title">Auto pin</string>

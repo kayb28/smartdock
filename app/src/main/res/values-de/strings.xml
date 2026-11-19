@@ -112,6 +112,8 @@
     <string name="handle">bearbeiten</string>
     <string name="handle_opacity">Opazität bearbeiten</string>
     <string name="handle_position">Position bearbeiten</string>
+    <string name="handle_edge_offset_title">Abstand des Handles vom Rand</string>
+    <string name="handle_edge_offset_summary">Rückt den Handle von der Bildschirmecke nach innen - hilfreich bei Displays mit abgerundeten Ecken</string>
     <string name="auto_pin_title">automatisches Anheften</string>
     <string name="auto_pin_summary">autotomatisches Anheften konfigurieren</string>
     <string name="pin_startup">Anheften beim Starten</string>

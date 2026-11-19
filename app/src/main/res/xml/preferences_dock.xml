@@ -30,6 +30,12 @@
             android:title="@string/handle_position" />
 
         <cu.axel.smartdock.preferences.SliderPreference
+            android:defaultValue="8"
+            android:key="handle_edge_offset"
+            android:summary="@string/handle_edge_offset_summary"
+            android:title="@string/handle_edge_offset_title" />
+
+        <cu.axel.smartdock.preferences.SliderPreference
             android:defaultValue="10"
             android:key="dock_activation_area"
             android:summary="@string/dock_activation_area_summary"

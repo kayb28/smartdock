@@ -2438,6 +2438,15 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         val position = sharedPreferences.getString("handle_position", "start")
         handleLayoutParams.gravity =
             Gravity.BOTTOM or if (position == "start") Gravity.START else Gravity.END
+        // Push the handle inward from the screen corner: on devices with
+        // rounded corners the flush-corner placement left parts of the
+        // handle outside the touchable area, making it nearly impossible to
+        // click (#200). With BOTTOM|START/END gravity, positive x/y are
+        // distances inward from the corner edges.
+        val edgeOffset =
+            Utils.dpToPx(context, sharedPreferences.getString("handle_edge_offset", "8")!!.toInt())
+        handleLayoutParams.x = edgeOffset
+        handleLayoutParams.y = edgeOffset
         if (position == "end") {
             dockHandle!!.setBackgroundResource(R.drawable.dock_handle_bg_end)
             dockHandle!!.setCompoundDrawablesRelativeWithIntrinsicBounds(

@@ -112,6 +112,8 @@
     <string name="handle">按钮</string>
     <string name="handle_opacity">按钮透明度</string>
     <string name="handle_position">按钮位置</string>
+    <string name="handle_edge_offset_title">按钮边缘偏移</string>
+    <string name="handle_edge_offset_summary">将按钮从屏幕角落向内移动 - 对圆角屏幕很有用</string>
     <string name="auto_pin_title">自动固定</string>
     <string name="auto_pin_summary">设置自动固定</string>
     <string name="pin_startup">启动时固定</string>

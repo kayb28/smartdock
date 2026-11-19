@@ -112,6 +112,8 @@
     <string name="handle">手柄</string>
     <string name="handle_opacity">手柄透明度</string>
     <string name="handle_position">手柄位置</string>
+    <string name="handle_edge_offset_title">手柄邊緣偏移</string>
+    <string name="handle_edge_offset_summary">將手柄由螢幕角落向內移動 - 對圓角螢幕好有用</string>
     <string name="auto_pin_title">自動釘選</string>
     <string name="auto_pin_summary">配置自動釘選</string>
     <string name="pin_startup">啟動時釘選</string>

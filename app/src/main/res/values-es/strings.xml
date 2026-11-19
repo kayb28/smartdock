@@ -114,6 +114,8 @@
     <string name="handle">Botón</string>
     <string name="handle_opacity">Opacidad del botón</string>
     <string name="handle_position">Posición del botón</string>
+    <string name="handle_edge_offset_title">Margen del botón desde el borde</string>
+    <string name="handle_edge_offset_summary">Acerca el botón hacia dentro desde la esquina de la pantalla - útil en pantallas con esquinas redondeadas</string>
     <string name="left">Izquierda</string>
     <string name="right">Derecha</string>
     <string name="auto_pin_title">Anclado automático</string>

@@ -112,6 +112,8 @@
     <string name="handle">ਹੈਂਡਲ</string>
     <string name="handle_opacity">Handle ਦੀ opacity</string>
     <string name="handle_position">Handle ਦੀ ਥਾ</string>
+    <string name="handle_edge_offset_title">Handle ਦਾ ਕਿਨਾਰੇ ਤੋਂ ਫਾਸਲਾ</string>
+    <string name="handle_edge_offset_summary">Handle ਨੂੰ ਸਕਰੀਨ ਦੇ ਕੋਨੇ ਤੋਂ ਅੰਦਰ ਵੱਲ ਖਿਸਕਾਉਂਦਾ ਹੈ - ਗੋਲ ਕੋਨਿਆਂ ਵਾਲੀਆਂ ਸਕਰੀਨਾਂ ਲਈ ਲਾਭਦਾਇਕ</string>
     <string name="auto_pin_title">ਆਟੋ ਪਿੰਨ</string>
     <string name="auto_pin_summary">ਆਟੋ ਪਿੰਨ ਕੌਂਫਿਗਰ ਕਰੋ</string>
     <string name="pin_startup">ਸਟਾਰਟਅੱਪ \'ਤੇ ਪਿੰਨ ਕਰੋ</string>
