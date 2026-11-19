@@ -3,6 +3,22 @@
 _Changelog formal de las releases del fork de Smart Dock. Formato Keep a Changelog, en español._
 _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/changelogs/`; aquí solo el fork._
 
+## [v1.15.3-fork.7] — 2026-11-19
+
+Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.3-fork.7.apk`). Base: `main` 5e58df9 + 6 commits de la jornada de cierre de issues reportados (rama `bugfix/november-2026-issues`, fast-forward). versionCode 1153. Con esta release, **todos los bugs reportados por usuarios en upstream están corregidos en el fork** (los 5 de octubre + los 6 que quedaban); lo que sigue abierto upstream son feature requests, no bugs.
+
+### Corregido
+
+- **#167 — AltGr disparaba atajos del dock**: AltGr llega como Ctrl+Alt (o con `META_ALT_RIGHT_ON`); el manejador de atajos solo miraba `isAltPressed`, así que cada acorde de caracteres especiales disparaba un atajo encima de la tecla escrita: AltGr+Q («@» en teclado español/alemán) abría ajustes rápidos y AltGr+L bloqueaba el escritorio. Los acordes AltGr pasan ahora intactos a la app; la mitad «ventanizar una app maximizada» ya era posible (Alt+↓). (`c5907bf`)
+- **#250 — «0 recents» limitaba la franja a 1 app**: el límite 0 (= «sin límite») iba directo a `ActivityManager.getRunningTasks(0)`, que la plataforma clampea a una tarea. Un límite de 0 pasa ahora un tope de 100 y `getRecentTasks` respeta «sin límite». (`dd14aed`)
+- **#266 — la captura de ajustes rápidos fotografiaba el propio panel**: la ventana se quitaba de forma síncrona pero el compositor aún mostraba el frame anterior cuando `GLOBAL_ACTION_TAKE_SCREENSHOT` corría. La captura corre 400 ms después de cerrar el panel, el dock (y el handle, si es el control de activación visible) se ocultan durante la captura —petición del mismo reporte— y todo se restaura tras el flash del sistema; una acción del usuario cancela la restauración. Los timers corren en el handler de la vista para que `hideDock` no se los coma. (`5a3beca`)
+- **#259 — dock en blanco al arrancar (waydroid)**: en el boot la lista de displays puede faltar o reportar límites de tamaño cero, y `makeWindowParams` añadía ventanas de dimensión cero (pantalla en blanco hasta forzar el paro). Límites degenerados caen a las métricas de la aplicación; el dock siempre tiene dimensiones reales donde dibujarse. Mitigación adicional: el re-enganche de accesibilidad a los 30 s de `BootCompletedReceiver` (fork.4, #268) cubre la mitad «accesibilidad perdida tras reinicio» de este reporte. (`c1d02b2`)
+- **#253 — flash blanco + crash con IndexOutOfBoundsException**: sin traza no se puede confirmar el punto exacto (upstream tampoco la consiguió), así que se endureció la clase entera de crash: los cinco adaptadores que indexan una lista al bindear (franja de tareas, menú de apps, notificaciones, menús contextuales) saltan las posiciones obsoletas en vez de tumbar el dock; un dock en crash-loop relanzándose encaja además con los «flashes» reportados. (`c1d02b2`)
+
+### Añadido
+
+- **#200 — opción de offset del handle desde el borde**: el handle de activación quedaba pegado a la esquina de la pantalla; en móviles con esquinas redondeadas el radio cubría parte del handle y lo hacía casi incliclicable (también en Pixel, según un comentario). Ahora nace con un offset de 8 dp hacia dentro y un slider nuevo (0–64 dp, junto a los demás ajustes del handle) permite empujarlo más; x/y positivas con gravedad `BOTTOM|START/END` son distancias hacia dentro desde la esquina. Cadenas nuevas en los 7 locales. (`f0edf9f`, `dbba38d`)
+
 ## [v1.15.2-fork.6] — 2026-11-19
 
 Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.2-fork.6.apk`). Base: `main` 267e942 + 9 commits de la jornada de las 12 mejoras (rama `feature/november-2026-improvements`, fast-forward). versionCode 1152.
