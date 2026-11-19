@@ -70,12 +70,15 @@ class DockPreferences : PreferenceFragmentCompat() {
                 val slider = handleOffset.slider
                 slider.isTickVisible = false
                 slider.labelBehavior = LabelFormatter.LABEL_GONE
+                // Range first, value second: the layout ships the default
+                // 0..1 range, and a stored value above it would be clamped
+                // (or warned about) before the real range is applied.
+                slider.valueFrom = 0f
+                slider.valueTo = 64f
                 slider.stepSize = 1f
                 slider.value =
                     handleOffset.sharedPreferences!!.getString(handleOffset.key, "8")!!
-                        .toFloat()
-                slider.valueFrom = 0f
-                slider.valueTo = 64f
+                        .toFloat().coerceIn(0f, 64f)
                 slider.addOnChangeListener { _, value, _ ->
                     handleOffset.sharedPreferences!!.edit {
                         putString(handleOffset.key, value.toInt().toString())
