@@ -158,3 +158,8 @@ Motivo del día: el usuario pidió resolver «todos los problemas de Smart Dock 
 - CI en la rama: **verde** en las dos rondas (`c1d02b2` y `dbba38d`, ambos Build project + Build debug apk).
 - Fast-forward de `bugfix/november-2026-issues` a main; commit de release con bump versionCode **1153** / versionName **1.15.3**; tag `v1.15.3-fork.7` → Release automática con APK.
 - Estado: ver cierre al final del archivo.
+
+### Cierre (verificado)
+
+- [x] CI **verde en las 8 corridas** de la jornada: la rama `bugfix/november-2026-issues` (Build project + Build debug apk sobre `c1d02b2` y sobre `dbba38d`), main (Build project + Build debug apk sobre `d3350d0`) y el tag `v1.15.3-fork.7` (Release debug apk + Build project sobre `d3350d0`). Release **«SmartDock fork v1.15.3-fork.7»** creada por el workflow, asset renombrado por API a `SmartDock-fork-debug-v1.15.3-fork.7.apk` (13.141.806 bytes).
+- [x] APK verificada: **versionCode 1153, versionName 1.15.3**, cert SHA-256 `4680C23198D542A0423DFD95F1A0D66A80100FA30CB72CAEDF107E41B54B41DB` (el mismo de fork.4/5/6 → **se instala encima de cualquier build anterior del fork sin desinstalar**), sha256 `7740fd1619e6afb9c8820a166845c0886e5cf3632787b771b58cc137a6415d26`. Entregada al usuario como `SmartDock-fork-debug-v1.15.3-fork.7.apk`. Estado: **v1.15.3-fork.7 publicada, actualizable y verificada**. Con esta release, de los 25 issues abiertos upstream ya no queda ningún bug sin corregir en el fork: solo feature requests (documentados en HISTORIA.md §límites).
