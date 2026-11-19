@@ -685,6 +685,21 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             metaUsedAsModifier = true
         }
 
+        // AltGr (right Alt) reaches the app as Ctrl+Alt, or with the
+        // META_ALT_RIGHT_ON flag set: the shortcut block below fired on
+        // every special-character chord, so typing AltGr+Q (which is "@"
+        // on many layouts) opened quick settings and AltGr+L locked the
+        // desktop while the character was still delivered to the app
+        // (#167). Dock shortcuts never use Ctrl+Alt, so an AltGr chord is
+        // passed through untouched.
+        if (event.action == KeyEvent.ACTION_UP &&
+            (
+                (event.metaState and KeyEvent.META_ALT_RIGHT_ON) != 0 ||
+                    (event.isAltPressed && event.isCtrlPressed)
+                )
+        )
+            return super.onKeyEvent(event)
+
         if (event.action == KeyEvent.ACTION_UP) {
             if (event.isAltPressed) {
                 if (event.keyCode == KeyEvent.KEYCODE_L && sharedPreferences.getBoolean(
