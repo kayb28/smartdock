@@ -85,7 +85,8 @@ Base: `517604a` (main = punta de upstream, 2026-05-21, «fix: Update donation ad
   - `CHANGELOG-FORK.md` — changelog formal por release del fork.
 - Estado: ver cierre al final del archivo.
 
-## Cierre de la consolidación (completar tras push)
+## Cierre de la consolidación (verificado)
 
-- [ ] main en `0eac1a4` + docs, CI verde en el push.
-- [ ] La rama `bugfix/october-2026-bugs` sigue existiendo, apuntando a `0eac1a4` (histórico del tag).
+- [x] main en `3d48df3` = `0eac1a4` (los 10 commits de la jornada, fast-forward) + commit `docs/` de documentación. Push 2026-11-19 01:52 UTC.
+- [x] CI verde en main (2/2 workflows: Build project y Build debug apk, ambos `success` sobre `3d48df3`).
+- [x] La rama `bugfix/october-2026-bugs` sigue existiendo en `0eac1a4` (histórico del tag v1.15.0-fork.4). Estado: **consolidación completada**.
