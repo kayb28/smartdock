@@ -132,8 +132,18 @@ object Utils {
             // picking a leftover display id apps cannot use (#263).
             if (secondary) DeviceUtils.getSecondaryDisplay(context)?.displayId
                 ?: Display.DEFAULT_DISPLAY else Display.DEFAULT_DISPLAY
-        val displayWidth = DeviceUtils.getDisplayBounds(context, displayId).width()
-        val displayHeight = DeviceUtils.getDisplayBounds(context, displayId).height()
+        val displayBounds = DeviceUtils.getDisplayBounds(context, displayId)
+        // At boot the display list can be momentarily missing or report
+        // zero-size bounds (waydroid does this during startup): windows
+        // added with zero dimensions came up as a blank screen until the
+        // user force-stopped the dock (#259). Fall back to the application
+        // metrics so the dock always has real dimensions to draw into.
+        val displayWidth =
+            if (displayBounds.isEmpty) context.resources.displayMetrics.widthPixels
+            else displayBounds.width()
+        val displayHeight =
+            if (displayBounds.isEmpty) context.resources.displayMetrics.heightPixels
+            else displayBounds.height()
         val layoutParams = WindowManager.LayoutParams()
         layoutParams.format = PixelFormat.TRANSLUCENT
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE

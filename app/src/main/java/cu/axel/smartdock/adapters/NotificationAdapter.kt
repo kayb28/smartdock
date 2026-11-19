@@ -43,6 +43,11 @@ class NotificationAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        // updateNotifications swaps the array before RecyclerView processes
+        // the notify call; a bind in between arrives with a stale position
+        // and used to crash the dock with an IndexOutOfBoundsException
+        // (the crash class named in #253).
+        if (position < 0 || position >= notifications.size) return
         val sbn = notifications[position]
         val notification = sbn.notification
         val actions = notification.actions

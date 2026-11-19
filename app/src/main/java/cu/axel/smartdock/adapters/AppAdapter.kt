@@ -58,6 +58,9 @@ class AppAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        // Skip stale binds after a filter or data swap instead of crashing
+        // with an IndexOutOfBoundsException (the crash class named in #253).
+        if (position < 0 || position >= apps.size) return
         val app = apps[position]
         val name = app.name
         if (::query.isInitialized) {

@@ -17,6 +17,9 @@ class AppTaskAdapter(private val context: Context, tasks: ArrayList<AppTask>) : 
         if (convertView == null) convertView = LayoutInflater.from(context).inflate(R.layout.context_menu_entry, null)
         val icon = convertView!!.findViewById<ImageView>(R.id.menu_entry_iv)
         val text = convertView.findViewById<TextView>(R.id.menu_entry_tv)
+        // A stale position after a data swap crashes the dock with an
+        // IndexOutOfBoundsException (the crash class named in #253).
+        if (position >= count) return convertView
         val task = getItem(position)
         icon.setImageDrawable(task!!.icon)
         text.text = task.name

@@ -51,6 +51,11 @@ class DockAppAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
+        // A bind racing the task strip refresh can arrive with a stale
+        // position; the crash report behind #253 was an unexplained
+        // IndexOutOfBoundsException, so the strip skips out-of-range binds
+        // instead of taking the dock down.
+        if (position < 0 || position >= apps.size) return
         val app = apps[position]
         val size = app.tasks.size
         if (size > 0) {
