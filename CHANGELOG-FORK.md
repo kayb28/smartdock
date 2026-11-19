@@ -3,6 +3,31 @@
 _Changelog formal de las releases del fork de Smart Dock. Formato Keep a Changelog, en español._
 _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/changelogs/`; aquí solo el fork._
 
+## [v1.15.2-fork.6] — 2026-11-19
+
+Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.2-fork.6.apk`). Base: `main` 267e942 + 9 commits de la jornada de las 12 mejoras (rama `feature/november-2026-improvements`, fast-forward). versionCode 1152.
+
+### Añadido
+
+- **Backup de ajustes completo**: formato JSON que conserva Sets (apps ocultas, notificaciones silenciadas) y URIs (sonidos, icon packs) que el formato antiguo descartaba; los backups antiguos siguen restaurándose. (`027da00`)
+- **Calculadora de expresión completa**: precedencia, paréntesis, unario y exponente — antes `2+3+4` devolvía 5. (`027da00`)
+- **Motor de búsqueda web configurable**: Google / DuckDuckGo / Bing (antes google.com fijo). (`c2d3bb8`)
+- **Anclar atajos profundos al dock**: «Add to» → submenú por atajo; el icono del dock lanza el atajo (persistido como las apps). (`c2d3bb8`)
+- **Panel propio de redes Wi-Fi**: lista escaneada vía Shizuku (SSID únicos, señal primero); credenciales siguen yendo al flujo del sistema. (`2247850`)
+- **Superficie de automatización**: `AutomationReceiver` exportado con permiso signature-level — abrir menú / lanzar apps desde Tasker o adb. (`2247850`)
+
+### Corregido
+
+- **Menús contextuales por comando estable**: 33+2 sitios despachaban por texto traducido; ahora por enum (`MenuCommand`). (`2247850`)
+- **Receptores desregistrados**: los 7 receivers de `DockService` se desregistran en `onDestroy` (antes 2 de 7 → fuga). (`2247850`)
+- **App activa real**: `TYPE_WINDOW_STATE_CHANGED` (declarado, nunca manejado) actualiza el indicador con el foco real, no con el orden de recencia de tareas. (`deec2c3`)
+- **DiffUtil en la franja de tareas**: diff por paquete+taskId+conteo en vez de rebuild total por cada ventana. (`deec2c3`)
+- **Alt+F12 ahora obedece a su switch**: `enable_soft_reboot` era una preferencia visible muerta. (`c2d3bb8`)
+
+### Eliminado
+
+- `WifiScanResultAdapter` muerto, dependencia `RestrictionBypass` sin uso y el repo jitpack que solo ella justificaba (jcenter se mantiene: una transitiva lo necesita). (`c2d3bb8`)
+
 ## [v1.15.0-fork.4] — 2026-11-07
 
 Publicada como GitHub Release («SmartDock fork v1.15.0-fork.4», APK `SmartDock-fork-debug-v1.15.0-fork.4.apk`, 14.181.352 bytes, sha256 `425ff1f51ceacfffca4ce0d9c0802ad55676c9d8f31996e99002eea92a4e718e`). Base: upstream 1.15.0 (`517604a`). Rama: `bugfix/october-2026-bugs` (10 commits).

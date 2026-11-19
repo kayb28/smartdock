@@ -8,6 +8,7 @@ Fork de [axel358/smartdock](https://github.com/axel358/smartdock) con un objetiv
 |---|---|---|
 | v1.15.0-fork.1–3 | 1150 | Builds locales previas (sin release en GitHub). No publicadas |
 | v1.15.0-fork.4 | 1150 | Publicada. Toda la jornada de bugs de oct-2026 (10 commits): 4 bugs viejos cerrados, display secundario fail-safe, modo escritorio en monitor, firma estable y releases automáticas |
+| **v1.15.2-fork.6** | **1152** | Publicada. La «jornada de las 12 mejoras»: backup completo JSON, calculadora de expresión, motor de búsqueda configurable, atajos anclables al dock, panel Wi-Fi propio vía Shizuku, intents de automatización (permiso signature), menús por comando estable, receivers desregistrados, app activa real (TYPE_WINDOW_STATE_CHANGED), DiffUtil en la franja, Alt+F12 gobernado, código muerto fuera |
 | **v1.15.1-fork.5** | **1151** | Publicada. Primer bump de versionCode del fork: hace la build **actualizable** encima de fork.4 (Android rechaza updates con versionCode igual o menor). Contenido = fork.4 + bump de versión; los fixes son los mismos |
 
 El versionCode sube en cada release del fork: Android compara versionCodes para aceptar un update, así que un versionCode congelado haría que cada APK nueva se rechace como reinstalación (lección pagada en WebLibre, donde su fork.4 tuvo que saltar 423→483 para que Android aceptara el update). La numeración `fork.N` lleva su propio contador para no chocar con la de upstream.

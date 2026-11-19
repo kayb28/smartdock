@@ -85,6 +85,42 @@ Base: `517604a` (main = punta de upstream, 2026-05-21, «fix: Update donation ad
   - `CHANGELOG-FORK.md` — changelog formal por release del fork.
 - Estado: ver cierre al final del archivo.
 
+## 2026-11-19 (tercera pasada) — la jornada de las 12 mejoras (rama `feature/november-2026-improvements`)
+
+Motivo del día: el usuario pidió «resuélvelo todo» — el menú de 12 opciones de mejora del informe de opciones del 19-11 se implementó completo, en tres fases, sobre `main` (267e942). Nueve commits (uno por problema + tres de arreglo de compilación), CI **verde** en `76f6b6f` tras 4 iteraciones (los fallos documentados abajo son lecciones nuevas).
+
+### Fase 1 — ganancias rápidas
+
+- **B1 — backup completo (`027da00`)**: `backupPreferences` descartaba silenciosamente los `Set` (apps ocultas del menú, apps silenciadas de notificaciones) y toda preferencia con URI (sonidos, iconos) — el backup perdía justamente lo personal. Formato JSON (sets como arrays) con fallback de lectura del formato de líneas antiguo para los backups previos a fork.6.
+- **B4 — calculadora de expresión completa (`027da00`)**: `solve()` evaluaba solo el primer par de operandos (`2+3+4` → 5). Parser de descenso recursivo con precedencia, paréntesis, unario y exponente (derecha-asociativo).
+- **B3 — motor de búsqueda configurable (`c2d3bb8`)**: la entrada de búsqueda del menú de apps tenía google.com hardcodeado en dos sitios. Preferencia «Web search engine» (Google/DuckDuckGo/Bing) + label de resultado según el motor. Cadenas en los 7 locales.
+- **C2 — anclar atajos profundos al dock (`c2d3bb8`)**: las líneas `shortcut:pkg id` conviven con las de apps en `dock_pinned.lst`; el submenú «add to» ofrece cada atajo no anclado; el icono del dock lanza por `LauncherApps.startShortcut`. Persiste como los pins de apps.
+- **B5 — código muerto fuera (`c2d3bb8`)**: `WifiScanResultAdapter` nunca instanciado, dependencia `RestrictionBypass` sin uso (y su jitpack), y `enable_soft_reboot` — la preferencia existía, era visible y no gobernaba nada; ahora sí gobierna Alt+F12.
+
+### Fase 2 — experiencia y higiene
+
+- **A2 — menús por comando estable (`2247850`)**: los dos listeners grandes (menú del dock + menú de apps) despachaban comparando el texto traducido del botón — un cambio de traducción o dos cadenas que colisionen cambia lo que un menú hace. `Action` lleva ahora un `MenuCommand` (enum) y 33 builders + 33 despachos (+2 de LauncherActivity) migrados a él.
+- **B2 — panel propio de redes Wi-Fi (`2247850`)**: el tile de Wi-Fi de ajustes rápidos abría el panel del sistema aun con el wrapper Shizuku vivo. Ahora escanea y lista redes (SSID únicos, señal primero) en ventana propia; tocar una abre el flujo del sistema para credenciales (una app externa no puede completar el WPA). Sin Shizuku, sistema como antes.
+- **D1 — superficie de automatización (`2247850`)**: `AutomationReceiver` exportado con permiso signature-level `cu.axel.smartdock.permission.SMARTDOCK_AUTOMATION`: Tasker/adb pueden abrir el menú o lanzar apps por broadcast; sin permiso concedido, nada. Requests caídas en silencio si el dock no está corriendo.
+- **A3 — desregistrar TODO receptor (`2247850`)**: 7 receivers registrados anónimos, solo 2 se desregistraban en `onDestroy` — fuga y doble-disparo en cada recreación del servicio. Todos con nombre y desregistro completo.
+
+### Fase 3 — fiabilidad
+
+- **C1 — ventana enfocada real (`deec2c3`)**: `TYPE_WINDOW_STATE_CHANGED` estaba declarado y nunca manejado; la «app activa» se deducía del primer elemento de la lista de tareas (orden de recencia, no de foco). Ahora el evento actualiza `AppUtils.currentApp` con el paquete dueño del foco y refresca la franja.
+- **A4 — DiffUtil en la franja de tareas (`deec2c3`)**: `updateApps` hacía `notifyDataSetChanged` (rebuild total con extracción de color dominante por icono) en cada cambio de ventana; ahora diff por paquete+taskId+conteo. Los dos TODOs que esto resolvía, eliminados del código.
+
+### Lecciones nuevas de esta jornada (CI)
+
+1. **Kotlin no admite referencias adelantadas entre funciones locales** — ni siquiera no-recursivas (`ab47a2f`, `029cefc`): dos rondas de CI rojas. El parser vive en un `private object` con clase interna (los métodos de clase sí pueden recu­rir mutuamente).
+2. **Quitar `jcenter()` rompe la resolución** aunque la dependencia que lo justificaba se haya quitado: `error_prone_annotations:2.3.1` (transitiva) solo existe ahí (`195543f`). Dejarlo declarado como upstream.
+3. **`ShortcutInfo.shortLabel` es `CharSequence`**, no `String` — `toString()` antes de usarlo en `Action`/pin-list (`deec2c3`).
+
+### Publicación
+
+- Bump: versionCode **1152**, versionName **1.15.2** (convenio: estrictamente creciente).
+- Tag **`v1.15.2-fork.6`** → el workflow de releases construye el APK y crea la Release automáticamente (keystore fijo del repo → actualizable encima de fork.5 sin desinstalar).
+- Estado: **pendiente de CI verde del tag**.
+
 ## Cierre de la consolidación (verificado)
 
 - [x] main en `3d48df3` = `0eac1a4` (los 10 commits de la jornada, fast-forward) + commit `docs/` de documentación. Push 2026-11-19 01:52 UTC.
