@@ -294,12 +294,31 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     private fun initWrappers() {
         if (DeviceUtils.hasShizukuPermission()) {
+            // Each wrapper links against hidden framework classes at
+            // verification time (IActivityManager$Stub.asInterface and
+            // friends). On frameworks where those references stopped
+            // resolving, construction throws NoSuchMethodError — an Error,
+            // not an Exception, so the old blanket catch never saw it — and
+            // one failed wrapper took the whole service down in onCreate:
+            // no dock anywhere (secondary display included) and, with the
+            // service dead, the app kept claiming accessibility was off.
+            // Build each one on its own and catch Throwable: a wrapper that
+            // cannot come up degrades its own features instead of killing
+            // the dock.
             try {
                 activityManagerWrapper = ActivityManagerWrapper()
+            } catch (t: Throwable) {
+                Log.e(packageName, "ActivityManagerWrapper init: $t")
+            }
+            try {
                 wifiManagerWrapper = WifiManagerWrapper()
+            } catch (t: Throwable) {
+                Log.e(packageName, "WifiManagerWrapper init: $t")
+            }
+            try {
                 bluetoothManagerWrapper = BluetoothManagerWrapper()
-            } catch (e: Exception) {
-                Log.e(packageName, e.toString())
+            } catch (t: Throwable) {
+                Log.e(packageName, "BluetoothManagerWrapper init: $t")
             }
         }
     }
@@ -1827,16 +1846,17 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         // (#250). Pass a high cap instead; getRecentTasks skips its limit
         // the same way.
         val maxTasks = if (nApps > 0) nApps else MAX_RUNNING_TASKS
-        if (systemApp || DeviceUtils.hasShizukuPermission()) {
-            if (systemApp)
+        if (systemApp || (DeviceUtils.hasShizukuPermission() && activityManagerWrapper?.isAlive() == true)) {
+            if (systemApp) {
                 tasks = AppUtils.getRunningTasks(activityManager, null, packageManager, maxTasks)
-            else if (DeviceUtils.hasShizukuPermission())
+            } else {
                 tasks = AppUtils.getRunningTasks(
                     activityManager,
                     activityManagerWrapper,
                     packageManager,
                     maxTasks
                 )
+            }
             for (j in 1..tasks.size) {
                 val task = tasks[tasks.size - j]
                 val index = AppUtils.containsTask(apps, task)

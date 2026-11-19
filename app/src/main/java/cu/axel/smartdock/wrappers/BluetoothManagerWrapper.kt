@@ -5,6 +5,7 @@ import android.bluetooth.IBluetoothManager
 import android.content.AttributionSource
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.annotation.RequiresApi
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuBinderWrapper
@@ -31,9 +32,22 @@ class BluetoothManagerWrapper {
         synchronized(this) {
             if (bluetoothManager != null)
                 return
-            binder = ShizukuBinderWrapper(SystemServiceHelper.getSystemService("bluetooth_manager"))
-            binder?.linkToDeath(deathRecipient, 0)
-            bluetoothManager = IBluetoothManager.Stub.asInterface(binder)
+            val shizukuBinder =
+                ShizukuBinderWrapper(SystemServiceHelper.getSystemService("bluetooth_manager"))
+            try {
+                shizukuBinder.linkToDeath(deathRecipient, 0)
+            } catch (_: Throwable) {
+            }
+            binder = shizukuBinder
+            // Same deal as IActivityManager: the interface resolves against
+            // the real framework class and may not link on new frameworks.
+            // Come up dead instead of throwing out of the constructor.
+            try {
+                bluetoothManager = IBluetoothManager.Stub.asInterface(shizukuBinder)
+            } catch (t: Throwable) {
+                Log.e(TAG, "IBluetoothManager unavailable: $t")
+                bluetoothManager = null
+            }
         }
     }
 
@@ -41,12 +55,21 @@ class BluetoothManagerWrapper {
 
     @RequiresApi(Build.VERSION_CODES.S)
     fun setBluetoothEnabled(enabled: Boolean): Boolean {
-        val packageName = "com.android.shell"
-        val attributionSource =
-            AttributionSource.Builder(Shizuku.getUid()).setPackageName(packageName).build()
-        return if (enabled)
-            bluetoothManager?.enable(attributionSource) ?: false
-        else
-            bluetoothManager?.disable(attributionSource, true) ?: false
+        return try {
+            val packageName = "com.android.shell"
+            val attributionSource =
+                AttributionSource.Builder(Shizuku.getUid()).setPackageName(packageName).build()
+            if (enabled)
+                bluetoothManager?.enable(attributionSource) ?: false
+            else
+                bluetoothManager?.disable(attributionSource, true) ?: false
+        } catch (t: Throwable) {
+            Log.e(TAG, "setBluetoothEnabled failed: $t")
+            false
+        }
+    }
+
+    companion object {
+        private const val TAG = "SmartDock"
     }
 }

@@ -58,4 +58,9 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'dev.rikka.shizuku:api:13.1.5'
     implementation 'dev.rikka.shizuku:provider:13.1.5'
+    // Unseals hidden framework APIs so the Shizuku wrappers can link against
+    // hidden binder interfaces (IActivityManager$Stub.asInterface and
+    // friends); on frameworks where those links are blocked the dock died in
+    // onCreate. Maven Central, API 28+, pure reflection, ~50 KB.
+    implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:6.1'
 }

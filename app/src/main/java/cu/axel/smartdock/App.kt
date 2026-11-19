@@ -8,10 +8,24 @@ import com.google.android.material.color.DynamicColors
 import cu.axel.smartdock.activities.DebugActivity
 import kotlin.system.exitProcess
 import android.os.Process
+import org.lsposed.hiddenapibypass.HiddenApiBypass
 
 class App : Application() {
     private lateinit var uncaughtExceptionHandler: Thread.UncaughtExceptionHandler
     override fun onCreate() {
+        // Unseal hidden framework APIs for this process before anything
+        // binds to them: the Shizuku wrappers link against hidden binder
+        // interfaces (IActivityManager$Stub.asInterface and friends), and on
+        // frameworks where that access is blocked the linking threw
+        // NoSuchMethodError and killed the accessibility service in onCreate
+        // before it drew anything — no dock anywhere and the app claiming
+        // accessibility was off. Best effort: if the bypass itself does not
+        // work on this Android version, the wrappers degrade individually
+        // instead of taking the dock down.
+        try {
+            HiddenApiBypass.addHiddenApiExemptions("L")
+        } catch (_: Throwable) {
+        }
         DynamicColors.applyToActivitiesIfAvailable(this)
         uncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()!!
         Thread.setDefaultUncaughtExceptionHandler { thread, exception ->
