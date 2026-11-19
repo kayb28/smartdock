@@ -20,12 +20,12 @@ import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import androidx.preference.PreferenceManager
 import cu.axel.smartdock.R
-import java.io.BufferedReader
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -145,40 +145,106 @@ object Utils {
     }
 
     fun solve(expression: String): Double {
-        if (expression.contains("+")) return expression.split("\\+".toRegex())
-            .dropLastWhile { it.isEmpty() }
-            .toTypedArray()[0].toDouble() + expression.split("\\+".toRegex())
-            .dropLastWhile { it.isEmpty() }
-            .toTypedArray()[1].toDouble() else if (expression.contains("-")) return expression.split(
-            "-".toRegex()
-        ).dropLastWhile { it.isEmpty() }
-            .toTypedArray()[0].toDouble() - expression.split("-".toRegex())
-            .dropLastWhile { it.isEmpty() }.toTypedArray()[1].toDouble()
-        if (expression.contains("/")) return expression.split("/".toRegex())
-            .dropLastWhile { it.isEmpty() }
-            .toTypedArray()[0].toDouble() / expression.split("/".toRegex())
-            .dropLastWhile { it.isEmpty() }.toTypedArray()[1].toDouble()
-        return if (expression.contains("*")) expression.split("\\*".toRegex())
-            .dropLastWhile { it.isEmpty() }
-            .toTypedArray()[0].toDouble() * expression.split("\\*".toRegex())
-            .dropLastWhile { it.isEmpty() }.toTypedArray()[1].toDouble() else 0.0
+        // Full-expression evaluation (operators, precedence, parentheses and
+        // unary minus) instead of the old first-pair-only math, which turned
+        // "2+3+4" into 5.
+        val tokens = tokenize(expression)
+        if (tokens.isEmpty()) return 0.0
+        var pos = 0
+        fun parseExpr(): Double {
+            var value = parseTerm()
+            while (pos < tokens.size && (tokens[pos] == "+" || tokens[pos] == "-")) {
+                val op = tokens[pos++]
+                val rhs = parseTerm()
+                value = if (op == "+") value + rhs else value - rhs
+            }
+            return value
+        }
+        fun parseTerm(): Double {
+            var value = parseFactor()
+            while (pos < tokens.size && (tokens[pos] == "*" || tokens[pos] == "/")) {
+                val op = tokens[pos++]
+                val rhs = parseFactor()
+                value = if (op == "*") value * rhs else value / rhs
+            }
+            return value
+        }
+        fun parseFactor(): Double {
+            var value = parseUnary()
+            while (pos < tokens.size && tokens[pos] == "^") {
+                pos++
+                val exponent = parseUnary()
+                value = Math.pow(value, exponent)
+            }
+            return value
+        }
+        fun parseUnary(): Double {
+            if (pos < tokens.size && tokens[pos] == "-") {
+                pos++
+                return -parseUnary()
+            }
+            if (pos < tokens.size && tokens[pos] == "+") {
+                pos++
+                return parseUnary()
+            }
+            if (pos < tokens.size && tokens[pos] == "(") {
+                pos++
+                val value = parseExpr()
+                if (pos < tokens.size && tokens[pos] == ")") pos++
+                return value
+            }
+            if (pos < tokens.size) {
+                val token = tokens[pos++]
+                return token.toDoubleOrNull() ?: 0.0
+            }
+            return 0.0
+        }
+        val result = parseExpr()
+        return if (result.isNaN() || result.isInfinite()) 0.0 else result
+    }
+
+    private fun tokenize(expression: String): List<String> {
+        val tokens = mutableListOf<String>()
+        val number = StringBuilder()
+        fun flushNumber() {
+            if (number.isNotEmpty()) {
+                tokens.add(number.toString())
+                number.setLength(0)
+            }
+        }
+        for (c in expression) {
+            when {
+                c.isDigit() || c == '.' -> number.append(c)
+                c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')' -> {
+                    flushNumber()
+                    tokens.add(c.toString())
+                }
+                c.isWhitespace() -> flushNumber()
+                else -> return emptyList() // reject anything the grammar doesn't know
+            }
+        }
+        flushNumber()
+        return tokens
     }
 
     fun backupPreferences(context: Context, backupUri: Uri) {
         val allPrefs = PreferenceManager.getDefaultSharedPreferences(context).all
-        val stringBuilder = StringBuilder()
+        // JSON keeps every type alive — including the Set<String> keys the old
+        // line-based format silently dropped (hidden apps, silenced
+        // notifications) and the URI-valued prefs (icon packs, sounds) that
+        // were skipped by the contains("://") heuristic.
+        val json = JSONObject()
         for ((key, value) in allPrefs) {
-            var type = "string"
-            if (value is Boolean) {
-                type = "boolean"
-            } else if (value is Int) {
-                type = "integer"
+            when (value) {
+                is Boolean -> json.put(key, value)
+                is Int -> json.put(key, value)
+                is Long -> json.put(key, value)
+                is Float -> json.put(key, value.toDouble())
+                is Set<*> -> json.put(key, JSONArray(value.map { it.toString() }))
+                else -> json.put(key, value?.toString() ?: JSONObject.NULL)
             }
-            if (value !is Set<*> && !value.toString().contains("://"))
-                stringBuilder.append(type).append(" ").append(key).append(" ")
-                    .append(value.toString()).append("\n")
         }
-        val content = stringBuilder.toString().trim { it <= ' ' }
+        val content = json.toString(2)
         var outputStream: OutputStream? = null
         try {
             outputStream = context.contentResolver.openOutputStream(backupUri)
@@ -201,27 +267,43 @@ object Utils {
         var inputStream: InputStream? = null
         try {
             inputStream = context.contentResolver.openInputStream(restoreUri)
-            val bufferedReader = BufferedReader(InputStreamReader(inputStream))
             val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            sharedPreferences.edit {
-
-                bufferedReader.readLines().forEach { line ->
-                    val contents =
-                        line.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            // Accept the new JSON format; fall back to reading the old
+            // line-based backup ("type key value") so backups made before
+            // v1.15.2-fork.6 still restore.
+            val raw = inputStream!!.readBytes().decodeToString()
+            val editor = sharedPreferences.edit()
+            if (raw.trimStart().startsWith("{")) {
+                val json = JSONObject(raw)
+                for (key in json.keys()) {
+                    val value = json.get(key) ?: continue
+                    when (value) {
+                        is Boolean -> editor.putBoolean(key, value)
+                        is Int -> editor.putInt(key, value)
+                        is Long -> editor.putLong(key, value)
+                        is Double -> editor.putFloat(key, value.toFloat())
+                        is JSONArray -> editor.putStringSet(
+                            key, value.map { it.toString() }.toSet()
+                        )
+                        is String -> editor.putString(key, value)
+                    }
+                }
+            } else {
+                raw.lines().forEach { line ->
+                    val contents = line.split(" ".toRegex()).filter { it.isNotEmpty() }
                     if (contents.size > 2) {
                         val type = contents[0]
                         val key = contents[1]
-                        val value = contents[2]
+                        val value = contents.subList(2, contents.size).joinToString(" ")
                         when (type) {
-                            "boolean" -> putBoolean(key, java.lang.Boolean.parseBoolean(value))
-                            "integer" -> putInt(key, value.toInt())
-                            else -> putString(key, value)
+                            "boolean" -> editor.putBoolean(key, java.lang.Boolean.parseBoolean(value))
+                            "integer" -> editor.putInt(key, value.toInt())
+                            else -> editor.putString(key, value)
                         }
                     }
                 }
-
-                bufferedReader.close()
             }
+            editor.apply()
             Toast.makeText(context, R.string.preferences_restored, Toast.LENGTH_SHORT).show()
         } catch (e: IOException) {
             e.printStackTrace()
