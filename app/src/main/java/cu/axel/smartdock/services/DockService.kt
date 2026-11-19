@@ -617,6 +617,18 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 ) == AccessibilityEvent.WINDOWS_CHANGE_ADDED
             )
                 updateRunningTasks()
+        } else if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            // The real focused window (C1): the dock used to infer the
+            // "current app" from the first entry of the running-tasks list,
+            // which is a recency order, not a focus order — the indicator
+            // under the dock icon could point at the wrong app. The event
+            // carries the package that actually owns the focused window.
+            val pkg = event.packageName?.toString()
+            if (!pkg.isNullOrBlank() && pkg != packageName && pkg != AppUtils.currentApp) {
+                AppUtils.currentApp = pkg
+                if (::tasksGv.isInitialized)
+                    (tasksGv.adapter as? DockAppAdapter)?.notifyDataSetChanged()
+            }
         } else if (sharedPreferences.getBoolean(
                 "custom_toasts",
                 false
@@ -1262,7 +1274,6 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             withContext(Dispatchers.Main) {
                 val menuFullscreen = sharedPreferences.getBoolean("app_menu_fullscreen", false)
                 val phoneLayout = sharedPreferences.getInt("dock_layout", -1) == 0
-                //TODO: Implement efficient adapter
                 val existingAdapter = appsGv.adapter
                 if (existingAdapter is AppAdapter && !recreateAdapter) {
                     existingAdapter.updateApps(apps)
@@ -1515,7 +1526,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     appShortcutsPinning.clear()
                     for (shortcut in shortcuts) {
                         if (!AppUtils.isShortcutPinned(context, shortcut, AppUtils.DOCK_PINNED_LIST)) {
-                            val label = shortcut.shortLabel ?: shortcut.id
+                            val label = (shortcut.shortLabel ?: shortcut.id).toString()
                             actions.add(Action(R.drawable.ic_pin, label, MenuCommand.PIN_SHORTCUT))
                             appShortcutsPinning.add(label)
                         }
@@ -1526,7 +1537,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     // icon + label pair is only used there, so pin it now.
                     val shortcuts = DeepShortcutManager.getShortcuts(app.packageName, context)!!
                     val shortcut = shortcuts.firstOrNull {
-                        (it.shortLabel ?: it.id) == action.text
+                        (it.shortLabel ?: it.id).toString() == action.text
                     }
                     if (shortcut != null) {
                         AppUtils.pinShortcut(context, shortcut, AppUtils.DOCK_PINNED_LIST)
@@ -1779,8 +1790,6 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
         val gridSize = Utils.dpToPx(context, 52)
 
-        //TODO: We can eliminate another for
-        //TODO: Don't do anything if tasks has not changed
         val nApps =
             if (orientation == Configuration.ORIENTATION_PORTRAIT) maxApps else maxAppsLandscape
         if (systemApp || DeviceUtils.hasShizukuPermission()) {

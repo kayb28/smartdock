@@ -102,9 +102,11 @@ object AppUtils {
                     val shortcut = DeepShortcutManager.getShortcutById(parts[0], parts[1], context)
                     if (shortcut != null) {
                         val icon = DeepShortcutManager.getShortcutIcon(shortcut, context)
-                        if (icon != null)
-                            apps.add(App(shortcut.longLabel ?: shortcut.shortLabel ?: shortcut.id,
-                                shortcut.`package`, icon))
+                        if (icon != null) {
+                            val label = (shortcut.longLabel ?: shortcut.shortLabel
+                            ?: shortcut.id).toString()
+                            apps.add(App(label, shortcut.`package`, icon))
+                        }
                     }
                     continue
                 }

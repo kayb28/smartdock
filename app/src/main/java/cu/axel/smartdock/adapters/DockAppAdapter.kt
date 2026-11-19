@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import cu.axel.smartdock.R
 import cu.axel.smartdock.models.DockApp
@@ -92,8 +93,27 @@ class DockAppAdapter(
     }
 
     fun updateApps(newApps: ArrayList<DockApp>) {
+        // DiffUtil instead of notifyDataSetChanged: the task strip refreshes
+        // on every window change, and rebuilding every row (with dominant
+        // color extraction per icon) burned CPU for unchanged apps. The
+        // old TODO noted the wasted full refresh; the 500 ms throttle in
+        // updateRunningTasks stays as the outer rate limiter.
+        val oldApps = apps
         apps = newApps
-        notifyDataSetChanged()
+        val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize() = oldApps.size
+            override fun getNewListSize() = newApps.size
+            override fun areItemsTheSame(oldPos: Int, newPos: Int) =
+                oldApps[oldPos].packageName == newApps[newPos].packageName
+            override fun areContentsTheSame(oldPos: Int, newPos: Int): Boolean {
+                val old = oldApps[oldPos]
+                val new = newApps[newPos]
+                return old.packageName == new.packageName &&
+                        old.tasks.size == new.tasks.size &&
+                        (old.tasks.isEmpty() || old.tasks[0].id == new.tasks[0].id)
+            }
+        }, false)
+        diff.dispatchUpdatesTo(this)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

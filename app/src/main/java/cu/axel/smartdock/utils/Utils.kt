@@ -147,37 +147,11 @@ object Utils {
     fun solve(expression: String): Double {
         // Full-expression evaluation (operators, precedence, parentheses and
         // unary minus) instead of the old first-pair-only math, which turned
-        // "2+3+4" into 5.
+        // "2+3+4" into 5. Local functions are declared before first use:
+        // Kotlin does not allow forward references between them.
         val tokens = tokenize(expression)
         if (tokens.isEmpty()) return 0.0
         var pos = 0
-        fun parseExpr(): Double {
-            var value = parseTerm()
-            while (pos < tokens.size && (tokens[pos] == "+" || tokens[pos] == "-")) {
-                val op = tokens[pos++]
-                val rhs = parseTerm()
-                value = if (op == "+") value + rhs else value - rhs
-            }
-            return value
-        }
-        fun parseTerm(): Double {
-            var value = parseFactor()
-            while (pos < tokens.size && (tokens[pos] == "*" || tokens[pos] == "/")) {
-                val op = tokens[pos++]
-                val rhs = parseFactor()
-                value = if (op == "*") value * rhs else value / rhs
-            }
-            return value
-        }
-        fun parseFactor(): Double {
-            var value = parseUnary()
-            while (pos < tokens.size && tokens[pos] == "^") {
-                pos++
-                val exponent = parseUnary()
-                value = Math.pow(value, exponent)
-            }
-            return value
-        }
         fun parseUnary(): Double {
             if (pos < tokens.size && tokens[pos] == "-") {
                 pos++
@@ -198,6 +172,33 @@ object Utils {
                 return token.toDoubleOrNull() ?: 0.0
             }
             return 0.0
+        }
+        fun parseFactor(): Double {
+            var value = parseUnary()
+            while (pos < tokens.size && tokens[pos] == "^") {
+                pos++
+                val exponent = parseUnary()
+                value = Math.pow(value, exponent)
+            }
+            return value
+        }
+        fun parseTerm(): Double {
+            var value = parseFactor()
+            while (pos < tokens.size && (tokens[pos] == "*" || tokens[pos] == "/")) {
+                val op = tokens[pos++]
+                val rhs = parseFactor()
+                value = if (op == "*") value * rhs else value / rhs
+            }
+            return value
+        }
+        fun parseExpr(): Double {
+            var value = parseTerm()
+            while (pos < tokens.size && (tokens[pos] == "+" || tokens[pos] == "-")) {
+                val op = tokens[pos++]
+                val rhs = parseTerm()
+                value = if (op == "+") value + rhs else value - rhs
+            }
+            return value
         }
         val result = parseExpr()
         return if (result.isNaN() || result.isInfinite()) 0.0 else result
@@ -283,7 +284,7 @@ object Utils {
                         is Long -> editor.putLong(key, value)
                         is Double -> editor.putFloat(key, value.toFloat())
                         is JSONArray -> editor.putStringSet(
-                            key, value.map { it.toString() }.toSet()
+                            key, (0 until value.length()).map { value[it].toString() }.toSet()
                         )
                         is String -> editor.putString(key, value)
                     }
