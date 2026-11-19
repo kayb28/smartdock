@@ -147,60 +147,62 @@ object Utils {
     fun solve(expression: String): Double {
         // Full-expression evaluation (operators, precedence, parentheses and
         // unary minus) instead of the old first-pair-only math, which turned
-        // "2+3+4" into 5. Local functions are declared before first use:
-        // Kotlin does not allow forward references between them.
+        // "2+3+4" into 5. Recursive descent with mutually recursive local
+        // functions is not expressible here (Kotlin forbids forward
+        // references between them), so precedence climbs explicitly: each
+        // binary level is one while-loop over the token stream.
         val tokens = tokenize(expression)
         if (tokens.isEmpty()) return 0.0
         var pos = 0
-        fun parseUnary(): Double {
-            if (pos < tokens.size && tokens[pos] == "-") {
-                pos++
-                return -parseUnary()
-            }
-            if (pos < tokens.size && tokens[pos] == "+") {
-                pos++
-                return parseUnary()
-            }
-            if (pos < tokens.size && tokens[pos] == "(") {
-                pos++
-                val value = parseExpr()
+
+        fun next(): String = tokens[pos++]
+
+        // Parses a primary: number, parenthesized expression or unary sign.
+        fun primary(): Double {
+            if (pos >= tokens.size) return 0.0
+            val token = next()
+            if (token == "(") {
+                val value = expr()
                 if (pos < tokens.size && tokens[pos] == ")") pos++
                 return value
             }
-            if (pos < tokens.size) {
-                val token = tokens[pos++]
-                return token.toDoubleOrNull() ?: 0.0
-            }
-            return 0.0
+            if (token == "-") return -primary()
+            if (token == "+") return primary()
+            return token.toDoubleOrNull() ?: 0.0
         }
-        fun parseFactor(): Double {
-            var value = parseUnary()
-            while (pos < tokens.size && tokens[pos] == "^") {
+
+        // a^b binds tightest, right-associative.
+        fun power(): Double {
+            var base = primary()
+            if (pos < tokens.size && tokens[pos] == "^") {
                 pos++
-                val exponent = parseUnary()
-                value = Math.pow(value, exponent)
+                val exponent = power()
+                return Math.pow(base, exponent)
             }
-            return value
+            return base
         }
-        fun parseTerm(): Double {
-            var value = parseFactor()
+
+        fun term(): Double {
+            var value = power()
             while (pos < tokens.size && (tokens[pos] == "*" || tokens[pos] == "/")) {
-                val op = tokens[pos++]
-                val rhs = parseFactor()
+                val op = next()
+                val rhs = power()
                 value = if (op == "*") value * rhs else value / rhs
             }
             return value
         }
-        fun parseExpr(): Double {
-            var value = parseTerm()
+
+        fun expr(): Double {
+            var value = term()
             while (pos < tokens.size && (tokens[pos] == "+" || tokens[pos] == "-")) {
-                val op = tokens[pos++]
-                val rhs = parseTerm()
+                val op = next()
+                val rhs = term()
                 value = if (op == "+") value + rhs else value - rhs
             }
             return value
         }
-        val result = parseExpr()
+
+        val result = expr()
         return if (result.isNaN() || result.isInfinite()) 0.0 else result
     }
 
