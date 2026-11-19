@@ -294,7 +294,9 @@ object AppUtils {
                 }
             } catch (_: PackageManager.NameNotFoundException) {
             }
-            if (appTasks.size >= max) break
+            // max <= 0 means no limit: callers pass the running-apps
+            // preference, where 0 stands for "unlimited" (#250).
+            if (max > 0 && appTasks.size >= max) break
         }
         return appTasks
     }

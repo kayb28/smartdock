@@ -149,6 +149,15 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     companion object {
         /**
+         * Cap used when the running-apps limit is set to 0 (= no limit):
+         * ActivityManager.getRunningTasks(0) is clamped to one task by the
+         * platform, which capped the task strip to a single app (#250). A
+         * fixed ceiling of 100 keeps the strip sane on devices that report
+         * stale task lists.
+         */
+        private const val MAX_RUNNING_TASKS = 100
+
+        /**
          * Whether the service is currently connected: set as soon as
          * [onServiceConnected] runs and cleared in [onDestroy]. Distinguishes
          * "the system still has to bind the service" from "the system lost
@@ -1807,15 +1816,21 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
         val nApps =
             if (orientation == Configuration.ORIENTATION_PORTRAIT) maxApps else maxAppsLandscape
+        // A limit of 0 means "no limit". The platform clamps
+        // ActivityManager.getRunningTasks(0) to a single task, so users who
+        // set the running-apps count to 0 saw the strip capped at one app
+        // (#250). Pass a high cap instead; getRecentTasks skips its limit
+        // the same way.
+        val maxTasks = if (nApps > 0) nApps else MAX_RUNNING_TASKS
         if (systemApp || DeviceUtils.hasShizukuPermission()) {
             if (systemApp)
-                tasks = AppUtils.getRunningTasks(activityManager, null, packageManager, nApps)
+                tasks = AppUtils.getRunningTasks(activityManager, null, packageManager, maxTasks)
             else if (DeviceUtils.hasShizukuPermission())
                 tasks = AppUtils.getRunningTasks(
                     activityManager,
                     activityManagerWrapper,
                     packageManager,
-                    nApps
+                    maxTasks
                 )
             for (j in 1..tasks.size) {
                 val task = tasks[tasks.size - j]
@@ -1826,7 +1841,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     apps.add(DockApp(task))
             }
         } else {
-            tasks = AppUtils.getRecentTasks(context, nApps)
+            tasks = AppUtils.getRecentTasks(context, maxTasks)
             tasks.reversed().forEach { task ->
                 val index = AppUtils.containsTask(apps, task)
                 if (index == -1)
