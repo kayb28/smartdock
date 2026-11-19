@@ -354,4 +354,11 @@
     <string name="dock_elements_portrait">ਡੌਕ ਐਲੀਮੈਂਟਸ (ਪੋਰਟਰੇਟ)</string>
     <string name="dock_elements_landscape">ਡੌਕ ਐਲੀਮੈਂਟਸ (ਲੈਂਡਸਕੇਪ)</string>
 
+    <string name="search_engine_title">ਵੈੱਬ ਖੋਜ ਇੰਜਣ</string>
+    <string name="search_engine_google">Google</string>
+    <string name="search_engine_duckduckgo">DuckDuckGo</string>
+    <string name="search_engine_bing">Bing</string>
+    <string name="on_duckduckgo">DuckDuckGo ਬਾਰੀ</string>
+    <string name="on_bing">Bing ਬਾਰੀ</string>
+    <string name="pin_shortcut_to_dock">ਸ਼ਾਰਟਕੱਟ ਨੂੰ ਡੌਕ ਵਿੱਚ ਪਿੰਨ ਕਰੋ</string>
 </resources>

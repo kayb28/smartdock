@@ -28,7 +28,13 @@
             android:hint="5"
             android:defaultValue="5"
             android:title="@string/num_columns_title"/>
-			
+        <ListPreference
+            android:entries="@array/search_engines"
+            android:entryValues="@array/search_engine_values"
+            android:key="search_engine"
+            android:title="@string/search_engine_title"
+            android:defaultValue="google" />
+
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/app_launch">

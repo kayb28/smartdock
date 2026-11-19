@@ -354,4 +354,11 @@
     <string name="dock_elements_portrait">Dock elements(portrait)</string>
     <string name="dock_elements_landscape">Dock elements(landscape)</string>
 
+    <string name="search_engine_title">網頁搜尋引擎</string>
+    <string name="search_engine_google">Google</string>
+    <string name="search_engine_duckduckgo">DuckDuckGo</string>
+    <string name="search_engine_bing">必應</string>
+    <string name="on_duckduckgo">（DuckDuckGo）</string>
+    <string name="on_bing">（必應）</string>
+    <string name="pin_shortcut_to_dock">將捷徑釘選到Dock</string>
 </resources>

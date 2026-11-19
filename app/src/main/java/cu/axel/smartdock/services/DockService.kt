@@ -131,6 +131,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import rikka.shizuku.Shizuku
+import java.io.File
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
 
@@ -203,6 +204,10 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     private var metaUsedAsModifier = false
     private var systemApp = false
     private var preferSecondaryDisplay = false
+    // Labels of the deep shortcuts currently listed in the pin-shortcut
+    // submenu; lets the click handler tell shortcut entries apart from
+    // other Action items with the same icon.
+    private val appShortcutsPinning = mutableSetOf<String>()
     private lateinit var dockLayoutParams: WindowManager.LayoutParams
     private lateinit var searchEt: EditText
     private lateinit var tasksGv: RecyclerView
@@ -471,6 +476,18 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             actions.add(Action(R.drawable.ic_add_to_desktop, getString(R.string.desktop)))
         if (!AppUtils.isPinned(context, app, AppUtils.DOCK_PINNED_LIST))
             actions.add(Action(R.drawable.ic_pin, getString(R.string.dock)))
+        // Deep shortcuts can be pinned to the dock too (C2): offered
+        // whenever the app exposes at least one not already pinned.
+        if (DeepShortcutManager.hasHostPermission(context)) {
+            val shortcuts = DeepShortcutManager.getShortcuts(app.packageName, context)
+            if (!shortcuts.isNullOrEmpty()) {
+                val pinnable = shortcuts.any {
+                    !AppUtils.isShortcutPinned(context, it, AppUtils.DOCK_PINNED_LIST)
+                }
+                if (pinnable)
+                    actions.add(Action(R.drawable.ic_pin, getString(R.string.pin_shortcut_to_dock)))
+            }
+        }
 
         return actions
     }
@@ -479,9 +496,13 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         val tasks = app.tasks
         if (tasks.size == 1) {
             val taskId = tasks[0].id
-            if (taskId == -1)
-                launchApp(null, app.packageName)
-            else
+            if (taskId == -1) {
+                // Pinned deep shortcuts (no running task) launch through
+                // LauncherApps.startShortcut; plain pinned apps launch
+                // through the normal intent path.
+                if (!launchPinnedShortcutIfAny(app.packageName))
+                    launchApp(null, app.packageName)
+            } else
                 activityManager.moveTaskToFront(taskId, 0)
         } else if (tasks.size > 1) {
             val view = LayoutInflater.from(context).inflate(R.layout.task_list, null)
@@ -523,6 +544,23 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     override fun onDockAppLongClicked(app: DockApp, view: View) {
         showDockAppContextMenu(app, view)
+    }
+
+    // Pinned deep shortcuts carry no component and no running task; when the
+    // dock pin list has a "shortcut:pkg id" line for this package, launch it.
+    private fun launchPinnedShortcutIfAny(packageName: String): Boolean {
+        val file = File(filesDir, AppUtils.DOCK_PINNED_LIST)
+        if (!file.exists()) return false
+        for (line in file.readLines()) {
+            if (!line.startsWith("shortcut:")) continue
+            val parts = line.removePrefix("shortcut:").split(" ")
+            if (parts.size < 2 || parts[0] != packageName) continue
+            if (DeepShortcutManager.startShortcutById(parts[0], parts[1], this)) {
+                if (isPinned && sharedPreferences.getBoolean("auto_unpin", true)) unpinDock()
+                return true
+            }
+        }
+        return false
     }
 
     override fun onAppClicked(app: App, item: View) {
@@ -672,8 +710,14 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     )
                 else if (event.keyCode == KeyEvent.KEYCODE_O) {
                     toggleSoftKeyboard()
-                } else if (event.keyCode == KeyEvent.KEYCODE_F12)
-                    DeviceUtils.softReboot()
+                } else if (event.keyCode == KeyEvent.KEYCODE_F12) {
+                    // The Alt+F12 soft-reboot switch in Advanced settings is
+                    // real again: it gates the shortcut here (the manual
+                    // "Soft reboot" entry in the same screen stays
+                    // unconditional).
+                    if (sharedPreferences.getBoolean("enable_soft_reboot", false))
+                        DeviceUtils.softReboot()
+                }
                 //Window management
                 else if (event.keyCode == KeyEvent.KEYCODE_F3) {
                     if (tasks.isNotEmpty()) {
@@ -1157,6 +1201,27 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         return@withContext AppUtils.getInstalledApps(context)
     }
 
+    // The web search entry in the app menu used to hardcode google.com in two
+    // places; both now resolve the query against the user's preferred engine.
+    private fun performWebSearch() {
+        val query = searchEt.text.toString()
+        if (query.length < 2) return
+        val url = when (sharedPreferences.getString("search_engine", "google")) {
+            "duckduckgo" -> "https://duckduckgo.com/?q="
+            "bing" -> "https://www.bing.com/search?q="
+            else -> "https://www.google.com/search?q="
+        } + URLEncoder.encode(query, "UTF-8")
+        launchApp(null, null, Intent(Intent.ACTION_VIEW, url.toUri()))
+    }
+
+    private fun searchEngineLabel(): String {
+        return when (sharedPreferences.getString("search_engine", "google")) {
+            "duckduckgo" -> getString(R.string.on_duckduckgo)
+            "bing" -> getString(R.string.on_bing)
+            else -> getString(R.string.on_google)
+        }
+    }
+
     private fun updateAppMenu(recreateAdapter: Boolean = false) {
         CoroutineScope(Dispatchers.Default).launch {
             val hiddenApps = sharedPreferences.getStringSet(
@@ -1405,10 +1470,42 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                         )
                     actionsLv.adapter = AppActionsAdapter(context, actions)
                 } else if (action.text == getString(R.string.shortcuts)) {
+                    // The shortcut list itself: tapping a shortcut launches
+                    // it (the ShortcutInfo branch below). The list is shown
+                    // through AppShortcutAdapter.
                     actionsLv.adapter = AppShortcutAdapter(
                         context,
                         DeepShortcutManager.getShortcuts(app.packageName, context)!!
                     )
+                } else if (action.text == getString(R.string.pin_shortcut_to_dock)) {
+                    // The "add to dock" submenu for deep shortcuts: pin the
+                    // shortcut itself (not the app) to the dock pin list.
+                    val shortcuts = DeepShortcutManager.getShortcuts(app.packageName, context)!!
+                    val actions = ArrayList<Action>()
+                    actions.add(Action(R.drawable.ic_arrow_back, ""))
+                    appShortcutsPinning.clear()
+                    for (shortcut in shortcuts) {
+                        if (!AppUtils.isShortcutPinned(context, shortcut, AppUtils.DOCK_PINNED_LIST)) {
+                            val label = shortcut.shortLabel ?: shortcut.id
+                            actions.add(Action(R.drawable.ic_pin, label))
+                            appShortcutsPinning.add(label)
+                        }
+                    }
+                    actionsLv.adapter = AppActionsAdapter(context, actions)
+                } else if (action.icon == R.drawable.ic_pin && action.text in appShortcutsPinning) {
+                    // A shortcut entry inside the pin-shortcut submenu: the
+                    // icon + label pair is only used there, so pin it now.
+                    val shortcuts = DeepShortcutManager.getShortcuts(app.packageName, context)!!
+                    val shortcut = shortcuts.firstOrNull {
+                        (it.shortLabel ?: it.id) == action.text
+                    }
+                    if (shortcut != null) {
+                        AppUtils.pinShortcut(context, shortcut, AppUtils.DOCK_PINNED_LIST)
+                        loadPinnedApps()
+                        updateRunningTasks()
+                        windowManager.removeView(view)
+                        if (appMenuVisible) hideAppMenu()
+                    }
                 } else if (action.text == "") {
                     actionsLv.adapter = AppActionsAdapter(context, getAppActions(app))
                 } else if (action.text == getString(R.string.open_as)) {
@@ -2456,18 +2553,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             hideAppMenu()
         }
         searchTv.setOnClickListener {
-            try {
-                launchApp(
-                    null, null,
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        ("https://www.google.com/search?q="
-                                + URLEncoder.encode(searchEt.text.toString(), "UTF-8")).toUri()
-                    )
-                )
-            } catch (e: UnsupportedEncodingException) {
-                throw RuntimeException(e)
-            }
+            performWebSearch()
         }
 
         searchEt.addTextChangedListener { text ->
@@ -2477,7 +2563,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 if (text.length > 1) {
                     searchLayout.visibility = View.VISIBLE
                     searchTv.text =
-                        getString(R.string.search_for) + " \"" + text + "\" " + getString(R.string.on_google)
+                        getString(R.string.search_for) + " \"" + text + "\" " + searchEngineLabel()
                     toggleFavorites(false)
                 } else {
                     searchLayout.visibility = View.GONE
@@ -2494,21 +2580,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         searchEt.setOnKeyListener { _, code, event ->
             if (event.action == KeyEvent.ACTION_DOWN) {
                 if (code == KeyEvent.KEYCODE_ENTER && searchEt.text.toString().length > 1) {
-                    try {
-                        launchApp(
-                            null, null,
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                ("https://www.google.com/search?q="
-                                        + URLEncoder.encode(
-                                    searchEt.text.toString(),
-                                    "UTF-8"
-                                )).toUri()
-                            )
-                        )
-                    } catch (e: UnsupportedEncodingException) {
-                        throw RuntimeException(e)
-                    }
+                    performWebSearch()
                     true
                 } else if (code == KeyEvent.KEYCODE_DPAD_DOWN)
                     appsGv.requestFocus()

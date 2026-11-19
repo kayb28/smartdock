@@ -107,5 +107,15 @@
         <item>#3E3E3E</item>
         <item>#101010</item>
     </string-array>
+    <string-array name="search_engines">
+        <item>@string/search_engine_google</item>
+        <item>@string/search_engine_duckduckgo</item>
+        <item>@string/search_engine_bing</item>
+    </string-array>
+    <string-array name="search_engine_values">
+        <item>google</item>
+        <item>duckduckgo</item>
+        <item>bing</item>
+    </string-array>
 </resources>
 

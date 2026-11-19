@@ -350,4 +350,11 @@
     <string name="donate_message">If you find this project useful or it has helped you in any way, consider showing your appreciation and supporting its ongoing development.</string>
     <string name="dock_elements_portrait">Dock elements(portrait)</string>
     <string name="dock_elements_landscape">Dock elements(landscape)</string>
+    <string name="search_engine_title">Web search engine</string>
+    <string name="search_engine_google">Google</string>
+    <string name="search_engine_duckduckgo">DuckDuckGo</string>
+    <string name="search_engine_bing">Bing</string>
+    <string name="on_duckduckgo">on DuckDuckGo</string>
+    <string name="on_bing">on Bing</string>
+    <string name="pin_shortcut_to_dock">Pin shortcut to dock</string>
 </resources>

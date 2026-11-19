@@ -353,4 +353,11 @@
     <string name="dock_elements_portrait">Dock elements(portrait)</string>
     <string name="dock_elements_landscape">Dock elements(landscape)</string>
 
+    <string name="search_engine_title">网页搜索引擎</string>
+    <string name="search_engine_google">Google</string>
+    <string name="search_engine_duckduckgo">DuckDuckGo</string>
+    <string name="search_engine_bing">必应</string>
+    <string name="on_duckduckgo">（DuckDuckGo）</string>
+    <string name="on_bing">（必应）</string>
+    <string name="pin_shortcut_to_dock">将快捷方式固定到Dock</string>
 </resources>

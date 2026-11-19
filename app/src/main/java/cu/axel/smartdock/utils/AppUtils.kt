@@ -10,6 +10,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
+import android.content.pm.ShortcutInfo
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.SystemClock
@@ -32,6 +33,10 @@ object AppUtils {
     const val PINNED_LIST = "pinned.lst"
     const val DOCK_PINNED_LIST = "dock_pinned.lst"
     const val DESKTOP_LIST = "desktop.lst"
+    // Pinned deep shortcuts are stored as "shortcut:package shortcutId"
+    // lines inside the same .lst files; the prefix keeps them apart from
+    // the "package userSerial" app lines.
+    private const val SHORTCUT_PREFIX = "shortcut:"
     var currentApp = ""
     fun getInstalledPackages(context: Context): List<App> {
         val apps = ArrayList<App>()
@@ -89,6 +94,20 @@ object AppUtils {
         if (file.exists()) {
             for (line in file.readLines()) {
                 if (line.isBlank()) continue
+                // Pin list lines are either "package userSerial" (app entry)
+                // or "shortcut:package shortcutId" (pinned deep shortcut).
+                if (line.startsWith(SHORTCUT_PREFIX)) {
+                    val parts = line.removePrefix(SHORTCUT_PREFIX).split(" ")
+                    if (parts.size < 2) continue
+                    val shortcut = DeepShortcutManager.getShortcutById(parts[0], parts[1], context)
+                    if (shortcut != null) {
+                        val icon = DeepShortcutManager.getShortcutIcon(shortcut, context)
+                        if (icon != null)
+                            apps.add(App(shortcut.longLabel ?: shortcut.shortLabel ?: shortcut.id,
+                                shortcut.`package`, icon))
+                    }
+                    continue
+                }
                 val info = line.split(" ")
                 val packageName = info[0]
                 val userHandle = userManager.getUserForSerialNumber(info[1].toLong())
@@ -110,6 +129,21 @@ object AppUtils {
             )
         }
         return apps
+    }
+
+    // Pinned deep shortcuts: stored as "shortcut:package shortcutId" lines in
+    // the same .lst files as app pins. Shortcut pins launch through
+    // LauncherApps.startShortcut, not through a component launch.
+    fun pinShortcut(context: Context, shortcut: ShortcutInfo, type: String) {
+        val file = File(context.filesDir, type)
+        file.appendText("$SHORTCUT_PREFIX${shortcut.`package`} ${shortcut.id}\n")
+    }
+
+    fun isShortcutPinned(context: Context, shortcut: ShortcutInfo, type: String): Boolean {
+        val file = File(context.filesDir, type)
+        if (!file.exists()) return false
+        val needle = "$SHORTCUT_PREFIX${shortcut.`package`} ${shortcut.id}"
+        return file.readLines().any { it == needle }
     }
 
     fun pinApp(context: Context, app: App, type: String) {

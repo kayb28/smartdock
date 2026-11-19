@@ -351,4 +351,11 @@
     <string name="dock_elements_portrait">Elementos del Dock(portrait)</string>
     <string name="dock_elements_landscape">Elementos del Dock(landscape)</string>
 
+    <string name="search_engine_title">Motor de búsqueda web</string>
+    <string name="search_engine_google">Google</string>
+    <string name="search_engine_duckduckgo">DuckDuckGo</string>
+    <string name="search_engine_bing">Bing</string>
+    <string name="on_duckduckgo">en DuckDuckGo</string>
+    <string name="on_bing">en Bing</string>
+    <string name="pin_shortcut_to_dock">Anclar atajo al dock</string>
 </resources>

@@ -353,4 +353,11 @@
     <string name="dock_elements_portrait">Dock elements(portrait)</string>
     <string name="dock_elements_landscape">Dock elements(landscape)</string>
 
+    <string name="search_engine_title">Websuchmaschine</string>
+    <string name="search_engine_google">Google</string>
+    <string name="search_engine_duckduckgo">DuckDuckGo</string>
+    <string name="search_engine_bing">Bing</string>
+    <string name="on_duckduckgo">auf DuckDuckGo</string>
+    <string name="on_bing">auf Bing</string>
+    <string name="pin_shortcut_to_dock">Verknüpfung an Dock anheften</string>
 </resources>

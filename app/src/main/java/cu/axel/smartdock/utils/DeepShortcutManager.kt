@@ -20,6 +20,16 @@ object DeepShortcutManager {
         }
     }
 
+    // Launch a pinned shortcut by its "package/shortcutId" line format: the
+    // dock pin list stores shortcuts as package + shortcut id, unlike app
+    // entries which are package + user serial.
+    fun startShortcutById(packageName: String, shortcutId: String, context: Context): Boolean {
+        val shortcuts = getShortcuts(packageName, context) ?: return false
+        val shortcut = shortcuts.firstOrNull { it.id == shortcutId } ?: return false
+        startShortcut(shortcut, context)
+        return true
+    }
+
     fun getShortcutIcon(shortcutInfo: ShortcutInfo, context: Context): Drawable? {
         val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
         try {
@@ -28,6 +38,10 @@ object DeepShortcutManager {
         } catch (_: Exception) {
         }
         return null
+    }
+
+    fun getShortcutById(packageName: String, shortcutId: String, context: Context): ShortcutInfo? {
+        return getShortcuts(packageName, context)?.firstOrNull { it.id == shortcutId }
     }
 
     fun getShortcuts(app: String, context: Context): List<ShortcutInfo>? {
