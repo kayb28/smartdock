@@ -28,7 +28,20 @@ Publicada como GitHub Release («SmartDock fork v1.15.0-fork.4», APK `SmartDock
 ### Notas de compatibilidad
 
 - La build del fork **actualiza encima** de builds anteriores del fork (keystore fijo); no puede actualizarse encima de la app oficial de F-Droid (certificado distinto): desinstalar esa primero.
-- versionCode sin cambios (1150 = upstream 1.15.0): la identidad de la release del fork es el tag.
+- versionCode 1150 (= upstream 1.15.0): instalable encima de las builds locales fork.1–3, pero cualquier release posterior del fork **debe subir el versionCode** para que Android acepte el update (corregido en fork.5).
+
+## [v1.15.1-fork.5] — 2026-11-19
+
+Publicada como GitHub Release desde la main consolidada (workflow automático de tags). Base: `v1.15.0-fork.4` + documentación del fork + bump de versión. Primer release del fork con versionCode propio por encima de upstream.
+
+### Corregido
+
+- **La build ahora es actualizable**: versionCode 1150 → **1151**, versionName 1.15.0 → **1.15.1**. Con el versionCode congelado, cualquier APK nueva se rechazaba como reinstalación de la misma versión: Android exige versionCode estrictamente creciente para aceptar un update (lección de WebLibre, donde su fork.4 tuvo que saltar 423→483). Esta build **se instala encima de v1.15.0-fork.4 sin desinstalar** (misma firma del keystore del fork) y conserva ajustes, apps fijadas y modos de lanzamiento.
+
+### Notas de compatibilidad
+
+- Actualiza encima de v1.15.0-fork.4 (versionCode 1151 > 1150, misma firma). Sigue sin poder actualizarse encima de la app oficial de F-Droid (certificado distinto): desinstalar esa primero.
+- Contenido funcional = fork.4 (mismos 10 commits de la jornada de octubre); el cambio de esta release es el bump de versión, la consolidación a main y la documentación del fork (AGENTS.md, docs/, FORK.md, CHANGELOG-FORK.md).
 
 ## [v1.15.0-fork.1–3] — anteriores a la primera release pública
 

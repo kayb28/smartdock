@@ -7,9 +7,10 @@ Fork de [axel358/smartdock](https://github.com/axel358/smartdock) con un objetiv
 | Tag | versionCode | Contenido |
 |---|---|---|
 | v1.15.0-fork.1–3 | 1150 | Builds locales previas (sin release en GitHub). No publicadas |
-| **v1.15.0-fork.4** | **1150** | Publicada. Toda la jornada de bugs de oct-2026 (10 commits): 4 bugs viejos cerrados, display secundario fail-safe, modo escritorio en monitor, firma estable y releases automáticas |
+| v1.15.0-fork.4 | 1150 | Publicada. Toda la jornada de bugs de oct-2026 (10 commits): 4 bugs viejos cerrados, display secundario fail-safe, modo escritorio en monitor, firma estable y releases automáticas |
+| **v1.15.1-fork.5** | **1151** | Publicada. Primer bump de versionCode del fork: hace la build **actualizable** encima de fork.4 (Android rechaza updates con versionCode igual o menor). Contenido = fork.4 + bump de versión; los fixes son los mismos |
 
-El versionCode no se toca mientras el fork mantenga paridad con upstream: la release del fork se distingue por el tag, no por la versión. La numeración `fork.N` lleva su propio contador.
+El versionCode sube en cada release del fork: Android compara versionCodes para aceptar un update, así que un versionCode congelado haría que cada APK nueva se rechace como reinstalación (lección pagada en WebLibre, donde su fork.4 tuvo que saltar 423→483 para que Android aceptara el update). La numeración `fork.N` lleva su propio contador para no chocar con la de upstream.
 
 ## El trabajo de la jornada de octubre 2026 (rama `bugfix/october-2026-bugs`)
 
@@ -40,7 +41,7 @@ El versionCode no se toca mientras el fork mantenga paridad con upstream: la rel
 
 ## Convenios del fork
 
-- versionCode sin tocar mientras haya paridad con upstream; releases por tag `v1.15.0-fork.N`.
+- versionCode estrictamente creciente en cada release del fork (…1150 → 1151 → …); releases por tag `v1.15.x-fork.N`.
 - main absorbe el trabajo de las ramas `bugfix/`/`feature/` por **fast-forward**; el historial nunca se descarta ni se reescribe.
 - Commits en inglés, un problema por commit con la causa raíz en el cuerpo (candidatos a upstream); documentación interna en español (`docs/`).
 - Cadena nueva → traducida en el mismo commit a los seis idiomas mantenidos.

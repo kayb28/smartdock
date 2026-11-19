@@ -37,11 +37,11 @@ El fork (kayb28) nació de usarlo sobre un monitor USB-C: el soporte de display 
 
 - `main` — punta consolidada: `517604a` (upstream 1.15.0) + 10 commits de `bugfix/october-2026-bugs` (fast-forward) + commits `docs/` del 2026-11-19.
 - `bugfix/october-2026-bugs` — histórico congelado de la jornada 2026-11-07; allí vive el tag `v1.15.0-fork.4`. No pushear encima.
-- Tags: `v1.15.0-fork.4` → `0eac1a4` (Release «SmartDock fork v1.15.0-fork.4», APK `SmartDock-fork-debug-v1.15.0-fork.4.apk`).
+- Tags: `v1.15.0-fork.4` → `0eac1a4` (Release «SmartDock fork v1.15.0-fork.4», APK `SmartDock-fork-debug-v1.15.0-fork.4.apk`); `v1.15.1-fork.5` → main consolidada + bump de versionCode 1151 (2026-11-19, «la build actualizable»).
 - Próximas ramas: cortar de `main`, prefijos `bugfix/` (fixes) o `feature/` (funciones). Consolidar a main solo por fast-forward (o merge sin conflicto si upstream se cruza por el medio).
 
 ## Qué NO ha hecho el fork (límites actuales)
 
 - No hay renombrado de paquete ni de aplicación: paridad total con upstream para poder absorber sus futuros cambios con merges baratos.
-- versionCode sin tocar (1150): una futura absorción de upstream con versión nueva se resuelve en ese momento, subiendo el versionCode del fork por encima solo si upstream no la sube.
+- versionCode estrictamente creciente desde v1.15.1-fork.5 (1151): cada release del fork debe superar el versionCode instalado o Android la rechaza como reinstalación (lección de WebLibre). Si upstream sube su versión, el fork sigue por encima.
 - El upstream no tiene PR abierto desde el fork: los fixes de la jornada de octubre son candidatos naturales a upstream (los commits están redactados en inglés con cuerpo de causa raíz para eso), pero no se ha propuesto nada — decisión pendiente del dueño.

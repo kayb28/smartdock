@@ -5,7 +5,7 @@ _Estados: pendiente confirmar → confirmado → superado. La fuente de la verda
 
 ## Convenios
 
-- versionCode/versión **sin tocar** mientras el fork mantenga paridad con upstream: v1.15.0 (1150). Las releases del fork se distinguen por el **tag** (`v1.15.0-fork.N`), no por el versionCode.
+- versionCode **estrictamente creciente en cada release del fork** (lección de WebLibre: un versionCode igual o menor hace que Android rechace el update; el fork solo se distingue por el tag si el versionCode ya no puede bajar). La numeración del fork sigue la de upstream +patch: 1150 → 1151 (v1.15.1-fork.5) → …
 - APKs del fork = **build debug firmada con keystore fijo** (`debug.keystore` en el repo): actualizan encima de builds anteriores del fork sin desinstalar; **NO** actualizan encima de la app oficial de F-Droid (certificado distinto) — desinstalar esa primero.
 - Idioma de commits y docs del fork: inglés en commits (revisable por upstream), español en esta documentación.
 - Ramas: trabajo en `bugfix/*` o `feature/*`; `main` solo recibe fast-forward del árbol de feature (el historial nunca se descarta).
@@ -90,3 +90,10 @@ Base: `517604a` (main = punta de upstream, 2026-05-21, «fix: Update donation ad
 - [x] main en `3d48df3` = `0eac1a4` (los 10 commits de la jornada, fast-forward) + commit `docs/` de documentación. Push 2026-11-19 01:52 UTC.
 - [x] CI verde en main (2/2 workflows: Build project y Build debug apk, ambos `success` sobre `3d48df3`).
 - [x] La rama `bugfix/october-2026-bugs` sigue existiendo en `0eac1a4` (histórico del tag v1.15.0-fork.4). Estado: **consolidación completada**.
+
+## 2026-11-19 (segunda pasada) — v1.15.1-fork.5: la build actualizable
+
+- **Error detectado por el usuario**: la primera pasada dejó el versionCode congelado en 1150 («paridad con upstream») y no publicó release nueva — cualquier APK futura se habría rechazado como reinstalación de la misma versión. Es literalmente la lección de WebLibre (su fork.4: 423 < 473 instalado, «Android rechazaba el update», saltó a 483), escrita aquí como convenio al revés.
+- Fix: **versionCode 1150 → 1151, versionName 1.15.0 → 1.15.1** (`app/build.gradle`), convenio reescrito en AGENTS.md §1/§5, FORK.md (tabla de versiones + convenios), HISTORIA.md, CHANGELOG-FORK.md (nota de compatibilidad de fork.4 corregida + entrada nueva de fork.5) y este registro: **versionCode estrictamente creciente en cada release del fork**.
+- Publicación: commit en main + tag `v1.15.1-fork.5` → el workflow de releases construye el APK debug (firmado con el keystore del repo) y crea la GitHub Release automáticamente. Contenido funcional = fork.4; el cambio es el bump, la consolidación y la documentación.
+- Estado: pendiente de CI verde y Release automática (cierre abajo).

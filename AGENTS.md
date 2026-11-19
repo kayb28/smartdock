@@ -6,7 +6,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 ## 1. Qué es este proyecto
 
 - Fork de **Smart Dock** (upstream [axel358/smartdock](https://github.com/axel358/smartdock)): launcher de modo escritorio para Android — dock, multi-ventana libreform, atajos de teclado, soporte tablet/escritorio. Kotlin + XML views (NO Compose), Gradle Groovy DSL, Views clásico con `AppCompatActivity`. Licencia **GPL-3.0** (cualquier derivado debe mantenerla).
-- Identidad del fork: paquete `cu.axel.smartdock` (sin renombrar — paridad con upstream), versionCode 1150 / 1.15.0. El fork se distingue por sus **tags de release** (`v1.15.0-fork.N`) y por su keystore debug propio, no por el versionCode.
+- Identidad del fork: paquete `cu.axel.smartdock` (sin renombrar — paridad con upstream), versionCode estrictamente creciente (1151 / 1.15.1 en `v1.15.1-fork.5`). El fork se distingue por sus **tags de release** (`v1.15.x-fork.N`) y por su keystore debug propio.
 - Estructura: `app/src/main/java/cu/axel/smartdock/` con `activities/` (launcher, ajustes), `services/DockService.kt` (el corazón: servicio de accesibilidad), `utils/` (DeviceUtils = displays/Shizuku/root, AppUtils = lanzamiento de apps y bounds), `receivers/`, `fragments/` (preferencias), `widgets/`, `models/`, `dialogs/`, `db/`, `components/`.
 - Traducciones mantenidas por el fork: **de, es, pa, zh-rCN, zh-rHK, zh-rTW**. Regla dura: cada cadena nueva en `values/strings.xml` debe ir acompañada de su traducción en los seis, o lint tumba el build (`MissingTranslation` — falló así en `f5409c5`).
 
@@ -20,7 +20,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 
 ## 3. Ramas
 
-- `main` — punta consolidada del fork: upstream 1.15.0 (`517604a`) + los 10 commits de `bugfix/october-2026-bugs` (fast-forward del 2026-11-19) + documentación. Desde el 2026-11-19 coincide con lo publicado como `v1.15.0-fork.4` (más docs).
+- `main` — punta consolidada del fork: upstream 1.15.0 (`517604a`) + los 10 commits de `bugfix/october-2026-bugs` (fast-forward del 2026-11-19) + documentación + bump v1.15.1 (versionCode 1151). Desde el 2026-11-19 coincide con lo publicado como `v1.15.1-fork.5`.
 - `bugfix/october-2026-bugs` — la jornada de bugs 2026-11-07 (10 commits, `f5409c5`→`0eac1a4`). **Consolidada en main por fast-forward; se conserva como histórico** porque es donde vive el tag `v1.15.0-fork.4`. No pushear encima.
 - Ramas nuevas: prefijos `bugfix/` o `feature/`, cortadas desde `main`. Convención del fork (heredada de WebLibre): el árbol de feature va siempre por delante de main y main **absorbe por fast-forward**, nunca se descarta trabajo ni se reescribe historial.
 - upstream (`axel358/smartdock`) no está configurado como remote en el clone; para sincronizar: `git remote add upstream https://github.com/axel358/smartdock.git && git fetch upstream` y merge de `upstream/main` en `main` (repo GitHub del fork = fork real, la red «fork» ya está conectada).
@@ -33,7 +33,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 
 ## 5. Convenios del fork
 
-- versionCode/versión **intocados** mientras haya paridad con upstream; releases del fork por tag `v1.15.0-fork.N` y notas de release.
+- versionCode **estrictamente creciente en cada release** (Android rechaza updates con versionCode ≤ al instalado — lección de WebLibre); releases del fork por tag `v1.15.x-fork.N` y notas de release.
 - Commits en inglés (un problema = un commit, con cuerpo explicando causa raíz — el estilo de la jornada de octubre es el estándar a imitar). Documentación interna en español.
 - Cada fix de UI de strings: traducir a de/es/pa/zh-rCN/zh-rHK/zh-rTW en el mismo commit (no «luego»): la CI tumba el build si falta una.
 - APKs publicadas como GitHub Release (workflow de tags), no como artefacto de Actions (requieren login y caducan).
