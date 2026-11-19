@@ -189,3 +189,8 @@ NoSuchMethodError: No static method asInterface(IActivityManager$Stub...) in fra
 - CI en la rama: **verde** (`f2f4727`, Build project + Build debug apk).
 - Fast-forward a main; bump versionCode **1154** / versionName **1.15.4**; tag `v1.15.4-fork.8` → Release automática con APK.
 - Estado: ver cierre al final del archivo.
+
+### Cierre (verificado)
+
+- [x] CI **verde en las 6 corridas** de la jornada: la rama `bugfix/wrapper-init-crash` (Build project + Build debug apk sobre `f2f4727`), main (Build project + Build debug apk sobre `af3332e`) y el tag `v1.15.4-fork.8` (Release debug apk + Build project sobre `af3332e`). Release **«SmartDock fork v1.15.4-fork.8»** creada por el workflow, asset renombrado por API a `SmartDock-fork-debug-v1.15.4-fork.8.apk` (13.159.770 bytes) y notas de release en inglés.
+- [x] APK verificada: **versionCode 1154, versionName 1.15.4**, cert SHA-256 `4680C23198D542A0423DFD95F1A0D66A80100FA30CB72CAEDF107E41B54B41DB` (el mismo de fork.4–7 → **se instala encima de cualquier build anterior del fork sin desinstalar**), sha256 `75c3e429cd18e9cbd2ae3c6efbb9db450a2a0e09f6b218e386f0041b07a28069`. Entregada al usuario como `SmartDock-fork-debug-v1.15.4-fork.8.apk`. Estado: **v1.15.4-fork.8 publicada, actualizable y verificada**. Pendiente de verificación del usuario en el dispositivo afectado: dock visible en la pantalla secundaria y aviso de accesibilidad desaparecido; si el wrapper de ActivityManager sigue sin linkear (framework que eliminó la interfaz, no solo bloqueada), el dock funcionará con la API pública de recents y el panel Wi-Fi del sistema — registrar el resultado en `logcat -s SmartDock` para saber qué capa entró en acción.
