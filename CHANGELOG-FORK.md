@@ -3,6 +3,17 @@
 _Changelog formal de las releases del fork de Smart Dock. Formato Keep a Changelog, en español._
 _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/changelogs/`; aquí solo el fork._
 
+## [v1.15.4-fork.8] — 2026-11-19
+
+Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.4-fork.8.apk`). Base: `main` d69ef2f + 1 commit (rama `bugfix/wrapper-init-crash`, fast-forward). versionCode 1154.
+
+### Corregido
+
+- **Crash del servicio en frameworks donde los wrappers Shizuku ya no linkean** (reportado por el usuario con capturas del diálogo «Algo salió mal»; *no* es una regresión del fork: es código upstream sin tocar): `ActivityManagerWrapper()` lanzaba `NoSuchMethodError` — `IActivityManager$Stub.asInterface` ya no resuelve contra el framework del dispositivo (parent delegation carga primero la clase real y las interfaces ocultas cambiaron o dejaron de ser accesibles). Como el catch de `initWrappers` solo atrapaba `Exception` (el crash es un `Error`) y envolvía los tres wrappers en un bloque, el servicio de accesibilidad moría en `onCreate` **antes de dibujar nada**: el dock desaparecía de todas las pantallas —la secundaria incluida— y, al no conectar nunca el servicio, la app seguía mostrando el aviso de «activar la accesibilidad» aunque el toggle estuviera activo. Tres capas (`f2f4727`):
+  1. **Unseal de hidden APIs al arrancar** (`HiddenApiBypass.addHiddenApiExemptions("L")` en `App.onCreate`, best effort): donde el bloqueo era de política (lo más probable), los wrappers vuelven a linkear y sus funciones siguen operativas.
+  2. **`initWrappers` construye cada wrapper por separado y atrapa `Throwable`**: un wrapper que no puede levantarse degrada sus propias funciones (Wi-Fi → panel del sistema, Bluetooth → ajustes, tareas → API pública de recents) en vez de tumbar el dock.
+  3. **Adquisición resiliente dentro de cada wrapper** (`isAlive()=false` en vez de lanzar) + todo método protegido con `try/catch(Throwable)`: un framework que cambie firmas degrada a resultados vacíos, sin crashes a mitad de la interacción. `updateRunningTasks` cae al camino público de recents cuando el wrapper está muerto.
+
 ## [v1.15.3-fork.7] — 2026-11-19
 
 Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.3-fork.7.apk`). Base: `main` 5e58df9 + 6 commits de la jornada de cierre de issues reportados (rama `bugfix/november-2026-issues`, fast-forward). versionCode 1153. Con esta release, **todos los bugs reportados por usuarios en upstream están corregidos en el fork** (los 5 de octubre + los 6 que quedaban); lo que sigue abierto upstream son feature requests, no bugs.

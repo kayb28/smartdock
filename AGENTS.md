@@ -6,7 +6,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 ## 1. Qué es este proyecto
 
 - Fork de **Smart Dock** (upstream [axel358/smartdock](https://github.com/axel358/smartdock)): launcher de modo escritorio para Android — dock, multi-ventana libreform, atajos de teclado, soporte tablet/escritorio. Kotlin + XML views (NO Compose), Gradle Groovy DSL, Views clásico con `AppCompatActivity`. Licencia **GPL-3.0** (cualquier derivado debe mantenerla).
-- Identidad del fork: paquete `cu.axel.smartdock` (sin renombrar — paridad con upstream), versionCode estrictamente creciente (1153 / 1.15.3 en `v1.15.3-fork.7`). El fork se distingue por sus **tags de release** (`v1.15.x-fork.N`) y por su keystore debug propio.
+- Identidad del fork: paquete `cu.axel.smartdock` (sin renombrar — paridad con upstream), versionCode estrictamente creciente (1154 / 1.15.4 en `v1.15.4-fork.8`). El fork se distingue por sus **tags de release** (`v1.15.x-fork.N`) y por su keystore debug propio.
 - Estructura: `app/src/main/java/cu/axel/smartdock/` con `activities/` (launcher, ajustes), `services/DockService.kt` (el corazón: servicio de accesibilidad), `utils/` (DeviceUtils = displays/Shizuku/root, AppUtils = lanzamiento de apps y bounds), `receivers/`, `fragments/` (preferencias), `widgets/`, `models/`, `dialogs/`, `db/`, `components/`.
 - Traducciones mantenidas por el fork: **de, es, pa, zh-rCN, zh-rHK, zh-rTW**. Regla dura: cada cadena nueva en `values/strings.xml` debe ir acompañada de su traducción en los seis, o lint tumba el build (`MissingTranslation` — falló así en `f5409c5`).
 
@@ -20,7 +20,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 
 ## 3. Ramas
 
-- `main` — punta consolidada del fork: upstream 1.15.0 (`517604a`) + los 10 commits de `bugfix/october-2026-bugs` (fast-forward del 2026-11-19) + documentación + bump v1.15.1 (versionCode 1151) + los 9 commits de `feature/november-2026-improvements` (v1.15.2-fork.6, versionCode 1152) + los 6 commits de `bugfix/november-2026-issues` (v1.15.3-fork.7, versionCode 1153), todo absorbido por fast-forward.
+- `main` — punta consolidada del fork: upstream 1.15.0 (`517604a`) + los 10 commits de `bugfix/october-2026-bugs` (fast-forward del 2026-11-19) + documentación + bump v1.15.1 (versionCode 1151) + los 9 commits de `feature/november-2026-improvements` (v1.15.2-fork.6, versionCode 1152) + los 6 commits de `bugfix/november-2026-issues` (v1.15.3-fork.7, versionCode 1153) + 1 commit de `bugfix/wrapper-init-crash` (v1.15.4-fork.8, versionCode 1154), todo absorbido por fast-forward.
 - `bugfix/october-2026-bugs` — la jornada de bugs 2026-11-07 (10 commits, `f5409c5`→`0eac1a4`). **Consolidada en main por fast-forward; se conserva como histórico** porque es donde vive el tag `v1.15.0-fork.4`. No pushear encima.
 - Ramas nuevas: prefijos `bugfix/` o `feature/`, cortadas desde `main`. Convención del fork (heredada de WebLibre): el árbol de feature va siempre por delante de main y main **absorbe por fast-forward**, nunca se descarta trabajo ni se reescribe historial.
 - upstream (`axel358/smartdock`) no está configurado como remote en el clone; para sincronizar: `git remote add upstream https://github.com/axel358/smartdock.git && git fetch upstream` y merge de `upstream/main` en `main` (repo GitHub del fork = fork real, la red «fork» ya está conectada).
