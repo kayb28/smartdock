@@ -3,6 +3,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // error_prone_annotations 2.3.1 (a transitive of the checked-in
+        // dependencies) resolves only from jcenter; keep it declared as
+        // upstream does even though the repo is shutting down.
+        jcenter()
     }
 }
 rootProject.name = "smartdock"
