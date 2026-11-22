@@ -18,6 +18,7 @@ import cu.axel.smartdock.R
 import cu.axel.smartdock.activities.MainActivity
 import cu.axel.smartdock.services.DockService
 import cu.axel.smartdock.utils.DeviceUtils
+import cu.axel.smartdock.utils.Timers
 
 /**
  * Heals the dock after a reboot.
@@ -38,12 +39,6 @@ class BootCompletedReceiver : BroadcastReceiver() {
         private const val ACTION_CHECK_DOCK = "cu.axel.smartdock.action.CHECK_DOCK"
         private const val ACTION_REBIND_DOCK = "cu.axel.smartdock.action.REBIND_DOCK"
 
-        // Time for the system to bind the service on its own after boot, and
-        // time to stay disabled before being re-added (too short and the
-        // system may coalesce the two setting writes into a no-op).
-        private const val CHECK_DELAY_MS = 30_000L
-        private const val REBIND_DELAY_MS = 2_000L
-
         private const val CHANNEL_ID = "dock_recovery"
         private const val NOTIFICATION_ID = 1003
     }
@@ -53,7 +48,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
             Intent.ACTION_BOOT_COMPLETED -> {
                 // Only care when the user relies on the dock
                 if (DeviceUtils.isServiceListed(context))
-                    schedule(context, CHECK_DELAY_MS, ACTION_CHECK_DOCK)
+                    schedule(context, Timers.CHECK_DELAY_MS, ACTION_CHECK_DOCK)
             }
 
             ACTION_CHECK_DOCK -> {
@@ -63,7 +58,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
                 if (DeviceUtils.hasWriteSettingsPermission(context)) {
                     // Drop the dead binding; re-add it shortly after
                     DeviceUtils.disableService(context)
-                    schedule(context, REBIND_DELAY_MS, ACTION_REBIND_DOCK)
+                    schedule(context, Timers.REBIND_DELAY_MS, ACTION_REBIND_DOCK)
                 } else {
                     notifyUser(context)
                 }

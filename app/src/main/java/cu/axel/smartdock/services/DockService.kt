@@ -123,6 +123,7 @@ import cu.axel.smartdock.utils.DeepShortcutManager
 import cu.axel.smartdock.utils.DeviceUtils
 import cu.axel.smartdock.utils.IconPackUtils
 import cu.axel.smartdock.utils.OnSwipeListener
+import cu.axel.smartdock.utils.Timers
 import cu.axel.smartdock.utils.Utils
 import cu.axel.smartdock.widgets.HoverInterceptorLayout
 import cu.axel.smartdock.wrappers.ActivityManagerWrapper
@@ -1118,7 +1119,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 pinDock()
         }
         //Hack to ensure the launched app is already on the top of the stack
-        dockHandler.postDelayed({ updateRunningTasks() }, 1200)
+        dockHandler.postDelayed({ updateRunningTasks() }, Timers.RUNNING_TASKS_REFRESH_MS)
 
         if (quickSettingsPanelVisible)
             hideQuickSettingsPanel()
@@ -2437,8 +2438,9 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             dockHandle?.visibility = View.GONE
         screenshotRestorePending = true
         // Timers run on the view's own handler on purpose: hideDock() wipes
-        // dockHandler, and a scheduled capture must survive it.
-        dockLayout.postDelayed({ takeScreenshot() }, 400)
+        // dockHandler, and a scheduled capture must survive it. The capture
+        // delay is generous on purpose: see Timers.SCREENSHOT_CAPTURE_DELAY_MS.
+        dockLayout.postDelayed({ takeScreenshot() }, Timers.SCREENSHOT_CAPTURE_DELAY_MS)
         dockLayout.postDelayed({
             if (!screenshotRestorePending)
                 return@postDelayed
@@ -2447,7 +2449,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 dockLayout.visibility = View.VISIBLE
             if (handleWasVisible && dockHandle?.visibility == View.GONE)
                 dockHandle?.visibility = View.VISIBLE
-        }, 1500)
+        }, Timers.SCREENSHOT_RESTORE_DELAY_MS)
     }
 
     private fun lockScreen() {
