@@ -365,4 +365,11 @@
     <string name="pin_shortcut_to_dock">ਸ਼ਾਰਟਕੱਟ ਨੂੰ ਡੌਕ ਵਿੱਚ ਪਿੰਨ ਕਰੋ</string>
     <string name="wifi_networks">ਵਾਈ-ਫਾਈ ਨੈੱਵਰਕ</string>
     <string name="hidden_network">ਲੁਕਾਊ ਨੈੱਵਰਕ</string>
+    <!-- Crash telemetry (Settings, Advanced, Diagnostics) -->
+    <string name="diagnostics">ਡਾਇਗਨੋਸਟਿਕਸ</string>
+    <string name="view_crash_log">ਆਖਰੀ ਕ੍ਰੈਸ਼ ਰਿਪੋਰਟ ਵੇਖੋ</string>
+    <string name="view_crash_log_summary">ਐਪ ਵੱਲੋਂ ਦਰਜ ਕੀਤੀ ਆਖਰੀ ਗਲਤੀ ਵੇਖਾਓ</string>
+    <string name="share_crash_log">ਕ੍ਰੈਸ਼ ਲੌਗ ਸਾਂਝਾ ਕਰੋ</string>
+    <string name="crash_log_dialog_title">ਆਖਰੀ ਕ੍ਰੈਸ਼ ਰਿਪੋਰਟ</string>
+    <string name="no_crash_log">ਕੋਈ ਕ੍ਰੈਸ਼ ਦਰਜ ਨਹੀਂ ਹੋਇਆ।</string>
 </resources>

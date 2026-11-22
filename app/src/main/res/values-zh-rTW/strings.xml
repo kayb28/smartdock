@@ -364,4 +364,11 @@
     <string name="pin_shortcut_to_dock">將捷徑釘選到Dock</string>
     <string name="wifi_networks">Wi-Fi 網路</string>
     <string name="hidden_network">隱藏網路</string>
+    <!-- Crash telemetry (Settings, Advanced, Diagnostics) -->
+    <string name="diagnostics">診斷</string>
+    <string name="view_crash_log">檢視上次崩潰回報</string>
+    <string name="view_crash_log_summary">顯示應用程式記錄的最近一次錯誤</string>
+    <string name="share_crash_log">分享崩潰記錄檔</string>
+    <string name="crash_log_dialog_title">上次崩潰回報</string>
+    <string name="no_crash_log">尚未記錄任何崩潰。</string>
 </resources>

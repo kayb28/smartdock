@@ -364,4 +364,11 @@
     <string name="pin_shortcut_to_dock">将快捷方式固定到Dock</string>
     <string name="wifi_networks">WLAN 网络</string>
     <string name="hidden_network">隐藏网络</string>
+    <!-- Crash telemetry (Settings, Advanced, Diagnostics) -->
+    <string name="diagnostics">诊断</string>
+    <string name="view_crash_log">查看上次崩溃报告</string>
+    <string name="view_crash_log_summary">显示应用记录的最近一次错误</string>
+    <string name="share_crash_log">分享崩溃日志</string>
+    <string name="crash_log_dialog_title">上次崩溃报告</string>
+    <string name="no_crash_log">尚未记录任何崩溃。</string>
 </resources>

@@ -6,6 +6,7 @@ import android.content.AttributionSource
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import cu.axel.smartdock.utils.CrashLog
 import androidx.annotation.RequiresApi
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuBinderWrapper
@@ -45,7 +46,7 @@ class BluetoothManagerWrapper {
             try {
                 bluetoothManager = IBluetoothManager.Stub.asInterface(shizukuBinder)
             } catch (t: Throwable) {
-                Log.e(TAG, "IBluetoothManager unavailable: $t")
+                CrashLog.log(TAG, "IBluetoothManager unavailable", t)
                 bluetoothManager = null
             }
         }

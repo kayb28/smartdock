@@ -5,6 +5,7 @@ import android.app.IActivityManager
 import android.graphics.Rect
 import android.os.IBinder
 import android.util.Log
+import cu.axel.smartdock.utils.CrashLog
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.SystemServiceHelper
 
@@ -46,7 +47,7 @@ class ActivityManagerWrapper {
             try {
                 activityManager = IActivityManager.Stub.asInterface(shizukuBinder)
             } catch (t: Throwable) {
-                Log.e(TAG, "IActivityManager unavailable: $t")
+                CrashLog.log(TAG, "IActivityManager unavailable", t)
                 activityManager = null
             }
         }

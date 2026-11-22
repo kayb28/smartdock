@@ -9,6 +9,7 @@ import cu.axel.smartdock.activities.DebugActivity
 import kotlin.system.exitProcess
 import android.os.Process
 import org.lsposed.hiddenapibypass.HiddenApiBypass
+import cu.axel.smartdock.utils.CrashLog
 
 class App : Application() {
     private lateinit var uncaughtExceptionHandler: Thread.UncaughtExceptionHandler
@@ -26,9 +27,16 @@ class App : Application() {
             HiddenApiBypass.addHiddenApiExemptions("L")
         } catch (_: Throwable) {
         }
+        // Bind the application context so the wrappers (which have no Context
+        // of their own) and this crash handler can write crash files.
+        CrashLog.init(this)
         DynamicColors.applyToActivitiesIfAvailable(this)
         uncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()!!
         Thread.setDefaultUncaughtExceptionHandler { thread, exception ->
+            // Persist the crash to filesDir/crashes/ before the DebugActivity
+            // flow kills the process, so it can be viewed and shared from
+            // Settings. The existing DebugActivity crash UI is unchanged.
+            CrashLog.log("App", exception)
             val report = StringBuilder("Exception: $exception\n")
             for (element in exception.stackTrace) report.append(element.toString()).append("\n")
             val cause = exception.cause

@@ -364,4 +364,11 @@
     <string name="pin_shortcut_to_dock">Verknüpfung an Dock anheften</string>
     <string name="wifi_networks">WLAN-Netzwerke</string>
     <string name="hidden_network">Verstecktes Netzwerk</string>
+    <!-- Crash telemetry (Settings, Advanced, Diagnostics) -->
+    <string name="diagnostics">Diagnose</string>
+    <string name="view_crash_log">Letzten Absturzbericht anzeigen</string>
+    <string name="view_crash_log_summary">Zeigt den zuletzt protokollierten Fehler der App</string>
+    <string name="share_crash_log">Absturzprotokoll teilen</string>
+    <string name="crash_log_dialog_title">Letzter Absturzbericht</string>
+    <string name="no_crash_log">Es wurde kein Absturz protokolliert.</string>
 </resources>

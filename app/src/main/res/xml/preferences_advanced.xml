@@ -125,4 +125,17 @@
             android:key="share_display_info"
             android:title="Share display info"/>
     </PreferenceCategory>
+    <PreferenceCategory
+        android:key="diagnostic_category"
+        android:title="@string/diagnostics">
+
+        <Preference
+            android:key="view_crash_log"
+            android:summary="@string/view_crash_log_summary"
+            android:title="@string/view_crash_log" />
+
+        <Preference
+            android:key="share_crash_log"
+            android:title="@string/share_crash_log" />
+    </PreferenceCategory>
 </PreferenceScreen>

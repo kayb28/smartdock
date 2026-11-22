@@ -119,6 +119,7 @@ import cu.axel.smartdock.receivers.SoundEventsReceiver
 import cu.axel.smartdock.utils.AppUtils
 import cu.axel.smartdock.utils.ColorUtils
 import cu.axel.smartdock.utils.ColorUtils.getMainColors
+import cu.axel.smartdock.utils.CrashLog
 import cu.axel.smartdock.utils.DeepShortcutManager
 import cu.axel.smartdock.utils.DeviceUtils
 import cu.axel.smartdock.utils.IconPackUtils
@@ -309,17 +310,17 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             try {
                 activityManagerWrapper = ActivityManagerWrapper()
             } catch (t: Throwable) {
-                Log.e(packageName, "ActivityManagerWrapper init: $t")
+                CrashLog.log("ActivityManagerWrapper", t)
             }
             try {
                 wifiManagerWrapper = WifiManagerWrapper()
             } catch (t: Throwable) {
-                Log.e(packageName, "WifiManagerWrapper init: $t")
+                CrashLog.log("WifiManagerWrapper", t)
             }
             try {
                 bluetoothManagerWrapper = BluetoothManagerWrapper()
             } catch (t: Throwable) {
-                Log.e(packageName, "BluetoothManagerWrapper init: $t")
+                CrashLog.log("BluetoothManagerWrapper", t)
             }
         }
     }

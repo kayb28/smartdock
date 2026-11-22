@@ -19,6 +19,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.LabelFormatter
 import cu.axel.smartdock.R
 import cu.axel.smartdock.preferences.SliderPreference
+import cu.axel.smartdock.utils.CrashLog
 import cu.axel.smartdock.utils.DeviceUtils
 import cu.axel.smartdock.utils.Utils
 
@@ -43,6 +44,30 @@ class AdvancedPreferences : PreferenceFragmentCompat() {
                 Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, displayInfo.toString())
                     .setType("text/plain")
             )
+            false
+        }
+
+        // Local crash telemetry: the app writes every uncaught exception and
+        // every wrapper acquisition failure to filesDir/crashes/. The Diag
+        // section lets the user read the latest one and share it (ACTION_SEND)
+        // so a bug report can carry a real stack trace instead of a screenshot
+        // of the "Algo salió mal" dialog.
+        findPreference<Preference>("view_crash_log")!!.setOnPreferenceClickListener {
+            val text = CrashLog.latestCrashText()
+            val message = if (text.isEmpty()) getString(R.string.no_crash_log) else text
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.crash_log_dialog_title)
+                .setMessage(message)
+                .setPositiveButton(R.string.share_crash_log) { _, _ ->
+                    CrashLog.shareLatest(requireContext())
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+            false
+        }
+        findPreference<Preference>("share_crash_log")!!.setOnPreferenceClickListener {
+            if (!CrashLog.shareLatest(requireContext()))
+                Toast.makeText(requireContext(), R.string.no_crash_log, Toast.LENGTH_SHORT).show()
             false
         }
 

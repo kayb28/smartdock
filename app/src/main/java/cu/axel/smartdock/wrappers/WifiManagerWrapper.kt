@@ -6,6 +6,7 @@ import android.net.wifi.ScanResult
 import android.net.wifi.WifiInfo
 import android.os.IBinder
 import android.util.Log
+import cu.axel.smartdock.utils.CrashLog
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.SystemServiceHelper
 import java.lang.reflect.Method
@@ -46,7 +47,7 @@ class WifiManagerWrapper {
             try {
                 wifiManager = IWifiManager.Stub.asInterface(shizukuBinder)
             } catch (t: Throwable) {
-                Log.e(TAG, "IWifiManager unavailable: $t")
+                CrashLog.log(TAG, "IWifiManager unavailable", t)
                 wifiManager = null
                 return
             }

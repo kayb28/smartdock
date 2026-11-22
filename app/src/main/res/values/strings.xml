@@ -361,4 +361,11 @@
     <string name="pin_shortcut_to_dock">Pin shortcut to dock</string>
     <string name="wifi_networks">Wi-Fi networks</string>
     <string name="hidden_network">Hidden network</string>
+    <!-- Crash telemetry (Settings, Advanced, Diagnostics) -->
+    <string name="diagnostics">Diagnosis</string>
+    <string name="view_crash_log">View last crash report</string>
+    <string name="view_crash_log_summary">Shows the last error logged by the app</string>
+    <string name="share_crash_log">Share crash log</string>
+    <string name="crash_log_dialog_title">Last crash report</string>
+    <string name="no_crash_log">No crash has been recorded.</string>
 </resources>
