@@ -1,12 +1,12 @@
 # AGENTS.md — guía para agentes en este repositorio
 
-_Fork de axel358/smartdock («Smart Dock fork»). Última actualización de esta guía: 2026-11-19._
+_Fork de axel358/smartdock («Smart Dock fork»). Última actualización de esta guía: 2026-11-22._
 _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en `docs/REGISTRO.md`._
 
 ## 1. Qué es este proyecto
 
 - Fork de **Smart Dock** (upstream [axel358/smartdock](https://github.com/axel358/smartdock)): launcher de modo escritorio para Android — dock, multi-ventana libreform, atajos de teclado, soporte tablet/escritorio. Kotlin + XML views (NO Compose), Gradle Groovy DSL, Views clásico con `AppCompatActivity`. Licencia **GPL-3.0** (cualquier derivado debe mantenerla).
-- Identidad del fork: paquete `cu.axel.smartdock` (sin renombrar — paridad con upstream), versionCode estrictamente creciente (1154 / 1.15.4 en `v1.15.4-fork.8`). El fork se distingue por sus **tags de release** (`v1.15.x-fork.N`) y por su keystore debug propio.
+- Identidad del fork: paquete `cu.axel.smartdock` (sin renombrar — paridad con upstream), versionCode estrictamente creciente (1155 / 1.15.5 en `v1.15.5-fork.9`). El fork se distingue por sus **tags de release** (`v1.15.x-fork.N`) y por su keystore debug propio.
 - Estructura: `app/src/main/java/cu/axel/smartdock/` con `activities/` (launcher, ajustes), `services/DockService.kt` (el corazón: servicio de accesibilidad), `utils/` (DeviceUtils = displays/Shizuku/root, AppUtils = lanzamiento de apps y bounds), `receivers/`, `fragments/` (preferencias), `widgets/`, `models/`, `dialogs/`, `db/`, `components/`.
 - Traducciones mantenidas por el fork: **de, es, pa, zh-rCN, zh-rHK, zh-rTW**. Regla dura: cada cadena nueva en `values/strings.xml` debe ir acompañada de su traducción en los seis, o lint tumba el build (`MissingTranslation` — falló así en `f5409c5`).
 

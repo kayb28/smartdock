@@ -3,6 +3,21 @@
 _Changelog formal de las releases del fork de Smart Dock. Formato Keep a Changelog, en español._
 _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/changelogs/`; aquí solo el fork._
 
+## [v1.15.5-fork.9] — 2026-11-22
+
+Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.5-fork.9.apk`). Base: `main` 2837744 + 4 commits (rama `bugfix/secondary-display-accessibility-regression`, fast-forward). versionCode 1155.
+
+### Corregido
+
+- **El dock no aparecía en la pantalla secundaria** con `prefer_last_display` activo: `getDisplayContext` construía el contexto del display con `createDisplayContext`, que en Android 11+ (API 30, el minSdk del fork) produce un `WindowManager` que sigue enrutando las ventanas overlay al display por defecto. Sustituido por `createWindowContext(display, TYPE_APPLICATION_OVERLAY)`, que vincula el `WindowManager` al display destino para ese tipo de ventana. Todas las ventanas del dock son `TYPE_APPLICATION_OVERLAY` (la rama `accessibilityWindow` de `makeWindowParams` nunca se usa), así que el tipo es único y seguro (`df4085d`).
+- **El permiso de accesibilidad se mostraba desactivado aunque el toggle del sistema estuviera ON**: `isAccessibilityServiceEnabled` solo consultaba `getEnabledAccessibilityServiceList`, que devuelve vacío cuando el servicio está listado en `enabled_accessibility_services` pero sin instancia viva — el estado tras un crash-reboot del SO (#268), un `Throwable` de un wrapper que fork.8 contiene sin dejar que el servicio bindee, o cualquier `Throwable` en `onServiceConnected`/`createViews` antes de que el servicio se publique. Ahora devuelve `true` cuando el servicio está listado (coincide con el toggle que ve el usuario); un nuevo `isAccessibilityServiceBound` dice si hay instancia viva, y el diálogo de accesibilidad ofrece un botón **Reactivar** (drop + re-add con el mismo grace del boot receiver) en el estado listado-pero-no-bound, en vez del Enable que no hacía nada (`a51c8b9`).
+- **`createViews` mataba el servicio ante un `Error`**: `restartUI` solo atrapaba `Exception`, así que un `Error` (p. ej. `IllegalAccessError` de un enlace hidden-API que reapareció, o un error de `WindowManager` en un display que rechaza la ventana) escapaba del fallback y mataba el binding — dock fuera de todas las pantallas y aviso falso de accesibilidad desactivada. `onServiceConnected` no tenía guard ninguno, así que el mismo `Error` en la primera conexión mataba el binding antes de publicar el servicio. Ambos caminos ahora atrapan `Throwable`, caen al display principal y registran en `CrashLog`; si el fallback también falla, el servicio se queda bindeado sin UI para que el usuario pueda Reactivar (`ff3f908`).
+
+### Notas
+
+- Nota de instalación: APKs debug firmadas con el keystore del fork (cert `4680C231…B54B41DB`), se actualizan encima de cualquier build anterior del fork (incluida fork.8) sin desinstalar ni perder ajustes; **no** se instalan encima de la build oficial de F-Droid (certificado distinto).
+- Estado: **pendiente de confirmación del usuario en dispositivo** — dock visible en la pantalla secundaria con `prefer_last_display` activo, botón de accesibilidad mostrando el icono de activado cuando el toggle del sistema está ON, y Reactivar restaurando el servicio en el estado listado-pero-no-bound.
+
 ## [v1.15.4-fork.8] — 2026-11-19
 
 Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.4-fork.8.apk`). Base: `main` d69ef2f + 1 commit (rama `bugfix/wrapper-init-crash`, fast-forward). versionCode 1154.
