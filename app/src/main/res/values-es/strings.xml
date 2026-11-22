@@ -319,6 +319,9 @@
     <string name="task_moved_to_display">La app se está enviando a la pantalla seleccionada</string>
     <string name="cannot_move_task">Esta app no se puede enviar a la pantalla seleccionada</string>
     <string name="enable_access_help">Encuentre y habilite el servicio Smart Dock</string>
+    <string name="accessibility_listed_not_bound">El servicio está activado pero no en ejecución, normalmente tras un cuelgue del sistema o un fallo de inicialización. Toca Reactivar para quitarlo y volver a añadirlo, de forma que el sistema enlace una instancia nueva.</string>
+    <string name="reactivate_service">Reactivar</string>
+    <string name="service_reactivated">Servicio reactivado</string>
 
     <!-- Crash dialog -->
     <string name="something_wrong">Algo salió mal</string>

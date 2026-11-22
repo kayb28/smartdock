@@ -15,6 +15,8 @@ import android.graphics.Rect
 import android.hardware.display.DisplayManager
 import android.media.MediaPlayer
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.os.UserHandle
 import android.os.UserManager
@@ -370,7 +372,43 @@ object DeviceUtils {
     }
 
     //Permissions
+    /**
+     * Whether the dock service is enabled from the user's point of view:
+     * the state reflected by the system Settings > Accessibility toggle.
+     *
+     * The toggle writes the service into the `enabled_accessibility_services`
+     * Secure setting, and the system then binds a live instance. Those two
+     * states diverge after an OS crash-reboot (#268), a wrapper-init crash
+     * that the fork.8 hardening contains without ever letting the service
+     * bind, or any Throwable thrown from `onServiceConnected`/`createViews`
+     * before the service publishes itself: the entry stays in the setting,
+     * but no live instance is bound. Reading only
+     * `getEnabledAccessibilityServiceList` in that state returns an empty
+     * list and the permissions dialog showed the "activar accesibilidad"
+     * alert — and an Enable button that did nothing because the service was
+     * already listed — even though the user could see the toggle ON.
+     *
+     * The user-facing check must agree with the toggle, so it returns true
+     * whenever the service is listed. Callers that need to know whether a
+     * live instance is actually bound (e.g. to offer a "rebind" action) use
+     * [isAccessibilityServiceBound].
+     */
     fun isAccessibilityServiceEnabled(context: Context): Boolean {
+        if (isServiceListed(context)) return true
+        // Fall back to the bound list so a service enabled out-of-band (a
+        // tool that adds it directly to the live AccessibilityManager
+        // without touching the Secure setting) is still recognized.
+        return isAccessibilityServiceBound(context)
+    }
+
+    /**
+     * Whether the system has actually bound a live instance of the dock
+     * service. Distinct from [isAccessibilityServiceEnabled]: a service can
+     * be listed in the Secure setting (toggle ON) without a live binding
+     * after a crash-reboot or an init-time Throwable. Use this to decide
+     * whether to offer the user a "rebind" action.
+     */
+    fun isAccessibilityServiceBound(context: Context): Boolean {
         val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
         val enabledServices = am
             .getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
@@ -381,6 +419,31 @@ object DeviceUtils {
             }
         }
         return false
+    }
+
+    /**
+     * Self-heal a service that is listed in the Secure setting (toggle ON)
+     * but has no live binding — the state [isAccessibilityServiceEnabled]
+     * returns true for while [isAccessibilityServiceBound] returns false,
+     * typical after an OS crash-reboot or an init-time Throwable. Drops the
+     * service from the enabled list and re-adds it after the same grace the
+     * boot receiver uses (too short and the system coalesces the two writes
+     * into a no-op), so the system binds a fresh instance. Returns false
+     * without WRITE_SECURE_SETTINGS, in which case the caller should send the
+     * user to the system accessibility settings to toggle manually.
+     */
+    fun reactivateService(context: Context): Boolean {
+        if (!hasWriteSettingsPermission(context)) return false
+        val appContext = context.applicationContext
+        disableService(appContext)
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                enableService(appContext)
+            } catch (t: Throwable) {
+                CrashLog.log("DeviceUtils", "reactivateService re-enable failed", t)
+            }
+        }, Timers.REBIND_DELAY_MS)
+        return true
     }
 
     fun hasStoragePermission(context: Context): Boolean {

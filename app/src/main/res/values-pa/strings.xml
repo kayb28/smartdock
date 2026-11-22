@@ -314,6 +314,9 @@
     <string name="task_moved_to_display">ਐਪ ਚੁਣੀ ਹੋਈ ਸਕਰੀਨ ਉੱਤੇ ਭੇਜੀ ਜਾ ਰਹੀ ਹੈ</string>
     <string name="cannot_move_task">ਇਹ ਐਪ ਚੁਣੀ ਹੋਈ ਸਕਰੀਨ ਉੱਤੇ ਨਹੀਂ ਭੇਜੀ ਜਾ ਸਕਦੀ</string>
     <string name="enable_access_help">ਸਮਾਰਟ ਡੌਕ ਸੇਵਾ ਲੱਭੋ ਅਤੇ ਚਾਲੂ ਕਰੋ</string>
+    <string name="accessibility_listed_not_bound">ਸੇਵਾ ਯੋਗ ਹੈ ਪਰ ਚੱਲ ਨਹੀਂ ਰਹੀ, ਆਮ ਤੌਰ ਤੇ ਸਿਸਟਮ ਕ੍ਰੈਸ਼ ਜਾਂ ਸ਼ੁਰੂਆਤੀ ਅਸਫਲਤਾ ਮਗਰੋਂ। ਇੱਕ ਨਵੀਂ ਇੰਸਟੈਂਸ ਬੰਨ੍ਹਣ ਲਈ ਇਸਨੂੰ ਹਟਾਅ ਤੇ ਮੁੜ ਜੋੜਨ ਵਾਸਤੇ ਮੁੜ-ਸਰਗਰਮ ਕਰੋ \'ਤੇ ਟੈਪ ਕਰੋ।</string>
+    <string name="reactivate_service">ਮੁੜ-ਸਰਗਰਮ</string>
+    <string name="service_reactivated">ਸੇਵਾ ਮੁੜ-ਸਰਗਰਮ ਹੋਈ</string>
 
     <!-- Crash dialog -->
     <string name="something_wrong">ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ</string>

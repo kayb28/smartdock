@@ -27,6 +27,7 @@ import cu.axel.smartdock.fragments.PreferencesFragment
 import cu.axel.smartdock.services.NotificationService
 import cu.axel.smartdock.utils.ColorUtils
 import cu.axel.smartdock.utils.DeviceUtils
+import cu.axel.smartdock.utils.Timers
 import rikka.shizuku.Shizuku
 import kotlin.reflect.KFunction0
 
@@ -256,8 +257,30 @@ class MainActivity : AppCompatActivity() {
     private fun showAccessibilityDialog() {
         val dialogBuilder = MaterialAlertDialogBuilder(this)
         dialogBuilder.setTitle(R.string.accessibility_service)
-        dialogBuilder.setMessage(R.string.accessibility_service_desc)
-        if (DeviceUtils.hasWriteSettingsPermission(this)) {
+        // The service can be listed in the Secure setting (toggle ON) without
+        // a live binding after a crash-reboot or an init-time Throwable: in
+        // that state Enable does nothing (it is already listed) and the user
+        // needs Reactivate, which drops and re-adds it so the system rebinds.
+        val listedNotBound =
+            DeviceUtils.isAccessibilityServiceEnabled(this) &&
+                !DeviceUtils.isAccessibilityServiceBound(this)
+        dialogBuilder.setMessage(
+            if (listedNotBound) R.string.accessibility_listed_not_bound
+            else R.string.accessibility_service_desc
+        )
+        if (listedNotBound) {
+            dialogBuilder.setPositiveButton(R.string.reactivate_service) { _, _ ->
+                if (DeviceUtils.reactivateService(this)) {
+                    Toast.makeText(this, R.string.service_reactivated, Toast.LENGTH_LONG).show()
+                    Handler(mainLooper).postDelayed(
+                        { updatePermissionsStatus() }, Timers.REBIND_DELAY_MS + 500
+                    )
+                } else {
+                    startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                    Toast.makeText(this, R.string.enable_access_help, Toast.LENGTH_LONG).show()
+                }
+            }
+        } else if (DeviceUtils.hasWriteSettingsPermission(this)) {
             dialogBuilder.setPositiveButton(R.string.enable) { _, _ ->
                 DeviceUtils.enableService(this)
                 Handler(mainLooper).postDelayed({ updatePermissionsStatus() }, 500)

@@ -319,6 +319,9 @@
     <string name="task_moved_to_display">The app is being moved to the selected screen</string>
     <string name="cannot_move_task">This app cannot be moved to the selected screen</string>
     <string name="enable_access_help">Find and enable Smart Dock service</string>
+    <string name="accessibility_listed_not_bound">The service is enabled but not running, usually after a system crash or an init failure. Tap Reactivate to drop and re-add it so the system binds a fresh instance.</string>
+    <string name="reactivate_service">Reactivate</string>
+    <string name="service_reactivated">Service reactivated</string>
 
     <!-- Crash dialog -->
     <string name="something_wrong">Something went wrong</string>

@@ -314,6 +314,9 @@
     <string name="task_moved_to_display">Die App wird auf den ausgewählten Bildschirm verschoben</string>
     <string name="cannot_move_task">Diese App kann nicht auf den ausgewählten Bildschirm verschoben werden</string>
     <string name="enable_access_help">Smart Dock-Dienst suchen und aktivieren</string>
+    <string name="accessibility_listed_not_bound">Der Dienst ist aktiviert, läuft aber nicht (meist nach einem Systemabsturz oder einem Initialisierungsfehler). Tippe auf Reaktivieren, um ihn zu entfernen und wieder hinzuzufügen, damit das System eine neue Instanz bindet.</string>
+    <string name="reactivate_service">Reaktivieren</string>
+    <string name="service_reactivated">Dienst reaktiviert</string>
 
     <!-- Crash dialog -->
     <string name="something_wrong">Etwas ist schief gelaufen</string>
