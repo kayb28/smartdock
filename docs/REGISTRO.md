@@ -194,3 +194,43 @@ NoSuchMethodError: No static method asInterface(IActivityManager$Stub...) in fra
 
 - [x] CI **verde en las 6 corridas** de la jornada: la rama `bugfix/wrapper-init-crash` (Build project + Build debug apk sobre `f2f4727`), main (Build project + Build debug apk sobre `af3332e`) y el tag `v1.15.4-fork.8` (Release debug apk + Build project sobre `af3332e`). Release **«SmartDock fork v1.15.4-fork.8»** creada por el workflow, asset renombrado por API a `SmartDock-fork-debug-v1.15.4-fork.8.apk` (13.159.770 bytes) y notas de release en inglés.
 - [x] APK verificada: **versionCode 1154, versionName 1.15.4**, cert SHA-256 `4680C23198D542A0423DFD95F1A0D66A80100FA30CB72CAEDF107E41B54B41DB` (el mismo de fork.4–7 → **se instala encima de cualquier build anterior del fork sin desinstalar**), sha256 `75c3e429cd18e9cbd2ae3c6efbb9db450a2a0e09f6b218e386f0041b07a28069`. Entregada al usuario como `SmartDock-fork-debug-v1.15.4-fork.8.apk`. Estado: **v1.15.4-fork.8 publicada, actualizable y verificada**. Pendiente de verificación del usuario en el dispositivo afectado: dock visible en la pantalla secundaria y aviso de accesibilidad desaparecido; si el wrapper de ActivityManager sigue sin linkear (framework que eliminó la interfaz, no solo bloqueada), el dock funcionará con la API pública de recents y el panel Wi-Fi del sistema — registrar el resultado en `logcat -s SmartDock` para saber qué capa entró en acción.
+
+## 2026-11-22 (sexta pasada) — paquete de mantenimiento: 6 mejoras, 6 ramas (sin release)
+
+Motivo: el usuario pide un paquete estructurado de mejoras de mantenimiento (6 tareas, cada una en su rama `feature/*` o `bugfix/*`, merge a main por fast-forward, CI verde, documentación al estilo REGISTRO). No es una release: no hay bump de versionCode ni tag; son commits de mantenimiento sobre main. Cada rama se cortó del main recién consolidado de la anterior, se pusheó, esperó CI verde y se hizo fast-forward.
+
+### T1 — Banner de fork en el README raíz (`feature/fork-readme-banner`, `7d38051`)
+
+- El `README.md` raíz era todavía el de upstream y no mencionaba que esto es un fork. Se antepone un bloque (antes del título existente) con atribución a `axel358/smartdock`, qué cambia el fork (todos los bugs reportados cerrados, display secundario fail-safe, modo escritorio externo, «Send to screen», releases con CI), enlaces a `CHANGELOG-FORK.md` y `docs/REGISTRO.md`, y la nota de instalación: APKs debug firmadas con el keystore del fork (cert `4680C231…B54B41DB`), se actualizan entre sí, **no** se instalan encima de la de F-Droid.
+- CI: Build project verde sobre `7d38051`. Fast-forward a main.
+
+### T5 — Plantilla de issues para el fork (`feature/issue-templates`, `5e376a4`)
+
+- `.github/ISSUE_TEMPLATE/bug_report.yml` (formulario YAML de GitHub) que pide lo que hace falta para reproducir un bug del dock: tipo de instalación (sistema / adb / Shizuku), entorno de pantallas (solo principal / externo USB-C,HDMI / virtual Waydroid / mixto), dispositivo y fabricante, versión de Android y ROM, versión del fork, pasos, esperado vs. real, y un campo de log de crash que apunta a Ajustes → Avanzado → Diagnóstico (tras T2). `config.yml` desactiva issues en blanco y rutea feature requests a Discussions.
+- CI: Build project verde sobre `5e376a4`. Fast-forward a main.
+
+### T6 — Paquete de PRs hacia upstream (`docs/upstream-prs`, `85d8f66`)
+
+- `docs/UPSTREAM-PRS.md` mapea cada issue upstream cerrado en el fork a sus commits (hash + título), con nota de cherry-pick (¿limpio / adapta / política?) y un orden de envío propuesto: fixes puros de causa raíz primero (#167 `c5907bf`, #250 `dd14aed`, #266 `5a3beca`), luego los splits de los commits multi-concern (`f5409c5` → #270/#264/#267/#268; `c1d02b2` → #259/#253), después #200 y #263 (feature-adjacent, con cadenas a traducir), y el endurecimiento de wrappers (`f2f4727`) el último por añadir dependencia Maven + unseal global de hidden APIs. Estado: **preparado, no enviado**; decisión pendiente del dueño.
+- CI: Build project verde sobre `85d8f66`. Fast-forward a main.
+
+### T4 — Constante nombrada para el delay de captura de #266 (`bugfix/named-screenshot-delay`, `ec93cfb`)
+
+- El delay de 400 ms entre ocultar el panel de ajustes rápidos y disparar `GLOBAL_ACTION_TAKE_SCREENSHOT` (para que el compositor retire el frame que aún mostraba el panel, #266) estaba inline en la llamada. Se extrae a un `object Timers` (`utils/Timers.kt`) junto con el delay de restore (1500 ms), el refresh de tareas (1200 ms) y los timers de boot-recovery (`CHECK_DELAY_MS`, `REBIND_DELAY_MS`) que eran consts privadas de `BootCompletedReceiver`. El delay de captura lleva el razonamiento completo (retiro de frame del compositor + margen para dispositivos lentos + por qué se mantiene 400 ms sobre un valor más ajustado).
+- CI: Build project + Build debug apk verdes sobre `ec93cfb`. Fast-forward a main.
+
+### T2 — Telemetría de crash local (`feature/crash-telemetry`, `827b075`)
+
+- Los `Throwable` tragados en los wrappers Shizuku (adquisición resiliente de fork.8) y en `initWrappers` eran invisibles, y el endurecimiento de #253 se hizo a ciegas sin stack trace. Se añade `utils/CrashLog.kt`: escribe el stack trace completo (timestamp UTC, texto plano, info de dispositivo/SDK) en `filesDir/crashes/`, rota a 10 archivos y espeja a logcat. `App.onCreate` bindea el contexto de aplicación y el `UncaughtExceptionHandler` persiste el crash **antes** del flujo existente de `DebugActivity` (la UI de crash no cambia); los catches de adquisición de los tres wrappers y de `initWrappers` reportan a través de `CrashLog`. Sección «Diagnóstico» en Ajustes → Avanzado con «Ver último reporte de crash» (diálogo) y «Compartir log de crash» (`ACTION_SEND`). 6 cadenas nuevas traducidas a los 6 locales mantenidos (de, es, pa, zh-rCN, zh-rHK, zh-rTW) — lint `MissingTranslation` pasó.
+- CI: Build project verde sobre `827b075` (compile + lint). Fast-forward a main.
+
+### T3 — Tests unitarios para la lógica pura extraída (`feature/unit-tests`, `2837744`)
+
+- `solve()` del parser de calculadora y la máquina de modificadores de teclado eran la lógica pura más expuesta a regresiones, pero vivían dentro de código que toca Android (`Utils.solve`/`ExprParser` privado y `DockService.onKeyEvent`) así que no corrían bajo `./gradlew test`. Se extraen a helpers puros JVM: `object Calculator` (el parser recursivo sale del `ExprParser` privado; `Utils.solve` queda como delegación de una línea) y `KeyboardModifiers` + `MetaMenuTracker` (el pass-through de AltGr #167 y el tracking de Meta como modificador #267 salen de `onKeyEvent`; los valores de constantes de `KeyEvent` están hardcodeados por ABI). `DockService` alimenta los campos del evento y lee `metaTracker.usedAsModifier` en el release de Meta. Se añade `testImplementation 'junit:junit:4.13.2'` y dos clases de test bajo `app/src/test/`: operaciones básicas, precedencia/asociatividad, paréntesis, unario, entradas vacías/basura (nunca lanza), decimales, números grandes, las variantes del acorde AltGr y los casos Meta mantenida/soltada/repeat. **`./gradlew build` corre los tests vía el lifecycle y pasó**.
+- CI: Build project verde sobre `2837744` (compile + test + lint). Fast-forward a main.
+
+### Cierre (verificado)
+
+- [x] **6 ramas, 6 fast-forwards, CI verde en cada una**: `feature/fork-readme-banner` (`7d38051`), `feature/issue-templates` (`5e376a4`), `docs/upstream-prs` (`85d8f66`), `bugfix/named-screenshot-delay` (`ec93cfb`), `feature/crash-telemetry` (`827b075`), `feature/unit-tests` (`2837744`). main avanzó de `fe08541` a `2837744` (6 commits). Sin bump de versionCode ni tag: es mantenimiento, no release.
+- [x] `./gradlew build` (compile + lint + **test**) verde en la punta de main; los tests nuevos (`CalculatorTest`, `KeyboardModifiersTest`) corren y pasan en CI.
+- [x] Sin regresiones esperadas: la extracción de `Calculator`/`KeyboardModifiers`/`Timers` no cambia comportamiento (delegación + constantes con el mismo valor); `CrashLog` es aditivo (persiste crashes sin alterar la UI de `DebugActivity`); las traducciones pasaron lint. Estado: **pendiente de confirmación del usuario en dispositivo** (especialmente que la sección Diagnóstico aparece y que un crash real deja archivo en `filesDir/crashes/`), salvo T3 que está verificado por CI.
