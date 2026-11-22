@@ -154,39 +154,7 @@ object Utils {
         return layoutParams
     }
 
-    fun solve(expression: String): Double {
-        // Full-expression evaluation (operators, precedence, parentheses and
-        // unary minus) instead of the old first-pair-only math, which turned
-        // "2+3+4" into 5. The parser lives in a private object: Kotlin local
-        // functions cannot forward-reference each other (two CI rounds
-        // failed on exactly that), while object methods can be mutually
-        // recursive.
-        return ExprParser.evaluate(tokenize(expression))
-    }
-
-    private fun tokenize(expression: String): List<String> {
-        val tokens = mutableListOf<String>()
-        val number = StringBuilder()
-        fun flushNumber() {
-            if (number.isNotEmpty()) {
-                tokens.add(number.toString())
-                number.setLength(0)
-            }
-        }
-        for (c in expression) {
-            when {
-                c.isDigit() || c == '.' -> number.append(c)
-                c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')' -> {
-                    flushNumber()
-                    tokens.add(c.toString())
-                }
-                c.isWhitespace() -> flushNumber()
-                else -> return emptyList() // reject anything the grammar doesn't know
-            }
-        }
-        flushNumber()
-        return tokens
-    }
+    fun solve(expression: String): Double = Calculator.solve(expression)
 
     fun backupPreferences(context: Context, backupUri: Uri) {
         val allPrefs = PreferenceManager.getDefaultSharedPreferences(context).all
@@ -290,68 +258,3 @@ object Utils {
     }
 }
 
-/**
- * Recursive-descent parser behind the app-menu calculator. Methods of one
- * object may mutually recurse (Kotlin local functions cannot
- * forward-reference, which is why this is not nested inside solve()).
- * Grammar: expr := term (('+'|'-') term)* ; term := power (('*'|'/') power)* ;
- * power := primary ('^' power)? ; primary := number | '(' expr ')' | sign primary.
- */
-private object ExprParser {
-    fun evaluate(tokens: List<String>): Double {
-        if (tokens.isEmpty()) return 0.0
-        val parser = Parser(tokens)
-        val result = parser.expr()
-        return if (result.isNaN() || result.isInfinite()) 0.0 else result
-    }
-
-    private class Parser(private val tokens: List<String>) {
-        private var pos = 0
-
-        private fun next(): String = tokens[pos++]
-
-        fun expr(): Double {
-            var value = term()
-            while (pos < tokens.size && (tokens[pos] == "+" || tokens[pos] == "-")) {
-                val op = next()
-                val rhs = term()
-                value = if (op == "+") value + rhs else value - rhs
-            }
-            return value
-        }
-
-        private fun term(): Double {
-            var value = power()
-            while (pos < tokens.size && (tokens[pos] == "*" || tokens[pos] == "/")) {
-                val op = next()
-                val rhs = power()
-                value = if (op == "*") value * rhs else value / rhs
-            }
-            return value
-        }
-
-        // a^b binds tightest, right-associative: 2^3^2 = 2^(3^2).
-        private fun power(): Double {
-            val base = primary()
-            if (pos < tokens.size && tokens[pos] == "^") {
-                next()
-                val exponent = power()
-                return Math.pow(base, exponent)
-            }
-            return base
-        }
-
-        private fun primary(): Double {
-            if (pos >= tokens.size) return 0.0
-            val token = next()
-            if (token == "(") {
-                val value = expr()
-                if (pos < tokens.size && tokens[pos] == ")") pos++
-                return value
-            }
-            if (token == "-") return -primary()
-            if (token == "+") return primary()
-            return token.toDoubleOrNull() ?: 0.0
-        }
-    }
-}

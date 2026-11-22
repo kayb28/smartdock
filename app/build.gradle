@@ -63,4 +63,5 @@ dependencies {
     // friends); on frameworks where those links are blocked the dock died in
     // onCreate. Maven Central, API 28+, pure reflection, ~50 KB.
     implementation 'org.lsposed.hiddenapibypass:hiddenapibypass:6.1'
+    testImplementation 'junit:junit:4.13.2'
 }

@@ -123,6 +123,8 @@ import cu.axel.smartdock.utils.CrashLog
 import cu.axel.smartdock.utils.DeepShortcutManager
 import cu.axel.smartdock.utils.DeviceUtils
 import cu.axel.smartdock.utils.IconPackUtils
+import cu.axel.smartdock.utils.KeyboardModifiers
+import cu.axel.smartdock.utils.MetaMenuTracker
 import cu.axel.smartdock.utils.OnSwipeListener
 import cu.axel.smartdock.utils.Timers
 import cu.axel.smartdock.utils.Utils
@@ -213,9 +215,9 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     // Whether Meta is currently held, and whether any other key went down
     // during the current Meta press — releasing Meta after a Meta+X shortcut
-    // must not open the app menu (#267).
-    private var metaLeftDown = false
-    private var metaUsedAsModifier = false
+    // must not open the app menu (#267). Logic lives in MetaMenuTracker so it
+    // can be unit-tested without android.jar.
+    private val metaTracker = MetaMenuTracker()
     private var systemApp = false
     private var preferSecondaryDisplay = false
     // Labels of the deep shortcuts currently listed in the pin-shortcut
@@ -705,29 +707,17 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         // app menu) from "Meta held while other keys were used" (a modifier:
         // its release must do nothing). Without this, every Meta+X shortcut
         // was followed by the app menu opening on Meta's release (#267).
-        if (event.keyCode == KeyEvent.KEYCODE_META_LEFT) {
-            if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
-                metaLeftDown = true
-                metaUsedAsModifier = false
-            } else if (event.action == KeyEvent.ACTION_UP) {
-                metaLeftDown = false
-            }
-        } else if (metaLeftDown && event.action == KeyEvent.ACTION_DOWN) {
-            metaUsedAsModifier = true
-        }
+        metaTracker.onKey(event.action, event.keyCode, event.repeatCount)
 
-        // AltGr (right Alt) reaches the app as Ctrl+Alt, or with the
-        // META_ALT_RIGHT_ON flag set: the shortcut block below fired on
-        // every special-character chord, so typing AltGr+Q (which is "@"
-        // on many layouts) opened quick settings and AltGr+L locked the
-        // desktop while the character was still delivered to the app
-        // (#167). Dock shortcuts never use Ctrl+Alt, so an AltGr chord is
-        // passed through untouched.
-        if (event.action == KeyEvent.ACTION_UP &&
-            (
-                (event.metaState and KeyEvent.META_ALT_RIGHT_ON) != 0 ||
-                    (event.isAltPressed && event.isCtrlPressed)
-                )
+        // AltGr (right Alt) reaches the app as Ctrl+Alt, or with
+        // META_ALT_RIGHT_ON set: the shortcut block below fired on every
+        // such chord, so typing AltGr+Q ("@" on many layouts) opened quick
+        // settings and AltGr+L locked the desktop while the character was
+        // still delivered to the app (#167). Dock shortcuts never use
+        // Ctrl+Alt, so an AltGr chord is passed through untouched.
+        if (KeyboardModifiers.isAltGrPassThrough(
+                event.action, event.metaState, event.isAltPressed, event.isCtrlPressed
+            )
         )
             return super.onKeyEvent(event)
 
@@ -924,7 +914,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                         true
                     )
                 ) {
-                    if (event.keyCode == KeyEvent.KEYCODE_META_LEFT && metaUsedAsModifier) {
+                    if (event.keyCode == KeyEvent.KEYCODE_META_LEFT && metaTracker.usedAsModifier) {
                         // Meta was used as a modifier (Meta+X shortcut); its
                         // release is not a menu press (#267).
                         return super.onKeyEvent(event)
