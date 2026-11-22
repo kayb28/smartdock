@@ -352,7 +352,18 @@ object DeviceUtils {
     fun getDisplayContext(context: Context, secondary: Boolean = false): Context {
         if (!secondary) return context
         val display = getSecondaryDisplay(context) ?: return context
-        return context.createDisplayContext(display)
+        // On Android 11+ (API 30, the fork's minSdk) an overlay window only
+        // lands on a secondary display when the WindowManager comes from a
+        // window context created for that display + type. createDisplayContext
+        // alone produced a context whose WindowManager kept routing overlays
+        // to the default display, so the dock never appeared on the monitor
+        // even though every other display API picked the right display. Every
+        // window the dock adds is TYPE_APPLICATION_OVERLAY (the
+        // accessibilityWindow branch of makeWindowParams is never taken), so
+        // the window context is created for that type.
+        return context.createWindowContext(
+            display, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        )
     }
 
     @SuppressLint("PrivateApi")
