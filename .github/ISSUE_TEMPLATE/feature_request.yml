@@ -1,0 +1,48 @@
+name: Feature request (fork)
+description: Suggest a feature or enhancement for the kayb28/smartdock fork.
+labels: ["enhancement", "fork"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature for the **kayb28/smartdock** fork.
+        The dock is an accessibility service that talks to hidden framework APIs, so
+        features that require new system permissions or cross-app access may not be
+        feasible. If the feature would also benefit the upstream project, consider
+        opening it at [axel358/smartdock](https://github.com/axel358/smartdock)
+        instead — features that land upstream reach every fork user.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is currently hard or impossible to do? What workflow breaks because the dock lacks this?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What would you like the dock to do instead? Be as specific as you can — the dock's surface is small.
+      placeholder: |
+        When I ..., the dock should ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds, third-party apps, or other approaches you tried before filing this.
+    validations:
+      required: false
+
+  - type: input
+    id: fork_version
+    attributes:
+      label: Fork version
+      description: From Settings → About, or the APK file name (e.g. v1.15.5-fork.9).
+      placeholder: "v1.15.5-fork.9"
+    validations:
+      required: false

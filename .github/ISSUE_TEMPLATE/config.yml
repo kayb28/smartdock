@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Feature request / discussion
-    url: https://github.com/kayb28/smartdock/discussions
-    about: Feature requests and questions belong in Discussions, not in the issue tracker.
+  - name: Feature request
+    url: https://github.com/kayb28/smartdock/issues/new?template=feature_request.yml&labels=enhancement
+    about: Feature requests use the feature-request issue template (Discussions is not enabled on this fork).
   - name: Upstream project (axel358/smartdock)
     url: https://github.com/axel358/smartdock
     about: This is a fork. Bugs that also reproduce on the upstream build should be reported there too.

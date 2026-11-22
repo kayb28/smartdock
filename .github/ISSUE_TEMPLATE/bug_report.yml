@@ -9,7 +9,7 @@ body:
         The dock is an accessibility service that talks to hidden framework APIs, so most
         defects are OEM- or Android-version-specific. Please fill the fields below — the
         device, install type and display setup are usually what makes a repro possible.
-        Feature requests should use Discussions, not this form.
+        Feature requests should use the feature-request template, not this form.
 
   - type: dropdown
     id: install_type
@@ -59,8 +59,8 @@ body:
     id: fork_version
     attributes:
       label: Fork version
-      description: From Settings → About, or the APK file name (e.g. v1.15.4-fork.8).
-      placeholder: "v1.15.4-fork.8"
+      description: From Settings → About, or the APK file name (e.g. v1.15.5-fork.9).
+      placeholder: "v1.15.5-fork.9"
     validations:
       required: true
 
