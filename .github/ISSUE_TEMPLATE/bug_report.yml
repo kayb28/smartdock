@@ -1,0 +1,107 @@
+name: Bug report (fork)
+description: Report a defect in the kayb28/smartdock fork. Most dock bugs are OEM-specific, so the device and install details below matter.
+labels: ["bug", "fork"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug against the **kayb28/smartdock** fork.
+        The dock is an accessibility service that talks to hidden framework APIs, so most
+        defects are OEM- or Android-version-specific. Please fill the fields below — the
+        device, install type and display setup are usually what makes a repro possible.
+        Feature requests should use Discussions, not this form.
+
+  - type: dropdown
+    id: install_type
+    attributes:
+      label: Install type
+      description: How the app gets `WRITE_SECURE_SETTINGS`. This decides which code paths run.
+      options:
+        - System app (installed in /system/priv-app or similar)
+        - adb (pm grant ... WRITE_SECURE_SETTINGS)
+        - Shizuku
+        - Not granted yet / unsure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: display_env
+    attributes:
+      label: Display environment
+      description: Where the dock is expected to show. External and virtual displays exercise different code than the built-in screen.
+      options:
+        - Main display only (phone or tablet screen)
+        - External display via USB-C / HDMI
+        - Virtual display (Waydroid, emulator, etc.)
+        - Mixed (main + external)
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device and manufacturer
+      description: e.g. "Samsung Galaxy S24 (One UI 6.1)", "Pixel 8 Pro", "Waydroid on Linux".
+      placeholder: "Samsung Galaxy Tab S9 / One UI"
+    validations:
+      required: true
+
+  - type: input
+    id: android_version
+    attributes:
+      label: Android version
+      description: The OS version and, if relevant, the ROM (LineageOS, HyperOS, One UI, etc.).
+      placeholder: "Android 15 / HyperOS 2"
+    validations:
+      required: true
+
+  - type: input
+    id: fork_version
+    attributes:
+      label: Fork version
+      description: From Settings → About, or the APK file name (e.g. v1.15.4-fork.8).
+      placeholder: "v1.15.4-fork.8"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The smallest sequence that triggers the bug.
+      placeholder: |
+        1. Connect the external display via USB-C
+        2. Open the app menu
+        3. ...
+      value: |
+        1.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead. Note any "Algo salió mal" / crash dialog.
+    validations:
+      required: true
+
+  - type: textarea
+    id: crash_log
+    attributes:
+      label: Crash log
+      description: |
+        If a crash log is available (Settings → Advanced → Diagnóstico → Share crash log,
+        on fork builds that include it), paste it here. Otherwise attach a `logcat` snippet
+        captured while reproducing (`adb logcat -s SmartDock`). Leave empty if not applicable.
+      render: shell
+    validations:
+      required: false
