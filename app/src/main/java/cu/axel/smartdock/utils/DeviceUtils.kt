@@ -360,9 +360,11 @@ object DeviceUtils {
         // even though every other display API picked the right display. Every
         // window the dock adds is TYPE_APPLICATION_OVERLAY (the
         // accessibilityWindow branch of makeWindowParams is never taken), so
-        // the window context is created for that type.
+        // the window context is created for that type. The display-taking
+        // createWindowContext overload is the three-arg form (Display, type,
+        // options); the two-arg form does not target a display.
         return context.createWindowContext(
-            display, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            display, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null
         )
     }
 
