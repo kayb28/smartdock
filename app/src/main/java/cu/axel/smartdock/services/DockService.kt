@@ -335,7 +335,24 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         maxApps = sharedPreferences.getString("max_running_apps", "10")!!.toInt()
         maxAppsLandscape = sharedPreferences.getString("max_running_apps_landscape", "10")!!.toInt()
         preferSecondaryDisplay = sharedPreferences.getBoolean("prefer_last_display", false)
-        createViews()
+        // createViews can throw an Error (an IllegalAccessError from a
+        // hidden-API link that resurfaced, or a WindowManager error on a
+        // display that rejects the window) before the service publishes
+        // itself; an uncaught Throwable here kills the binding, leaving the
+        // service listed but never bound (#268, #253). Fall back to the main
+        // display, and if that also fails, log and stay bound so the user can
+        // Reactivate from the permissions dialog instead of crashing the app.
+        try {
+            createViews()
+        } catch (t: Throwable) {
+            CrashLog.log(packageName, "createViews on service connect failed", t)
+            try {
+                removeAllViews()
+                createViews(preferSecondary = false)
+            } catch (t2: Throwable) {
+                CrashLog.log(packageName, "createViews fallback also failed", t2)
+            }
+        }
 
         //Listen for launcher messages
         launcherMessageReceiver = object : BroadcastReceiver() {
@@ -2797,15 +2814,19 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         removeAllViews()
         try {
             createViews()
-        } catch (_: Exception) {
+        } catch (t: Throwable) {
             // The display the dock was moving to rejected its windows — some
             // OEMs stop non-system apps from adding windows to certain
-            // virtual or external displays. Fall back to the main screen
-            // instead of taking the whole service down (#263).
+            // virtual or external displays, and a hidden-API link that
+            // resurfaced throws an Error, not an Exception. Catch Throwable
+            // and fall back to the main screen instead of taking the whole
+            // service down (#263).
+            CrashLog.log(packageName, "createViews failed, falling back to main display", t)
             try {
                 removeAllViews()
                 createViews(preferSecondary = false)
-            } catch (_: Exception) {
+            } catch (t2: Throwable) {
+                CrashLog.log(packageName, "createViews fallback also failed", t2)
             }
         }
         updateBatteryBtn()
