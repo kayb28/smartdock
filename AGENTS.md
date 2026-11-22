@@ -1,6 +1,6 @@
 # AGENTS.md — guía para agentes en este repositorio
 
-_Fork de axel358/smartdock («Smart Dock fork»). Última actualización de esta guía: 2026-11-22._
+_Fork de axel358/smartdock («Smart Dock fork»). Última actualización de esta guía: 2026-11-23._
 _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en `docs/REGISTRO.md`._
 
 ## 1. Qué es este proyecto
@@ -20,9 +20,9 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 
 ## 3. Ramas
 
-- `main` — punta consolidada del fork: upstream 1.15.0 (`517604a`) + los 10 commits de `bugfix/october-2026-bugs` (fast-forward del 2026-11-19) + documentación + bump v1.15.1 (versionCode 1151) + los 9 commits de `feature/november-2026-improvements` (v1.15.2-fork.6, versionCode 1152) + los 6 commits de `bugfix/november-2026-issues` (v1.15.3-fork.7, versionCode 1153) + 1 commit de `bugfix/wrapper-init-crash` (v1.15.4-fork.8, versionCode 1154), todo absorbido por fast-forward.
+- `main` — punta consolidada del fork: upstream 1.15.0 (`517604a`) + los 10 commits de `bugfix/october-2026-bugs` (fast-forward del 2026-11-19) + documentación + bump v1.15.1 (versionCode 1151) + los 9 commits de `feature/november-2026-improvements` (v1.15.2-fork.6, versionCode 1152) + los 6 commits de `bugfix/november-2026-issues` (v1.15.3-fork.7, versionCode 1153) + 1 commit de `bugfix/wrapper-init-crash` (v1.15.4-fork.8, versionCode 1154) + los 7 commits de `bugfix/secondary-display-accessibility-regression` (v1.15.5-fork.9, versionCode 1155: routing de overlay al display secundario, accesibilidad listada-pero-no-bound, resilience de createViews) + 1 commit de cleanup post-fork.9 (`60fcd72`, plantillas de issues y notas de upstream — directo a main por descuido, ver lección abajo), todo absorbido por fast-forward.
 - `bugfix/october-2026-bugs` — la jornada de bugs 2026-11-07 (10 commits, `f5409c5`→`0eac1a4`). **Consolidada en main por fast-forward; se conserva como histórico** porque es donde vive el tag `v1.15.0-fork.4`. No pushear encima.
-- Ramas nuevas: prefijos `bugfix/` o `feature/`, cortadas desde `main`. Convención del fork (heredada de WebLibre): el árbol de feature va siempre por delante de main y main **absorbe por fast-forward**, nunca se descarta trabajo ni se reescribe historial.
+- Ramas nuevas: prefijos `bugfix/`, `feature/` o `chore/` (este último para cambios documentales o de proceso que no tocan código de la app), cortadas desde `main`. Convención del fork (heredada de WebLibre): el árbol de feature va siempre por delante de main y main **absorbe por fast-forward**, nunca se descarta trabajo ni se reescribe historial. **Incluso los commits puramente documentales van por una rama `chore/` y se absorben por fast-forward** — main no recibe commits directos (lección de `60fcd72`, que fue directo a main por descuido).
 - upstream (`axel358/smartdock`) no está configurado como remote en el clone; para sincronizar: `git remote add upstream https://github.com/axel358/smartdock.git && git fetch upstream` y merge de `upstream/main` en `main` (repo GitHub del fork = fork real, la red «fork» ya está conectada).
 
 ## 4. Permisos, adb y Shizuku (lo que hace única a esta app)
@@ -46,6 +46,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 4. **Keystore por runner = firma inestable**: sin keystore fijo, cada APK de CI tiene firma distinta y update exige desinstalar (perdiendo ajustes). Por eso `debug.keystore` vive en el repo (`43a3b24`).
 5. **`GITHUB_TOKEN` nace read-only en repos nuevos**: workflow que crea Releases necesita `permissions: contents: write` explícito. Aquí ya estaba (la lección llegó de MihonFix y WidgetCraft).
 6. **No presumir el display**: en OEMs la lista de displays incluye virtuales privados; solo la categoría *presentation* lista los displays donde una app normal puede lanzar. `getSecondaryDisplay()` devuelve null y los callers caen a la principal (`62ee704`).
+7. **Main no recibe commits directos, ni siquiera docs**: la convención (§3) es rama `chore/` → fast-forward a main. `60fcd72` (cleanup post-fork.9) fue directo a main por descuido — no repetir; los commits puramente documentales también van por `chore/` y se absorben por fast-forward, igual que los de código.
 
 ## 7. Documentación interna (leer antes de tocar nada)
 
