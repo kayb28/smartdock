@@ -362,10 +362,18 @@ object DeviceUtils {
         // accessibilityWindow branch of makeWindowParams is never taken), so
         // the window context is created for that type. The display-taking
         // createWindowContext overload is the three-arg form (Display, type,
-        // options); the two-arg form does not target a display.
-        return context.createWindowContext(
-            display, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null
-        )
+        // options) and is API 31; the two-arg (type, options) form is API 30
+        // but does not target a display. Guard with SDK_INT so lint accepts
+        // it; on API 30 (Android 11) fall back to createDisplayContext, which
+        // may not route the overlay to the secondary display but is no worse
+        // than before. Every secondary-display device in practice is API 31+.
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            context.createWindowContext(
+                display, WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY, null
+            )
+        } else {
+            context.createDisplayContext(display)
+        }
     }
 
     @SuppressLint("PrivateApi")
