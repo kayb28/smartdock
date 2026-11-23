@@ -375,4 +375,14 @@
     <string name="share_crash_log">ਕ੍ਰੈਸ਼ ਲੌਗ ਸਾਂਝਾ ਕਰੋ</string>
     <string name="crash_log_dialog_title">ਆਖਰੀ ਕ੍ਰੈਸ਼ ਰਿਪੋਰਟ</string>
     <string name="no_crash_log">ਕੋਈ ਕ੍ਰੈਸ਼ ਦਰਜ ਨਹੀਂ ਹੋਇਆ।</string>
+
+    <!-- Update checker (Settings, Advanced, Diagnostics) -->
+    <string name="check_for_updates">ਅੱਪਡੇਟਾਂ ਲਈ ਜਾਂਚ ਕਰੋ</string>
+    <string name="check_for_updates_summary">ਨਵੇਂ ਫੋਰਕ ਰੀਲਿਜ਼ ਲਈ GitHub ਜਾਂਚੋ</string>
+    <string name="checking_updates">ਅੱਪਡੇਟਾਂ ਲਈ ਜਾਂਚ ਜਾਰੀ...</string>
+    <string name="up_to_date">ਤੁਸੀਂ ਨਵੀਨਤਮ ਰੀਲਿਜ਼ \'ਤੇ ਹੋ (%1$s)</string>
+    <string name="update_available_title">ਅੱਪਡੇਟ ਉਪਲਬਧ ਹੈ</string>
+    <string name="update_available_message">ਇੱਕ ਨਵਾਂ ਫੋਰਕ ਰੀਲਿਜ਼ ਉਪਲਬਧ ਹੈ: %1$s</string>
+    <string name="could_not_check">ਅੱਪਡੇਟਾਂ ਲਈ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕੀ। ਆਪਣੀ ਕਨੈਕਸ਼ਨ ਜਾਂਚੋ ਅਤੇ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>
+    <string name="open_release">ਰੀਲਿਜ਼ ਖੋਲ੍ਹੋ</string>
 </resources>

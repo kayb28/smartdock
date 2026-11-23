@@ -372,4 +372,14 @@
     <string name="share_crash_log">Compartir log de crash</string>
     <string name="crash_log_dialog_title">Último reporte de crash</string>
     <string name="no_crash_log">No se ha registrado ningún crash.</string>
+
+    <!-- Update checker (Settings, Advanced, Diagnostics) -->
+    <string name="check_for_updates">Buscar actualizaciones</string>
+    <string name="check_for_updates_summary">Comprueba en GitHub si hay una versión más reciente del fork</string>
+    <string name="checking_updates">Buscando actualizaciones...</string>
+    <string name="up_to_date">Tienes la versión más reciente (%1$s)</string>
+    <string name="update_available_title">Actualización disponible</string>
+    <string name="update_available_message">Hay una versión más reciente del fork: %1$s</string>
+    <string name="could_not_check">No se pudieron comprobar las actualizaciones. Revisa tu conexión e inténtalo de nuevo.</string>
+    <string name="open_release">Abrir versión</string>
 </resources>

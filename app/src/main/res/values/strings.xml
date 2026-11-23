@@ -371,4 +371,18 @@
     <string name="share_crash_log">Share crash log</string>
     <string name="crash_log_dialog_title">Last crash report</string>
     <string name="no_crash_log">No crash has been recorded.</string>
+
+    <!-- Update checker (Settings, Advanced, Diagnostics) -->
+    <!-- Build constant: the GitHub release tag this build ships as.
+         Bumped each release; not translated. UpdateChecker compares the
+         latest release tag against this. -->
+    <string name="fork_release_tag" translatable="false">v1.15.5-fork.9</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="check_for_updates_summary">Check GitHub for a newer fork release</string>
+    <string name="checking_updates">Checking for updates...</string>
+    <string name="up_to_date">You are on the latest release (%1$s)</string>
+    <string name="update_available_title">Update available</string>
+    <string name="update_available_message">A newer fork release is available: %1$s</string>
+    <string name="could_not_check">Could not check for updates. Check your connection and try again.</string>
+    <string name="open_release">Open release</string>
 </resources>

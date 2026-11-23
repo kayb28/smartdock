@@ -120,6 +120,7 @@ import cu.axel.smartdock.utils.AppUtils
 import cu.axel.smartdock.utils.ColorUtils
 import cu.axel.smartdock.utils.ColorUtils.getMainColors
 import cu.axel.smartdock.utils.CrashLog
+import cu.axel.smartdock.utils.UpdateChecker
 import cu.axel.smartdock.utils.DeepShortcutManager
 import cu.axel.smartdock.utils.DeviceUtils
 import cu.axel.smartdock.utils.IconPackUtils
@@ -378,6 +379,15 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 .setPackage(packageName)
                 .putExtra("action", DOCK_SERVICE_CONNECTED)
         )
+
+        // Discrete update check against the fork's GitHub Releases: the fork
+        // is not on F-Droid, so this is how a user learns a new release
+        // shipped. Fire-and-forget on a background dispatcher — never blocks
+        // startup, rate-limits itself to once per 24h, and caches the verdict
+        // so the Settings entry can show it without a network hit.
+        CoroutineScope(Dispatchers.IO).launch {
+            UpdateChecker.checkSilentIfNeeded(applicationContext)
+        }
 
         //Register receivers
         notificationServiceReceiver = object : BroadcastReceiver() {

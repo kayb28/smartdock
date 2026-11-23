@@ -4,7 +4,10 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.inputmethod.EditorInfo
@@ -21,6 +24,7 @@ import cu.axel.smartdock.R
 import cu.axel.smartdock.preferences.SliderPreference
 import cu.axel.smartdock.utils.CrashLog
 import cu.axel.smartdock.utils.DeviceUtils
+import cu.axel.smartdock.utils.UpdateChecker
 import cu.axel.smartdock.utils.Utils
 
 private const val SAVE_REQUEST_CODE = 236
@@ -68,6 +72,21 @@ class AdvancedPreferences : PreferenceFragmentCompat() {
         findPreference<Preference>("share_crash_log")!!.setOnPreferenceClickListener {
             if (!CrashLog.shareLatest(requireContext()))
                 Toast.makeText(requireContext(), R.string.no_crash_log, Toast.LENGTH_SHORT).show()
+            false
+        }
+
+        // Update checker: live fetch off the main thread (no
+        // lifecycle-runtime-ktx dep, so a plain Thread + main-thread Handler),
+        // result shown in a MaterialAlertDialog. The silent startup check
+        // (DockService) caches a verdict independently of this click.
+        findPreference<Preference>("check_for_updates")!!.setOnPreferenceClickListener {
+            val ctx = requireContext()
+            Toast.makeText(ctx, R.string.checking_updates, Toast.LENGTH_SHORT).show()
+            val main = Handler(Looper.getMainLooper())
+            Thread {
+                val latest = UpdateChecker.fetchLatest()
+                main.post { showUpdateResult(ctx, latest) }
+            }.start()
             false
         }
 
@@ -182,6 +201,39 @@ class AdvancedPreferences : PreferenceFragmentCompat() {
         }
         iconPadding.setOnPreferenceChangeListener { _, newValue ->
             (newValue as String).isNotEmpty()
+        }
+    }
+
+    private fun showUpdateResult(context: Context, latest: UpdateChecker.LatestRelease?) {
+        val current = UpdateChecker.currentTag(context)
+        if (latest == null) {
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.check_for_updates)
+                .setMessage(R.string.could_not_check)
+                .setPositiveButton(R.string.ok, null)
+                .show()
+            return
+        }
+        if (UpdateChecker.isNewer(latest.tag, current)) {
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.update_available_title)
+                .setMessage(context.getString(R.string.update_available_message, latest.tag))
+                .setPositiveButton(R.string.open_release) { _, _ ->
+                    val openIntent = Intent(Intent.ACTION_VIEW, Uri.parse(latest.htmlUrl))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    try {
+                        context.startActivity(openIntent)
+                    } catch (_: Throwable) {
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        } else {
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.check_for_updates)
+                .setMessage(context.getString(R.string.up_to_date, current))
+                .setPositiveButton(R.string.ok, null)
+                .show()
         }
     }
 

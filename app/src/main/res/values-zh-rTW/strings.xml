@@ -374,4 +374,14 @@
     <string name="share_crash_log">分享崩潰記錄檔</string>
     <string name="crash_log_dialog_title">上次崩潰回報</string>
     <string name="no_crash_log">尚未記錄任何崩潰。</string>
+
+    <!-- Update checker (Settings, Advanced, Diagnostics) -->
+    <string name="check_for_updates">檢查更新</string>
+    <string name="check_for_updates_summary">在 GitHub 檢查是否有較新的 fork 版本</string>
+    <string name="checking_updates">正在檢查更新...</string>
+    <string name="up_to_date">您已是最新版本（%1$s）</string>
+    <string name="update_available_title">有可用更新</string>
+    <string name="update_available_message">有較新的 fork 版本：%1$s</string>
+    <string name="could_not_check">無法檢查更新。請檢查網路連線後重試。</string>
+    <string name="open_release">開啟發行版</string>
 </resources>

@@ -374,4 +374,14 @@
     <string name="share_crash_log">Absturzprotokoll teilen</string>
     <string name="crash_log_dialog_title">Letzter Absturzbericht</string>
     <string name="no_crash_log">Es wurde kein Absturz protokolliert.</string>
+
+    <!-- Update checker (Settings, Advanced, Diagnostics) -->
+    <string name="check_for_updates">Nach Updates suchen</string>
+    <string name="check_for_updates_summary">Auf GitHub nach einer neueren Fork-Version suchen</string>
+    <string name="checking_updates">Suche nach Updates...</string>
+    <string name="up_to_date">Du verwendest die aktuelle Version (%1$s)</string>
+    <string name="update_available_title">Update verfügbar</string>
+    <string name="update_available_message">Eine neuere Fork-Version ist verfügbar: %1$s</string>
+    <string name="could_not_check">Update-Prüfung fehlgeschlagen. Verbindung prüfen und erneut versuchen.</string>
+    <string name="open_release">Release öffnen</string>
 </resources>

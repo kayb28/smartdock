@@ -137,5 +137,10 @@
         <Preference
             android:key="share_crash_log"
             android:title="@string/share_crash_log" />
+
+        <Preference
+            android:key="check_for_updates"
+            android:title="@string/check_for_updates"
+            android:summary="@string/check_for_updates_summary" />
     </PreferenceCategory>
 </PreferenceScreen>
