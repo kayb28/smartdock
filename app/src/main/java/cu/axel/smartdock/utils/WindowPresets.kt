@@ -24,19 +24,26 @@ object WindowPresets {
 
     /** Preset names in stored order, empty when none exist. */
     fun list(context: Context): List<String> {
-        return readArray(context).mapNotNull { entry ->
-            if (entry.optString("name").isNotBlank()) entry.optString("name") else null
+        val names = ArrayList<String>()
+        val array = readArray(context)
+        for (i in 0 until array.length()) {
+            val name = array.optJSONObject(i)?.optString("name") ?: continue
+            if (name.isNotBlank()) names.add(name)
         }
+        return names
     }
 
     /** Percent geometry of [name], or null when it does not exist. */
     fun get(context: Context, name: String): IntArray? {
-        for (entry in readArray(context))
+        val array = readArray(context)
+        for (i in 0 until array.length()) {
+            val entry = array.optJSONObject(i) ?: continue
             if (entry.optString("name") == name)
                 return intArrayOf(
                     entry.optInt("left"), entry.optInt("top"),
                     entry.optInt("width"), entry.optInt("height")
                 )
+        }
         return null
     }
 

@@ -138,6 +138,7 @@ import cu.axel.smartdock.widgets.HoverInterceptorLayout
 import cu.axel.smartdock.wrappers.ActivityManagerWrapper
 import cu.axel.smartdock.wrappers.BluetoothManagerWrapper
 import cu.axel.smartdock.wrappers.WifiManagerWrapper
+import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
