@@ -504,5 +504,5 @@ Motivo: correcciones del dueño sobre la documentación (numeración barajada de
 
 ### Cierre
 
-- [ ] Release `v1.15.9-fork.13` publicada + CI verde en el tag + asset verificado (badging 1159/1.15.9, cert `4680C231…B54B41DB`, `releases/latest == fork_release_tag` del build) — cierre con commit aparte.
+- [x] Release `v1.15.9-fork.13` publicada y verificada: `releases/latest == v1.15.9-fork.13 == fork_release_tag` del build (el updater auto-reconoce su release), **CI 5/5 verde** sobre `8cb300e` (Release debug apk + Build project sobre el tag, Build project + Build debug apk sobre main, Build project sobre la rama), asset `SmartDock-fork-debug.apk` (13.2 MB) verificado — badging **versionCode 1159 / versionName 1.15.9**, cert SHA-256 `4680c231…b54b41db` (keystore del fork: se actualiza encima de fork.12 sin desinstalar) y `fork_release_tag` incrustado `v1.15.9-fork.13` en `resources.arsc`.
 - [ ] Pendientes del dueño: triage de F5 (snap zones); decisión de envío a upstream.
