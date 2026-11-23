@@ -199,7 +199,9 @@
     <!-- Advanced page -->
     <string name="advanced">Avanzado</string>
     <string name="these_settings_are_intended_fo">Estos ajustes están destinados a usuarios avanzados. Solo cámbialas si sabes lo que estás haciendo.</string>
-    <string name="prefer_last_display">Preferir pantallas secundaries</string>
+    <string name="dock_display_placement">Pantalla del dock</string>
+    <string name="dock_display_placement_primary">Principal</string>
+    <string name="dock_display_placement_external">Externo</string>
     <string name="prefer_last_display_summary">Preferir pantallas secundarias para mostrar aplicaciones y el Dock</string>
     <string name="external_display_desktop_mode">Modo escritorio en pantalla externa</string>
     <string name="external_display_desktop_mode_summary">Usa las pantallas externas como escritorios completos, igual que la opción de desarrollador \"Forzar modo de escritorio\": las apps conservan en la pantalla externa sus ventanas flotantes con barra de título que responden al ratón. Requiere el permiso de ajustes seguros, Shizuku o root, y puede que haya que reconectar la pantalla</string>

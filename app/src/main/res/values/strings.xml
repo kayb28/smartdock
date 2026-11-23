@@ -199,7 +199,9 @@
     <!-- Advanced page -->
     <string name="advanced">Advanced</string>
     <string name="these_settings_are_intended_fo">These settings are intended for advanced users. Only change them if you know what you are doing</string>
-    <string name="prefer_last_display">Prefer secondary displays</string>
+    <string name="dock_display_placement">Dock display placement</string>
+    <string name="dock_display_placement_primary">Primary</string>
+    <string name="dock_display_placement_external">External</string>
     <string name="prefer_last_display_summary">Prefer secondary displays for displaying apps and the dock</string>
     <string name="external_display_desktop_mode">External display desktop mode</string>
     <string name="external_display_desktop_mode_summary">Run external displays as full desktops, like the developer option \"Force desktop mode\": apps keep their floating windows with title bars that respond to the mouse on the external screen. Needs the write-secure-settings permission, Shizuku or root, and may need the display to be reconnected</string>

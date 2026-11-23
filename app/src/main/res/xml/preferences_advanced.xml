@@ -4,11 +4,13 @@
         android:icon="@drawable/ic_info"
         android:title="@string/these_settings_are_intended_fo" />
 
-    <SwitchPreferenceCompat
-        android:defaultValue="false"
-        android:key="prefer_last_display"
+    <ListPreference
+        android:defaultValue="primary"
+        android:entries="@array/dock_display_placement_entries"
+        android:entryValues="@array/dock_display_placement_values"
+        android:key="dock_display_placement"
         android:summary="@string/prefer_last_display_summary"
-        android:title="@string/prefer_last_display" />
+        android:title="@string/dock_display_placement" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"

@@ -345,7 +345,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         systemApp = AppUtils.isSystemApp(this, packageName)
         maxApps = sharedPreferences.getString("max_running_apps", "10")!!.toInt()
         maxAppsLandscape = sharedPreferences.getString("max_running_apps_landscape", "10")!!.toInt()
-        preferSecondaryDisplay = sharedPreferences.getBoolean("prefer_last_display", false)
+        preferSecondaryDisplay = sharedPreferences.getString("dock_display_placement", "primary") == "external"
         // createViews can throw an Error (an IllegalAccessError from a
         // hidden-API link that resurfaced, or a WindowManager error on a
         // display that rejects the window) before the service publishes
@@ -1828,8 +1828,8 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             applyDockAlpha()
         else if (preference == "override_dock_background_alpha")
             updateDockBackgroundColor()
-        else if (preference == "prefer_last_display") {
-            preferSecondaryDisplay = sharedPreferences.getBoolean("prefer_last_display", false)
+        else if (preference == "dock_display_placement") {
+            preferSecondaryDisplay = sharedPreferences.getString("dock_display_placement", "primary") == "external"
             if (DeviceUtils.getDisplays(this).size > 1)
                 restartUI()
         }

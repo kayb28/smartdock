@@ -194,7 +194,9 @@
     <!-- Advanced page -->
     <string name="advanced">進階</string>
     <string name="these_settings_are_intended_fo">這些設定適用於進階使用者。只有在知道自己在做什麼時才更改</string>
-    <string name="prefer_last_display">偏好最後連接的螢幕</string>
+    <string name="dock_display_placement">Dock 顯示位置</string>
+    <string name="dock_display_placement_primary">主顯示屏</string>
+    <string name="dock_display_placement_external">外部顯示屏</string>
     <string name="prefer_last_display_summary">偏好最後連接的螢幕顯示應用程式和 Dock</string>
     <string name="external_display_desktop_mode">外接螢幕桌面模式</string>
     <string name="external_display_desktop_mode_summary">將外接螢幕作為完整桌面運行，等同於開發者選項中的「強制桌面模式」：應用在外接螢幕上保留帶標題欄的浮動視窗，可用滑鼠操作。需要安全設定權限、Shizuku 或 root，可能需要重新連接螢幕</string>

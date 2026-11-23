@@ -117,5 +117,15 @@
         <item>duckduckgo</item>
         <item>bing</item>
     </string-array>
+
+    <!-- Dock display placement selector (replaces the prefer_last_display toggle) -->
+    <string-array name="dock_display_placement_entries">
+        <item>@string/dock_display_placement_primary</item>
+        <item>@string/dock_display_placement_external</item>
+    </string-array>
+    <string-array name="dock_display_placement_values">
+        <item>primary</item>
+        <item>external</item>
+    </string-array>
 </resources>
 

@@ -414,7 +414,7 @@ object AppUtils {
     ): ActivityOptions {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val secondary = allowSecondary
-                && sharedPreferences.getBoolean("prefer_last_display", false)
+                && sharedPreferences.getString("dock_display_placement", "primary") == "external"
 
         val display =
             if (displayId != Display.DEFAULT_DISPLAY)
@@ -454,7 +454,7 @@ object AppUtils {
     fun resolveDisplayId(context: Context, displayId: Int): Int {
         if (displayId != UNKNOWN_DISPLAY) return displayId
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        if (sharedPreferences.getBoolean("prefer_last_display", false))
+        if (sharedPreferences.getString("dock_display_placement", "primary") == "external")
             return DeviceUtils.getSecondaryDisplay(context)?.displayId
                 ?: Display.DEFAULT_DISPLAY
         return Display.DEFAULT_DISPLAY

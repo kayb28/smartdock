@@ -210,7 +210,7 @@ class NotificationLayout(
             Utils.dpToPx(context, sharedPreferences.getString("dock_height", "56")!!.toInt())
         notificationLayoutParams = Utils.makeWindowParams(
             Utils.dpToPx(context, 300), LinearLayout.LayoutParams.WRAP_CONTENT, context,
-            sharedPreferences.getBoolean("prefer_last_display", false)
+            sharedPreferences.getString("dock_display_placement", "primary") == "external"
         )
         actionsHeight = Utils.dpToPx(context, 20)
         val margins = Utils.dpToPx(context, 2)

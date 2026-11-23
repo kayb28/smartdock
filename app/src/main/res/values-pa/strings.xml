@@ -195,7 +195,9 @@
     <!-- Advanced -->
     <string name="advanced">ਉੱਨਤ</string>
     <string name="these_settings_are_intended_fo">ਇਹ ਸੈਟਿੰਗਾਂ ਉੱਨਤ ਉਪਭੋਗਤਾਵਾਂ ਲਈ ਹਨ। ਉਹਨਾਂ ਨੂੰ ਕੇਵਲ ਤਾਂ ਹੀ ਬਦਲੋ ਜੇਕਰ ਤੁਸੀਂ ਜਾਣਦੇ ਹੋ ਕਿ ਤੁਸੀਂ ਕੀ ਕਰ ਰਹੇ ਹੋ</string>
-    <string name="prefer_last_display">ਸੈਕੰਡਰੀ ਡਿਸਪਲੇ ਨੂੰ ਤਰਜੀਹ ਦਿਓ</string>
+    <string name="dock_display_placement">ਡੌਕ ਡਿਸਪਲੇ</string>
+    <string name="dock_display_placement_primary">ਮੁੱਖ</string>
+    <string name="dock_display_placement_external">ਬਾਹਰੀ</string>
     <string name="prefer_last_display_summary">ਐਪਾਂ ਅਤੇ ਡੌਕ ਦਿਖਾਉਣ ਲਈ ਸੈਕੰਡਰੀ ਡਿਸਪਲੇ ਨੂੰ ਤਰਜੀਹ ਦਿਓ</string>
     <string name="external_display_desktop_mode">ਬਾਹਰੀ ਡਿਸਪਲੇ ਡੈਸਕਟਾਪ ਮੋਡ</string>
     <string name="external_display_desktop_mode_summary">ਬਾਹਰੀ ਡਿਸਪਲੇਆਂ ਨੂੰ ਪੂਰੇ ਡੈਸਕਟਾਪ ਵਾਂਗ ਚਲਾਓ, ਜਿਵੇਂ ਡਿਵੈਲਪਰ ਚੋਣ ਫੋਰਸ ਡੈਸਕਟਾਪ ਮੋਡ: ਐਪਾਂ ਬਾਹਰੀ ਸਕਰੀਨ ਉੱਤੇ ਟਾਈਟਲ ਬਾਰ ਵਾਲੀਆਂ ਫਲੋਟਿੰਗ ਵਿੰਡੋਆਂ ਬਰਕਰਾਰ ਰੱਖਦੀਆਂ ਹਨ ਜੋ ਮਾਊਸ ਦੇ ਜਵਾਬ ਦਿੰਦੀਆਂ ਹਨ। ਸੁਰੱਖਿਅ ਸੈਟਿੰਗਾਂ ਦੀ ਇਜਾਜ਼ਤ, Shizuku ਜਾਂ root ਚਾਹੀਦੀ ਹੈ ਅਤੇ ਸਕਰੀਨ ਨੂੰ ਦੁਬਾਰਾ ਕੁਨੈਕਟ ਕਰਨ ਦੀ ਲੋੜ ਪੈ ਸਕਦੀ ਹੈ</string>
