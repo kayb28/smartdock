@@ -328,3 +328,20 @@ Motivo: CI verde sobre `0049dd0` (F6+F9), 13 commits acumulados desde el tag `v1
 - [x] Sin cambios de código de la app en el corte: solo `app/build.gradle` + `strings.xml` (`fork_release_tag`) + documentación.
 - [x] Verificación updater: nueva release detectada vs fork.9 y auto-reconocimiento «up to date» (simulación + tests en CI).
 - [ ] Pendiente de confirmación en dispositivo: con fork.10 instalada y `releases/latest` == `v1.15.6-fork.10`, el updater muestra «up to date» y no «update available».
+
+## 2026-11-23 (undécima pasada) — F7: geometría de ventana por app (`feature/per-app-window-geometry`, `496250f`)
+
+Motivo: F7 del listado original — cada app puede conservar su propia geometría de ventana: «Remember window size» en el menú contextual de una app en ejecución lee los bounds actuales de la tarea y los guarda por paquete; el siguiente lanzamiento de esa app los restaura (nuevo modo de lanzamiento por-app «custom») en vez de uno de los modos fijos.
+
+- **AIDL + wrapper**: `IActivityManager.getTaskBounds` (la llamada oculta detrás del `resizeTask` que el dock ya usa) + `ActivityManagerWrapper.getTaskBounds(taskId): Rect?` con el mismo contrato de degradación que `forceStopPackage` (null, nunca escapa al caller).
+- **DB v2**: cuatro columnas nullable de geometría en `table_launch_modes` (ALTER TABLE en `onUpgrade`; las installs viejas conservan sus modos guardados); `saveWindowGeometry` guarda los bounds y pasa la fila a «custom».
+- **launchApp**: resuelve la geometría recordada y la pasa por `makeActivityOptions`/`makeLaunchBounds`; una geometría ausente o inusable cae a «standard» en vez de un Rect vacío, y los bounds guardados se clampan al display de destino (una ventana recordada en otra pantalla no abre de tamaño cero).
+- **Menú**: entrada «Remember window size» gated a Shizuku (el mismo privilegio que CLOSE/RESIZE ya exigen) y a la tarea estar en freeform; toasts `window_size_remembered` / `window_size_unavailable`.
+- 3 strings nuevas en los 6 locales mantenidos.
+
+### Cierre
+
+- [x] `Build project` (compile + lint, incluye MissingTranslation) verde sobre `496250f` — confirmado el 2026-11-23 05:40 UTC (check-run success).
+- [x] Sin bump de versionCode (feature, no release). El corte será fork.11 en el próximo bump 1157/1.15.7.
+- [x] Sin dependencias nuevas; solo APIs públicas + la llamada oculta del AIDL que el wrapper ya degrada a null.
+- [ ] Pendiente de confirmación en dispositivo: guardar el tamaño de una ventana reposicionada y relanzar la app restaura la geometría; un cambio de display posterior no abre ventanas de tamaño cero.
