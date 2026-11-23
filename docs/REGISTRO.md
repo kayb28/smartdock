@@ -362,3 +362,21 @@ Motivo: cortar F7 (geometría de ventana por app) como release del fork, replica
 - [x] Sin cambios de código de la app en el corte: solo `app/build.gradle` + `strings.xml` (`fork_release_tag`) + `CHANGELOG-FORK.md`.
 - [x] Verificación updater: `releases/latest` == `v1.15.7-fork.11` == `fork_release_tag` del build → una instalación con fork.11 se reconoce «up to date» (`UpdateCheckerTest.ownReleaseIsNotNewerThanItself` en CI); una instalación con fork.10 ve «update available» (1.15.7-fork.11 > 1.15.6-fork.10).
 - [ ] Pendiente de confirmación en dispositivo: con fork.10 instalada, el updater ofrece la actualización; con fork.11 instalada, «up to date»; guardar tamaño de ventana + relanzar restaura la geometría.
+
+## 2026-11-23 (decimotercera pasada) — F5: presets de geometría de ventana con nombre (`feature/window-presets`, `e3a12bc` + `968b4e4`)
+
+Motivo: F5 del listado original = upstream #209 («[Feature] Freeform Size Intents, And Window Positions» — usuarios pidiendo «set up and store a few of these predefined window positions»): el submenú Resize de una app en ejecución gana «Custom…», un diálogo con cuatro sliders (left/top/width/height como porcentajes del área usable) y preview en píxeles, Apply para redimensionar la tarea, y «Save as preset» para guardar la geometría con nombre. Los presets guardados se listan directamente en el submenú Resize y aplican a cualquier ventana; «Delete presets…» los gestiona. F7 (fork.11) cubría «recordar la ventana actual por app»; F5 es lo complementario global.
+
+- **`utils/WindowPresets.kt`**: almacenamiento SharedPreferences JSON (`org.json`, sin dependencias nuevas), guarda los cuatro porcentajes —no píxeles— para que un preset re-aplique en el display donde viva la tarea (mismo razonamiento por-display que `makeLaunchBounds`); toda lectura degrada a vacío ante entradas malformadas y `toBounds` clampa y valida (un preset editado a mano jamás produce el bug de la ventana de tamaño cero — misma guardia que el modo «custom» de F7).
+- **`Action` gana payload opcional** (el nombre del preset para `WINDOW_PRESET`/`WINDOW_PRESET_DELETE`); `MenuCommand` gana `WINDOW_CUSTOM`/`WINDOW_PRESET`/`WINDOW_PRESET_DELETE`. El dispatch sigue por comando, nunca por texto visible.
+- **Bounds por display real de la tarea** (`resolveDisplayId`, el razonamiento de `resizeTask`); el resize va por el mismo camino Shizuku con el mismo try/catch.
+- **Layout nuevo** `custom_window_dialog.xml` (4 SeekBar + preview + Apply + nombre de preset).
+- 11 strings nuevas en los 6 locales mantenidos.
+
+### Cierre
+
+- [x] Primera iteración roja (`e3a12bc`): 3 errores de compilación — `JSONArray` no es Iterable (list/get iteran por índice con `optJSONObject(i)`), y `max()` necesitaba `kotlin.math.max` en DockService (AppUtils lo tenía, DockService nunca). Corregido en `968b4e4`; CI verde (15:17 UTC). Log extraído con `scripts/fetch_ci_log.py` (el endpoint de logs devuelve un zip por-paso).
+- [x] `Build project` verde sobre `968b4e4` (15:17 UTC); ff a main.
+- [x] Sin bump de versionCode (feature, no release). El corte será fork.12 en el próximo bump 1158/1.15.8.
+- [x] Sin dependencias nuevas; solo `org.json` (plataforma) y APIs ya en uso.
+- [ ] Pendiente de confirmación en dispositivo: crear un preset desde el diálogo Custom, verlo en el submenú Resize, aplicarlo a otra ventana, y borrarlo; el preview muestra píxeles correctos en display secundario.
