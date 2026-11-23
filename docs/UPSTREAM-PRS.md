@@ -82,6 +82,15 @@ Los commits de la séptima sesión refinen los fixes de #263, #268 y #253 con ca
 - Superficie: `DockService` (`onServiceConnected` y `restartUI`, ~15 líneas).
 - Cherry-pick: **limpio**. Puro causa raíz: `catch (Exception)` → `catch (Throwable)` con fallback al display principal. Endurece el binding contra `Error` (no solo `Exception`), que es lo que mataba el servicio en #253 y #268. Complementa el hardening de adapters de `c1d02b2`.
 
+## Sesión 13 (v1.15.8-fork.12) — presets de geometría de ventana (upstream #209)
+
+### #209 — «set up and store a few of these predefined window positions»
+- Commits: `e3a12bc` — _Add custom window geometry with named presets (F5, #209)_ + `968b4e4` — _Fix WindowPresets JSONArray iteration and kotlin.math.max import_. **Plegar en uno solo** — `968b4e4` es corrección de compilación sobre `e3a12bc` que solo existe porque el original no se compiló antes de pushear (tercera recurrencia del patrón; ver lección 8 de AGENTS.md y nota operativa de abajo).
+- **Plegado producido (2026-11-23)**: rama `upstream-pr/window-presets`, commit `0be6597` sobre `59838da` (la base donde se autoró `e3a12bc`). Diff verificado idéntico al net de los dos (`diff 59838da..0be6597 == diff 59838da..968b4e4`, vacío). Paridad con el plegado `00e0558` de createWindowContext. El commit plegado lleva el mensaje de `e3a12bc` y un cuerpo que incluye la corrección como parte del fix.
+- Superficie: nuevo `utils/WindowPresets.kt` (almacenamiento SharedPreferences JSON con `org.json`) + `DockService` (submenú Resize: Custom… + presets listados + Delete presets…) + `AppUtils` (toBounds con clamp/validación) + `Action`/`MenuCommand` (payload opcional + 3 comandos) + **11 cadenas nuevas** en `values/strings.xml` y 6 locales. Feature pura que responde a un issue abierto de upstream: es el **candidato estrella** del paquete — autocontenida, commits en inglés con causa raíz, y cierra un issue real.
+- Cherry-pick: **adapta** (cadenas nuevas a traducir a los locales de upstream — mismo caso que `a51c8b9`; el fork mantiene `de, es, pa, zh-rCN, zh-rHK, zh-rTW`, upstream puede no querer todos). Aplica sobre la base del fork (`59838da`); sobre upstream 1.15.0 directo conviene re-crear el commit tras el rebase.
+- **Decisión de almacenamiento (anotada como decisión, no deriva)**: F7 (geometría por app) vive en la **DB en píxeles, por paquete** — es estado que el sistema calcula y restaura en el launch; F5 (presets) vive en **SharedPreferences JSON en porcentajes, con nombre** — es estado que el usuario define y re-aplica a voluntad en cualquier display. Son conceptos distintos con almacenamientos distintos a propósito; si algún día se consolidan (p. ej. presets como filas de la DB), que sea una decisión documentada, no una migración silenciosa.
+
 ## Orden de envío propuesto
 
 Los fixes puros de causa raíz primero (rápidos de revisar y de alto valor para usuarios de upstream), los multi-concern que requieren split después, las features al final, y el endurecimiento de wrappers el último por su superficie de política. **Los refinamientos de sesión 7 van antes que sus originales de sesión 5** (son más directos); el commit plegado de display secundario va con los fixes puros.
@@ -97,9 +106,10 @@ Los fixes puros de causa raíz primero (rápidos de revisar y de alto valor para
 9. **#268 BootCompletedReceiver** — split de `f5409c5`, trae archivo nuevo; revisar política de autostart con upstream.
 10. **#200** offset del handle — `f0edf9f` + `dbba38d`, feature+fix con cadenas (traducir a locales de upstream).
 11. **#263 fail-safe** — `62ee704` + `0c262fa` + `931b708` (si upstream los quiere separados del routing de sesión 7).
-12. **Wrappers** (sin issue) — `f2f4727`, dependencia nueva + unseal global; **último**, tras discutir la política con upstream.
+12. **#209 presets de ventana** — `0be6597` (plegado de `e3a12bc`+`968b4e4`; adapta, cadenas). Feature pura que cierra un issue abierto: **candidato estrella**; discutir con upstream antes de abrir el PR (es la primera feature del paquete, no un fix).
+13. **Wrappers** (sin issue) — `f2f4727`, dependencia nueva + unseal global; **último**, tras discutir la política con upstream.
 
-Fuera del paquete (features puras, candidatas a discusión separada, no a PR de fix): `98ebb9a` (modo escritorio externo + Send to screen), `027da00` (backup JSON completo), `c2d3bb8`/`2247850` (mejoras de UX del fork).
+Fuera del paquete (features puras, candidatas a discusión separada, no a PR de fix): `98ebb9a` (modo escritorio externo + Send to screen), `027da00` (backup JSON completo), `c2d3bb8`/`2247850` (mejoras de UX del fork), F7 geometría por app (`496250f`, feature que depende de Shizuku para leer `getTaskBounds` — probablemente también a discusión con upstream).
 
 ## Notas operativas
 
@@ -111,3 +121,5 @@ Fuera del paquete (features puras, candidatas a discusión separada, no a PR de 
 ### Nota operativa adicional (sesión 7)
 
 **Compilar y lintar antes de pushear.** El commit `df4085d` se envió sin compilar; `9f0f96e` (la sobrecarga de `createWindowContext` a 2 argumentos no existe — el compilador resolvió la llamada a `(Int, Bundle)`) y `51be96a` (lint NewApi porque `createWindowContext(Display, type, options)` es API 31 y el minSdk del fork es 30) son correcciones posteriores que un `./gradlew assembleDebug lint` antes del push habría atrapado. Para los commits del paquete a upstream, **siempre** compilar y lintar localmente antes de abrir el PR; el historial del fork ya quedó con los tres commits, pero el PR upstream debe llevar el commit plegado. El detalle de degradar a `createDisplayContext` en API 30 (Android 11) está bien razonado — `createWindowContext` para overlays requiere API 31, y el fallback es lo correcto para mantener minSdk 30.
+
+**Actualización (sesión 14, post fork.12): de recordatorio a mecanismo.** La recurrencia de la lección en `e3a12bc`+`968b4e4` (JSONArray no Iterable + import faltante, tercera vez) motivó un **pre-push hook**: `scripts/install-pre-push-hook.sh` instala `scripts/pre-push-assembledebug.sh` en `.git/hooks/pre-push`; corre `./gradlew assembleDebug` antes de cada push que toque algo fuera de `*.md` y aborta si falla. El hook vive en el repo (`.git/hooks` no se versiona) — instalarlo en cada clone nuevo antes del primer push de código. La lección completa está en AGENTS.md §6.8.

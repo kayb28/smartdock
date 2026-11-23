@@ -398,3 +398,19 @@ Motivo: CI verde sobre `a5cfc6b` (F5 + docs), 3 commits acumulados desde el tag 
 - [x] Verificación updater (TODO OK): `releases/latest` == `v1.15.8-fork.12` == `fork_release_tag` del build → una instalación con fork.12 se reconoce «up to date»; una con fork.11 ve «update available» (1.15.8-fork.12 > 1.15.7-fork.11); la iteración same-version y fork.13 también detectadas.
 - [x] Sin cambios de código de la app en el corte: solo `app/build.gradle` + `strings.xml` (`fork_release_tag`) + `CHANGELOG-FORK.md`.
 - [ ] Pendiente de confirmación en dispositivo: con fork.11 instalada, el updater ofrece la actualización; con fork.12 instalada, «up to date»; crear/aplicar/borrar presets de ventana.
+
+## 2026-11-23 (decimoquinta pasada) — review del dueño: fold de #209, lección 8 como hook, decisión de almacenamiento (`chore/upstream-fold-recorded`, docs)
+
+Motivo: dos observaciones del dueño tras el corte de fork.12. **1)** La serie `e3a12bc`+`968b4e4` es la tercera recurrencia del patrón «push sin compilar → fix de compilación inmediato» (antes `df4085d`+`9f0f96e`+`51be96a` en fork.9); la lección escrita no se estaba ejecutando, hay que convertirla en mecanismo. **2)** #209 faltaba en el paquete de upstream pese a ser el candidato estrella (issue abierto, feature autocontenida, commits en inglés).
+
+### Hecho
+
+- **Plegado de la serie F5** (paridad con el `00e0558` de createWindowContext): rama `upstream-pr/window-presets`, commit `0be6597` sobre `59838da` — mensaje de `e3a12bc` con la corrección plegada en el cuerpo; diff neto verificado idéntico (`diff 59838da..0be6597 == diff 59838da..968b4e4`, vacío). Rama local, sin pushear.
+- **Entrada #209 en `docs/UPSTREAM-PRS.md`**: sección de sesión 13 (superficie, cherry-pick «adapta» por cadenas, fold, **decisión de almacenamiento anotada**: F7 en DB-píxeles-por-app vs F5 en SharedPreferences-porcentajes-nombrados — conceptos distintos a propósito; una eventual consolidación será decisión documentada, no deriva), y el puesto 12 del orden de envío (tras los fixes puros, antes que wrappers; discutir con upstream antes de abrir el PR). F7 (`496250f`) añadido a «fuera del paquete».
+- **Lección 8 en AGENTS.md §6** («tercera recurrencia — es hábito, no recordatorio») + **pre-push hook**: `scripts/pre-push-assembledebug.sh` (corre `./gradlew assembleDebug` si el push toca algo fuera de `*.md`; aborta el push si falla; `SMARTDOCK_SKIP_BUILD=1` lo salta) + `scripts/install-pre-push-hook.sh`; **instalado en este clone** (`.git/hooks/pre-push`). Nota operativa actualizada en UPSTREAM-PRS.md.
+- Mapa de ramas de HISTORIA actualizado con las dos ramas `upstream-pr/*` plegadas.
+
+### Cierre
+
+- [x] Push docs-only → el hook lo salta (verificación en vivo del salto `*.md`).
+- [x] CI verde en el tip de main.
