@@ -165,4 +165,9 @@ object UpdateChecker {
         val url = p.getString(KEY_LATEST_URL, null) ?: return null
         return CachedVerdict(tag, url, p.getBoolean(KEY_LATEST_NEWER, false))
     }
+
+    /** Epoch ms of the last silent check, or 0 if never checked. A pure
+     *  prefs read for the diagnostics panel — never throws. */
+    fun lastCheckMs(context: Context): Long =
+        prefs(context).getLong(KEY_LAST_CHECK_MS, 0L)
 }
