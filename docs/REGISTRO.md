@@ -415,3 +415,19 @@ Motivo: dos observaciones del dueño tras el corte de fork.12. **1)** La serie `
 - [x] Push docs-only → el hook lo salta (verificación en vivo del salto `*.md`).
 - [x] CI verde en el tip de main.
 - [x] El hook probó su función en su primer push real: el commit toca `scripts/*.sh` (no-`.md`) → el hook corrió `assembleDebug` y **bloqueó el push** cuando el build falló. El build falló por entorno (este sandbox no resuelve `repo.maven.apache.org`), no por código; el push salió con el escape documentado `SMARTDOCK_SKIP_BUILD=1`. Límite anotado: en un entorno sin red de maven el hook no puede cumplir su función — el `assembleDebug` real que vale es el de CI; el hook protege clones con red (máquina del dueño).
+
+## 2026-11-23 (decimosexta pasada) — recurrencia nº 2 de la lección 7 mecanizada + decisión de tests en el hook (`chore/lesson7-branch-flow`, docs + hook)
+
+Motivo: observación del dueño — `19cf09c` y `59ca7d8` llegaron a GitHub como pushes directos a main, sin la entrada «created chore/...» en el feed. Las ramas `chore/` SÍ se crearon localmente, pero nunca se pusheaderon a origin: la lección 7 tiene una segunda cara («la rama debe existir en origin, no solo en el clone»). Segunda recurrencia de la misma lección (`60fcd72` fue la primera). Analogía aceptada: la lección 8 recibió hook; la 7 también lo merece.
+
+### Hecho
+
+- **Control 1 en el hook (lección 7)**: `scripts/pre-push-assembledebug.sh` ahora **bloquea cualquier push a main** cuyos commits no sean alcanzables desde una rama con prefijo (`chore/|bugfix/|feature/|feat/|docs/`) **que ya exista en origin** (`git rev-parse origin/<rama>`). Mensaje de error con el flujo correcto y las ramas locales candidatas. Escape: `SMARTDOCK_SKIP_BRANCH_CHECK=1`. El chequeo corre SIEMPRE para main — incluso con `SMARTDOCK_SKIP_BUILD=1` (el escape de build no escapa del flujo).
+- **Control 2 actualizado (lección 8, decisión de tests)**: `SMARTDOCK_FULL=1` añade `./gradlew test` tras `assembleDebug` — para cambios que tocan lógica testeada (updater, utils), no por defecto. Decisión documentada en AGENTS.md §6.8: hook = assembleDebug por tiempo; CI = la red de regresión completa. Instalador con mensaje nuevo; **hook reinstalado** en este clone.
+- **Lección 7 reescrita en AGENTS.md §6** con las dos recurrencias, la cara nueva (rama sin pushear = push directo a main en el feed) y el flujo correcto en **dos pushes** (`git push origin <rama> && git push origin main` — en un solo push de dos refs el chequeo no puede ver el tracking de la rama, porque el hook corre antes de que origin la registre).
+- `chore/lesson7-branch-flow` — rama de este cambio, **pusheada a origin ANTES que main**, en vivo como primera verificación del control 1.
+
+### Cierre
+
+- [x] Verificación en vivo del control 1: push de la rama primero (feed: «created chore/...»), push de main después con el mensaje «pre-push: main viaja desde chore/lesson7-branch-flow (lección 7 OK)».
+- [ ] Pendiente en clone con red de maven: `SMARTDOCK_FULL=1` sobre un cambio de lógica testeada (aquí el build/test no puede correr).

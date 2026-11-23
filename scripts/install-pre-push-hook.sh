@@ -5,4 +5,4 @@ set -e
 cd "$(dirname "$0")/.."
 cp scripts/pre-push-assembledebug.sh .git/hooks/pre-push
 chmod +x .git/hooks/pre-push
-echo "pre-push hook instalado: ./gradlew assembleDebug antes de cada push de código (salta pushes solo-.md; SMARTDOCK_SKIP_BUILD=1 lo desactiva una vez)."
+echo "pre-push hook instalado: (1) push a main exige rama con prefijo ya en origin (lección 7); (2) assembleDebug antes de push de código (lección 8; SMARTDOCK_FULL=1 añade test; SMARTDOCK_SKIP_BUILD=1 salta el build en entornos sin red de maven)."
