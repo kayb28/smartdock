@@ -30,7 +30,11 @@ while read -r local_ref local_sha remote_ref remote_sha; do
              | grep -E '^(chore|bugfix|bug|feature|feat|docs)/' || true)
   carrier=""
   for b in $prefixed; do
-    if git rev-parse -q --verify "origin/$b" >/dev/null 2>&1; then
+    # ¿La rama está en origin? Tracking ref si existe (clones con refspec
+    # completo); si no, ls-remote --exit-code (autoritativo — clones con
+    # refspec restringido no crean tracking refs al pushear ramas nuevas).
+    if git rev-parse -q --verify "origin/$b" >/dev/null 2>&1 \
+       || git ls-remote --exit-code origin "refs/heads/$b" >/dev/null 2>&1; then
       carrier="$b"
       break
     fi
@@ -42,7 +46,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     echo "  Flujo correcto: crea la rama chore/|bugfix/|feature/, súbelo a origin (el feed" >&2
     echo "  muestra «created chore/...») y SOLO ENTONCES empuja main. La rama que contiene" >&2
     echo "  estos commits localmente:" >&2
-    for b in $prefixed; do echo "    - $b (solo local; púsheala primero)" >&2; done
+    for b in $prefixed; do echo "    - $b (no vista en origin; púsheala primero)" >&2; done
     [ -z "$prefixed" ] && echo "    - (ninguna; el commit se hizo sobre main directamente)" >&2
     exit 1
   else
