@@ -390,4 +390,8 @@
     <string name="view_diagnostics_summary">顯示 dock 的執行狀態（包裝器、權限、顯示器）</string>
     <string name="diagnostics_panel_title">診斷</string>
     <string name="share_diagnostics">分享診斷</string>
+
+    <!-- App menu search: optional soft-keyboard override -->
+    <string name="show_software_keyboard_in_menu_title">在應用程式選單中顯示鍵盤</string>
+    <string name="show_software_keyboard_in_menu_summary">開啟應用程式選單時始終顯示螢幕鍵盤，即使連接了實體鍵盤</string>
 </resources>

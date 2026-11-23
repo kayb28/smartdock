@@ -35,6 +35,12 @@
             android:title="@string/search_engine_title"
             android:defaultValue="google" />
 
+        <SwitchPreferenceCompat
+            android:key="show_software_keyboard_in_menu"
+            android:title="@string/show_software_keyboard_in_menu_title"
+            android:summary="@string/show_software_keyboard_in_menu_summary"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/app_launch">

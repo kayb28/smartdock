@@ -388,4 +388,8 @@
     <string name="view_diagnostics_summary">Muestra el estado en tiempo de ejecución del dock (wrappers, permisos, pantallas)</string>
     <string name="diagnostics_panel_title">Diagnóstico</string>
     <string name="share_diagnostics">Compartir diagnóstico</string>
+
+    <!-- App menu search: optional soft-keyboard override -->
+    <string name="show_software_keyboard_in_menu_title">Mostrar teclado en el menú de apps</string>
+    <string name="show_software_keyboard_in_menu_summary">Mostrar siempre el teclado en pantalla al abrir el menú de apps, incluso con un teclado físico conectado</string>
 </resources>

@@ -390,4 +390,8 @@
     <string name="view_diagnostics_summary">Zeigt den Laufzeitstatus des Docks (Wrapper, Berechtigungen, Displays)</string>
     <string name="diagnostics_panel_title">Diagnose</string>
     <string name="share_diagnostics">Diagnose teilen</string>
+
+    <!-- App menu search: optional soft-keyboard override -->
+    <string name="show_software_keyboard_in_menu_title">Tastatur im App-Menü anzeigen</string>
+    <string name="show_software_keyboard_in_menu_summary">Die Bildschirmtastatur beim Öffnen des App-Menüs immer anzeigen, auch bei angeschlossener physischer Tastatur</string>
 </resources>

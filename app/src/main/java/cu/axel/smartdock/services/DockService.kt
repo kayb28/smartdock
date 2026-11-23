@@ -1296,8 +1296,13 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         val softwareKeyboard =
             context.resources.configuration.keyboard == Configuration.KEYBOARD_NOKEYS
         val tabletMode = sharedPreferences.getInt("dock_layout", -1) == 1
+        // Optional override: force the soft IME on even when a physical
+        // keyboard is attached (e.g. Bluetooth keyboard on a phone). Default
+        // off preserves the auto behavior above.
+        val forceSoftInput =
+            sharedPreferences.getBoolean("show_software_keyboard_in_menu", false)
 
-        searchEt.showSoftInputOnFocus = softwareKeyboard || tabletMode
+        searchEt.showSoftInputOnFocus = softwareKeyboard || tabletMode || forceSoftInput
         searchEt.requestFocus()
 
         windowManager.addView(appMenu, layoutParams)

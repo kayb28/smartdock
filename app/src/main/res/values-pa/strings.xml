@@ -391,4 +391,8 @@
     <string name="view_diagnostics_summary">ਡੌਕ ਦੀ ਰਨਟਾਈਮ ਸਥਿਤੀ ਵੇਖਾਉਂਦਾ ਹੈ (ਰੈਪਰ, ਇਜਾਜ਼ਤਾਂ, ਡਿਸਪਲੇਅ)</string>
     <string name="diagnostics_panel_title">ਡਾਇਗਨੋਸਟਿਕਸ</string>
     <string name="share_diagnostics">ਡਾਇਗਨੋਸਟਿਕਸ ਸਾਂਝਾ ਕਰੋ</string>
+
+    <!-- App menu search: optional soft-keyboard override -->
+    <string name="show_software_keyboard_in_menu_title">ਐਪ ਮੀਨੂ ਵਿੱਚ ਕੀਬੋਰਡ ਦਿਖਾਓ</string>
+    <string name="show_software_keyboard_in_menu_summary">ਐਪ ਮੀਨੂ ਖੋਲ੍ਹਣ ਸਮੇਂ ਹਮੇਸ਼ਾ ਸਕ੍ਰੀਨ ਕੀਬੋਰਡ ਦਿਖਾਓ, ਭਾਵੇਂ ਭੌਤਿਕ ਕੀਬੋਰਡ ਜੁੜਿਆ ਹੋਵੇ</string>
 </resources>
