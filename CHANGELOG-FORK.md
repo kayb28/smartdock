@@ -3,6 +3,23 @@
 _Changelog formal de las releases del fork de Smart Dock. Formato Keep a Changelog, en español._
 _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/changelogs/`; aquí solo el fork._
 
+## [v1.15.9-fork.13] — 2026-11-24
+
+Publicada como GitHub Release (APK `SmartDock-fork-debug.apk`, el nombre real del asset en todas las releases del fork; el tag lo identifica el build vía `fork_release_tag` en Settings → About). Base: `v1.15.8-fork.12` + 1 commit de feature plegado (rama `feature/notification-actions`, `45b0148`, fast-forward) + documentación de las sesiones 18–20. versionCode 1159. El updater compara el tag del build contra `releases/latest` de GitHub (`UpdateCheckerTest.ownReleaseIsNotNewerThanItself` sigue garantizando el auto-reconocimiento «up to date»).
+
+### Añadido
+
+- **Acciones de notificación desde el panel** (F12, `45b0148` — serie `76eacc1`+`65d709f`+`d9879cc` plegada a un commit al tratamiento de siempre): los botones de `Notification.Action` se despachan vía `actionIntent.send(context, 0, fillInIntent)`; las acciones con `RemoteInput` abren un campo de respuesta inline — el reply rellena `RemoteInput.addResultsToIntent(...)` **antes** del send (sin ese orden el texto llegaba vacío); los fallos de dispatch se comunican con toast visible, nunca en silencio; y los iconos de las acciones multimedia se resuelven con `Action.getIcon()?.loadDrawable` (API pública 23+). Sin permisos nuevos, sin Shizuku. 4 cadenas nuevas traducidas a los 6 locales mantenidos.
+
+### Corregido
+
+- **Iconos de acciones multimedia** (corregido dentro de `45b0148`): el lookup de `65d709f` (`Resources.getIdentifier(action.icon.toString(), "drawable", pkg)`) devolvía siempre 0 para un resource id convertido a string — `getDrawable(0)` lanzaba `NotFoundException` y **todos** los iconos de acciones degradaban a texto, en silencio. Causa raíz real: `Action.icon` es un campo `Int` deprecado y el `loadDrawable` correcto vive en `Action.getIcon()`; el «no compila en este toolchain» del commit intermedio era un diagnóstico falso.
+
+### Infraestructura
+
+- **Pre-push hook**: el control de build (lección 8) estaba mudo desde que se añadió el control de ramas (el primer `while read` agotaba stdin y el segundo veía cero refs); arreglado (`25823dc`) y verificado en vivo.
+- **ROADMAP reconciliado** con la numeración de la lista original del dueño (F5 = snap zones pendientes, F6 = colocación del dock, F9 = matar tareas; los presets quedan como entrada aparte de upstream #209) y orden de implementación decidido: **F12 (fork.13) → F8 (fork.14) → F11 (fork.15) → F10 (fork.16)**.
+
 ## [v1.15.8-fork.12] — 2026-11-23
 
 Publicada como GitHub Release (APK `SmartDock-fork-debug.apk`, el nombre real del asset en todas las releases del fork; el tag lo identifica el build vía `fork_release_tag` en Settings → About). Base: `v1.15.7-fork.11` + 2 commits de feature + 1 commit de docs (rama `feature/window-presets` + `chore/f5-docs`, fast-forward). versionCode 1158. El updater compara el tag del build contra `releases/latest` de GitHub (`UpdateCheckerTest.ownReleaseIsNotNewerThanItself` sigue garantizando el auto-reconocimiento «up to date»).
