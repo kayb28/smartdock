@@ -5,7 +5,7 @@ _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/chang
 
 ## [v1.15.6-fork.10] — 2026-11-23
 
-Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.6-fork.10.apk`). Base: `v1.15.5-fork.9` + 13 commits de las sesiones 8–9 (5 features, 2 seguimientos del updater, 1 test, 5 docs/chore) + 2 commits de release (rama `chore/release-fork.10`, fast-forward). versionCode 1156. Primera release con `fork_release_tag` en juego: el updater compara el tag del build contra `releases/latest` de GitHub, y `UpdateCheckerTest.ownReleaseIsNotNewerThanItself` garantiza que una build se reconozca a sí misma como «up to date».
+Publicada como GitHub Release (APK `SmartDock-fork-debug.apk`, el nombre real del asset en todas las releases del fork; el tag lo identifica el build vía `fork_release_tag` en Settings → About). Base: `v1.15.5-fork.9` + 13 commits de las sesiones 8–9 (5 features, 2 seguimientos del updater, 1 test, 5 docs/chore) + 2 commits de release (rama `chore/release-fork.10`, fast-forward). versionCode 1156. Primera release con `fork_release_tag` en juego: el updater compara el tag del build contra `releases/latest` de GitHub, y `UpdateCheckerTest.ownReleaseIsNotNewerThanItself` garantiza que una build se reconozca a sí misma como «up to date».
 
 ### Añadido
 

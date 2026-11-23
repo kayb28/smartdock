@@ -322,7 +322,8 @@ Motivo: CI verde sobre `0049dd0` (F6+F9), 13 commits acumulados desde el tag `v1
 
 ### Cierre
 
-- [ ] `Build project` verde sobre `a2db2ca` (bump) y sobre la punta de main; `release_apk.yml` publica la release — **CI decide (sandbox sin SDK)**.
+- [x] `Build project` verde sobre `a2db2ca` (bump) y sobre la punta de main; `release_apk.yml` publica la release — **CI decide (sandbox sin SDK)**. Confirmado el 2026-11-23 05:24–05:25 UTC: 4/4 check-runs success sobre `0743186` (release + 3× build) y los 4 workflow runs del commit en success; release publicada (`releases/latest` = `v1.15.6-fork.10`, asset `SmartDock-fork-debug.apk`, 13.2 MB).
+- **Body de la release**: el workflow publicó el body automático («Full Changelog»); editado con el resumen en inglés de las 5 features + link al CHANGELOG (paridad con fork.9, que también lleva body manual). **Aclaración del asset**: el APK de la release se llama `SmartDock-fork-debug.apk` (así también fork.9, verificado por API) — el tag lo identifica el build vía `fork_release_tag` en Settings → About; las entradas históricas del CHANGELOG citaban el nombre con el tag, y la entrada fork.10 cita el nombre real.
 - [x] Sin bump regresivo: 1156 > 1155; se instala encima de fork.9 sin desinstalar ni perder ajustes (mismo keystore, cert `4680C231…B54B41DB`).
 - [x] Sin cambios de código de la app en el corte: solo `app/build.gradle` + `strings.xml` (`fork_release_tag`) + documentación.
 - [x] Verificación updater: nueva release detectada vs fork.9 y auto-reconocimiento «up to date» (simulación + tests en CI).
