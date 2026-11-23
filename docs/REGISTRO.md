@@ -449,5 +449,6 @@ Motivo: el dueño entrega los tres ítems restantes del listado original — **1
 ### Cierre
 
 - [x] Push docs-only → el hook salta el build; el control de rama pasa con el flujo de dos pushes de la lección 7 (rama `chore/roadmap-f10-f12` a origin primero, main después).
-- [x] CI verde en la punta de main tras el fast-forward — confirmado el 2026-11-23: 3/3 check-runs success sobre `6eb969d` (Build project sobre main, Build debug apk sobre main, Build project sobre la rama `chore/roadmap-f10-f12`).
+- [x] CI verde en la punta de main tras el fast-forward — confirmado el 2026-11-23: 3/3 check-runs success sobre `6eb969d` (Build project sobre main, Build debug apk sobre main, Build project sobre la rama `chore/roadmap-f10-f12`). Re-confirmado sobre `2f38e7a` (cierre de esta entrada).
+- [x] **El control 1 del hook detuvo en vivo su primer push ilegítimo de main**: el commit de cierre (`2f38e7a`) se hizo por descuido sobre main local y `git push origin main` fue **bloqueado** — «failed to push some refs» sin llegar a GitHub, porque el commit no era alcanzable desde ninguna rama con prefijo en origin. Corrección con el flujo de la lección 7: ff de `chore/roadmap-f10-f12` hasta incluir el commit, push de la rama, push de main («main viaja desde chore/roadmap-f10-f12 — lección 7 OK»). La lección 7 ya tiene dos recurrencias pagadas; el mecanismo no confía en el hábito, y esta vez el hábito falló sin que el historial lo sufriera.
 - [ ] Confirmación del dueño del orden propuesto antes de cortar fork.13 (F8).
