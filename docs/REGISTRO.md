@@ -449,5 +449,5 @@ Motivo: el dueño entrega los tres ítems restantes del listado original — **1
 ### Cierre
 
 - [x] Push docs-only → el hook salta el build; el control de rama pasa con el flujo de dos pushes de la lección 7 (rama `chore/roadmap-f10-f12` a origin primero, main después).
-- [ ] CI verde en la punta de main tras el fast-forward.
+- [x] CI verde en la punta de main tras el fast-forward — confirmado el 2026-11-23: 3/3 check-runs success sobre `6eb969d` (Build project sobre main, Build debug apk sobre main, Build project sobre la rama `chore/roadmap-f10-f12`).
 - [ ] Confirmación del dueño del orden propuesto antes de cortar fork.13 (F8).
