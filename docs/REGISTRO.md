@@ -485,5 +485,5 @@ Motivo: observación del dueño tras el cierre de la sesión 18 — el fix iba a
 
 ### Cierre
 
-- [ ] Push `--force-with-lease` de `45b0148` + CI en verde en la rama plegada (pendiente de credencial de trabajo en el momento de redactar; se documenta al cerrar).
+- [x] Push `--force-with-lease` de `45b0148` (`d9879cc...45b0148`, forced update — la rama queda en el commit único) + CI verde: 1/1 sobre `45b0148` (Build project de la rama plegada) y 3/3 sobre `6d1074d` (Build project + Build debug apk sobre main, Build project sobre la rama de docs).
 - [ ] Pendientes del dueño: orden de implementación F8/F10/F11/F12 y decisión de envío a upstream.
