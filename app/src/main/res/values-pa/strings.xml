@@ -377,6 +377,8 @@
     <string name="no_crash_log">ਕੋਈ ਕ੍ਰੈਸ਼ ਦਰਜ ਨਹੀਂ ਹੋਇਆ।</string>
 
     <!-- Update checker (Settings, Advanced, Diagnostics) -->
+    <string name="auto_check_updates">ਅੱਪਡੇਟਾਂ ਲਈ ਆਟੋਮੈਟਿਕ ਜਾਂਚ ਕਰੋ</string>
+    <string name="auto_check_updates_summary">ਨਵੀਂ ਫੋਰਕ ਰੀਲਿਜ਼ ਲਈ ਦਿਨ ਵਿੱਚ ਇੱਕ ਵਾਰ GitHub Releases ਦੀ ਚੁੱਪ ਜਾਂਚ ਕਰੋ</string>
     <string name="check_for_updates">ਅੱਪਡੇਟਾਂ ਲਈ ਜਾਂਚ ਕਰੋ</string>
     <string name="check_for_updates_summary">ਨਵੇਂ ਫੋਰਕ ਰੀਲਿਜ਼ ਲਈ GitHub ਜਾਂਚੋ</string>
     <string name="checking_updates">ਅੱਪਡੇਟਾਂ ਲਈ ਜਾਂਚ ਜਾਰੀ...</string>

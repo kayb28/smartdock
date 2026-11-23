@@ -374,6 +374,8 @@
     <string name="no_crash_log">No se ha registrado ningún crash.</string>
 
     <!-- Update checker (Settings, Advanced, Diagnostics) -->
+    <string name="auto_check_updates">Buscar actualizaciones automáticamente</string>
+    <string name="auto_check_updates_summary">Comprobar una vez al día en segundo plano GitHub Releases para una nueva versión del fork</string>
     <string name="check_for_updates">Buscar actualizaciones</string>
     <string name="check_for_updates_summary">Comprueba en GitHub si hay una versión más reciente del fork</string>
     <string name="checking_updates">Buscando actualizaciones...</string>

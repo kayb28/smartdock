@@ -377,6 +377,8 @@
          Bumped each release; not translated. UpdateChecker compares the
          latest release tag against this. -->
     <string name="fork_release_tag" translatable="false">v1.15.5-fork.9</string>
+    <string name="auto_check_updates">Check for updates automatically</string>
+    <string name="auto_check_updates_summary">Silently check GitHub Releases once a day for a new fork release</string>
     <string name="check_for_updates">Check for updates</string>
     <string name="check_for_updates_summary">Check GitHub for a newer fork release</string>
     <string name="checking_updates">Checking for updates...</string>

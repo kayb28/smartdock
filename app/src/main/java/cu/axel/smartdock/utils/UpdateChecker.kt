@@ -44,6 +44,15 @@ object UpdateChecker {
     private const val KEY_LATEST_NEWER = "latest_newer"
     private const val SILENT_INTERVAL_MS = 24L * 60 * 60 * 1000
 
+    /**
+     * SharedPreferences (default, PreferenceManager) key for the user toggle
+     * that gates the silent startup check — "check for updates automatically"
+     * (default on). Lives in the default prefs so the Settings switch binds
+     * to it; NOT in [PREFS]. DockService reads it before launching the silent
+     * check; DiagnosticsBuilder reports its state.
+     */
+    const val KEY_AUTO_CHECK = "auto_check_updates"
+
     data class LatestRelease(
         val tag: String,
         val htmlUrl: String,

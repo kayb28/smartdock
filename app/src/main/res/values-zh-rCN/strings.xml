@@ -376,6 +376,8 @@
     <string name="no_crash_log">尚未记录任何崩溃。</string>
 
     <!-- Update checker (Settings, Advanced, Diagnostics) -->
+    <string name="auto_check_updates">自动检查更新</string>
+    <string name="auto_check_updates_summary">每天静默检查 GitHub Releases 是否有新的 fork 版本</string>
     <string name="check_for_updates">检查更新</string>
     <string name="check_for_updates_summary">在 GitHub 上检查是否有更新的 fork 版本</string>
     <string name="checking_updates">正在检查更新...</string>

@@ -138,6 +138,12 @@
             android:key="share_crash_log"
             android:title="@string/share_crash_log" />
 
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="auto_check_updates"
+            android:summary="@string/auto_check_updates_summary"
+            android:title="@string/auto_check_updates" />
+
         <Preference
             android:key="check_for_updates"
             android:title="@string/check_for_updates"

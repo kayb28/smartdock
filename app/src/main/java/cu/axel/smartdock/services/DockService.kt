@@ -394,9 +394,14 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         // is not on F-Droid, so this is how a user learns a new release
         // shipped. Fire-and-forget on a background dispatcher — never blocks
         // startup, rate-limits itself to once per 24h, and caches the verdict
-        // so the Settings entry can show it without a network hit.
-        CoroutineScope(Dispatchers.IO).launch {
-            UpdateChecker.checkSilentIfNeeded(applicationContext)
+        // so the Settings entry can show it without a network hit. Gated by
+        // the "check for updates automatically" toggle (default on): the fork
+        // just gained INTERNET and a silent startup check, so the user keeps
+        // explicit consent over the network hit.
+        if (sharedPreferences.getBoolean(UpdateChecker.KEY_AUTO_CHECK, true)) {
+            CoroutineScope(Dispatchers.IO).launch {
+                UpdateChecker.checkSilentIfNeeded(applicationContext)
+            }
         }
 
         //Register receivers
