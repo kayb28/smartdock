@@ -1,29 +1,33 @@
 # ROADMAP — listado de features del fork
 
-_Fuente de la verdad del listado de features y de su orden de implementación. La numeración es la del listado original del dueño, que vivía solo en la conversación; este documento la consolida (2026-11-23, tras el corte de fork.12). El orden de implementación NO es el de la lista — ya pasó con 6→9→7→5→8 — se decide por dependencias y riesgo en cada triage y queda registrado aquí._
+_Fuente de la verdad del listado de features y de su orden de implementación. La numeración es la del listado original del dueño, que vivía solo en la conversación; este documento la consolida (2026-11-23, tras el corte de fork.12) y la **reconcilia con la lista original el 2026-11-24** (la primera tabla estaba barajada — ver nota tras la tabla). El orden de implementación NO es el de la lista — ya pasó con F6+F9 → F7 → #209 → F12 antes que F8 — se decide por dependencias y riesgo en cada triage y queda registrado aquí._
 
 ## Estado del listado
 
 | # | Feature | Estado | Dónde vive |
 |---|---|---|---|
 | F1–F4 | Ítems tempranos del listado (la zona de estado — F1 — ya existía completa en el fork y solo se reportó; REGISTRO §octava pasada) | sin pendientes conocidos | — |
-| F5 | Presets de geometría de ventana con nombre (upstream #209) | ✅ hecha | fork.12 (`e3a12bc`+`968b4e4`; plegado upstream `0be6597`) |
-| F6 | Force-stop de tareas | ✅ hecha | fork.10 (`b716860`) |
+| F5 | Zonas de anclado de ventanas (snap zones) | ⏳ **pendiente de triage** | — |
+| F6 | Colocación del dock (selector de pantalla del dock) | ✅ hecha | fork.10 (`0049dd0`) |
 | F7 | Geometría de ventana por app | ✅ hecha | fork.11 (`496250f`) |
-| F8 | Editor de combinaciones de teclado | ⏳ **siguiente — fork.13** | — |
-| F9 | Selector de pantalla del dock | ✅ hecha | fork.10 (`0049dd0`) |
+| F8 | Editor de combinaciones de teclado | ⏳ **siguiente — fork.14** | — |
+| F9 | Matar tareas (force-stop) | ✅ hecha | fork.10 (`b716860`) |
 | F10 | Modo trackpad (el móvil como panel táctil del monitor) | 📋 triado (abajo) | — |
 | F11 | Escritorios virtuales / workspaces | 📋 triado (abajo) | — |
-| F12 | Acciones de notificación desde el panel | ⏳ **en curso** | rama `feature/notification-actions` (sin mergear) |
+| F12 | Acciones de notificación desde el panel | ✅ **hecha** — entra en **fork.13** | rama `feature/notification-actions` (`45b0148`, plegado) |
+| — | Presets de geometría de ventana con nombre (upstream #209; sin número de lista) | ✅ hecha | fork.12 (`e3a12bc`+`968b4e4`; plegado upstream `0be6597`) |
 
-## Orden de implementación propuesto (2026-11-23)
+**Reconciliación de numeración (2026-11-24)**: la primera versión de esta tabla (2026-11-23) estaba barajada: rotulaba F5 = presets (#209), F6 = force-stop y F9 = selector de pantalla, cuando el listado original del dueño era **F5 = zonas de anclado (snap zones), F6 = colocación del dock y F9 = matar tareas**; los presets con nombre no eran un ítem numerado de la lista — responden al issue upstream #209 y quedan como entrada aparte. La numeración queda restaurada aquí; las referencias históricas a «F5/F6/F9» en REGISTRO/HISTORIA/UPSTREAM-PRS se leen con esta tabla («F5» de esas entradas = presets; «F6» = force-stop = **F9** de la lista; «F9» = selector de pantalla = **F6** de la lista). El nombre de la rama `feature/dock-placement-killtasks` (fork.10) confirma el mapeo real: sus dos features son colocación del dock (F6) y matar tareas (F9).
 
-**F8 (fork.13) → F12 (fork.14) → F11 (fork.15) → F10 (fork.16)**
+## Orden de implementación (decidido 2026-11-24)
 
-- **F12 primero**: la más barata del lote — el panel de notificaciones ya existe y todo lo que falta son APIs públicas; cierra la sensación de «sistema operativo» del dock sin tocar permisos ni la capa de ventanas.
+**F12 (fork.13) → F8 (fork.14) → F11 (fork.15) → F10 (fork.16)**
+
+- **F12 primero (fork.13)**: la más barata del lote — el panel de notificaciones ya existe y todo lo que falta son APIs públicas; cierra la sensación de «sistema operativo» del dock sin tocar permisos ni la capa de ventanas. Decisión del 2026-11-24 (el checkbox de confirmación del dueño, abierto desde el 23, se cierra con delegación al agente): F12 estaba terminada y F8 sin empezar — en la práctica F12 sale antes que F8 sí o sí, y el plan de releases se reajusta en consecuencia (F12 = **fork.13**, no fork.14).
 - **F11 justo después de F8**: la conmutación por atajos consume el registro de combinaciones que F8 construye, y su modelo de estado sale con tests desde el día uno.
 - **F10 al final**: la más diferencial y la de mayor plumbing (wrapper nuevo de inyección + capa de gestos); conviene construirla sobre la capa de ventanas ya consolidada y con el patrón de wrappers maduro.
-- El orden queda propuesto y registrado; su confirmación es del dueño antes de cortar fork.13.
+- **F5 (snap zones) pendiente de triage**: sin análisis propio todavía; se le asignará hueco cuando se trie (conviene mirar su interacción con los presets de geometría y F7 antes de programarla).
+- El orden propuesto el 2026-11-23 queda **decidido** el 2026-11-24: F12 primero por estar terminada; el resto (F8 → F11 → F10) se mantiene por sus dependencias.
 
 ## Triage de los tres nuevos
 
