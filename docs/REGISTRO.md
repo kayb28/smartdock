@@ -414,3 +414,4 @@ Motivo: dos observaciones del dueño tras el corte de fork.12. **1)** La serie `
 
 - [x] Push docs-only → el hook lo salta (verificación en vivo del salto `*.md`).
 - [x] CI verde en el tip de main.
+- [x] El hook probó su función en su primer push real: el commit toca `scripts/*.sh` (no-`.md`) → el hook corrió `assembleDebug` y **bloqueó el push** cuando el build falló. El build falló por entorno (este sandbox no resuelve `repo.maven.apache.org`), no por código; el push salió con el escape documentado `SMARTDOCK_SKIP_BUILD=1`. Límite anotado: en un entorno sin red de maven el hook no puede cumplir su función — el `assembleDebug` real que vale es el de CI; el hook protege clones con red (máquina del dueño).
