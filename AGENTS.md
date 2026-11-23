@@ -15,7 +15,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 - Requisitos: Android SDK + JDK 17 (zulu en CI), Gradle 8.11.2 vía wrapper `./gradlew`. `lintOptions` activos en el build: el target `./gradlew build` corre lint y **aborta** con errores de traducción.
 - Comandos de CI: `./gradlew build` (compila + lint) y `./gradlew assembleDebug` (APK debug firmado con el keystore del repo).
 - Firma: `signingConfigs.debug` apunta a `debug.keystore` (en el repo, contraseñas `android`). Toda build — local o CI — sale con el mismo cert `4680C231…54B41DB`: **las APKs del fork se actualizan entre sí sin desinstalar**; no pueden actualizarse encima de la oficial de F-Droid (certificado distinto).
-- ⚠️ El sandbox del agente NO tiene Android SDK: `./gradlew` no funciona aquí. CI (GitHub Actions) decide si un commit compila. Los tres workflows: `build_project.yml` (push/PR), `build_debug_apk.yml` (dispatch manual, sube artefacto), `release_apk.yml` (tags `v*` + dispatch → GitHub Release con APK).
+- ⚠️ El sandbox del agente NO tiene Android SDK: `./gradlew` no funciona aquí. CI (GitHub Actions) decide si un commit compila. _(Matiz 2026-11-24: con red de maven, un toolchain en espacio de usuario — JDK 17 + cmdline-tools + `platforms;android-36` — sí permite correr `./gradlew build` completo desde el sandbox, ~10 min; los entornos sin red siguen dependiendo de CI.)_ Los tres workflows: `build_project.yml` (push/PR), `build_debug_apk.yml` (dispatch manual, sube artefacto), `release_apk.yml` (tags `v*` + dispatch → GitHub Release con APK).
 - Revisar estado de CI por API: `GET /repos/kayb28/smartdock/actions/runs` (token con scope repo en el remote del clone local).
 
 ## 3. Ramas
