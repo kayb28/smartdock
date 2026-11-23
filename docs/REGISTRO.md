@@ -253,7 +253,7 @@ Rama: `bugfix/secondary-display-accessibility-regression`, 4 commits de fix + 1 
 
 ## 2026-11-23 (octava pasada) — tres features de UX/soporte post-fork.9: update checker, panel de diagnósticos, toggle de teclado
 
-Motivo: el fork vive fuera de F-Droid (nadie sabe que salió fork.9 salvo quien mire el repo), los reportes de bug llegan sin contexto, y en dispositivos con teclado físico el menú de apps no ofrece teclado blando aunque el upstream #123/#122 lo pide. Tres features con APIs públicas y sin dependencias nuevas. La feature #1 del listado original (zona de estado: reloj/batería/wifi) **ya existía completa** en el fork (`dock.xml` `status_area` + `updateQuickSettings` con prefs `enable_qs_*` por orientación, `TextClock` en `date_btn`), así que no se reimplementó — solo se reportó.
+Motivo: el fork vive fuera de F-Droid (nadie sabe que salió fork.9 salvo quien mire el repo), los reportes de bug llegan sin contexto, y en dispositivos con teclado físico el menú de apps no ofrece teclado blando aunque el upstream #122 lo pide. Tres features con APIs públicas y sin dependencias nuevas. La primera feature del listado original (la zona de estado: reloj/batería/wifi — ítem de la lista, no un issue de upstream) **ya existía completa** en el fork (`dock.xml` `status_area` + `updateQuickSettings` con prefs `enable_qs_*` por orientación, `TextClock` en `date_btn`), así que no se reimplementó — solo se reportó.
 
 ### F1 — Comprobador de actualizaciones contra GitHub Releases (`feature/update-checker`, `55ab8ac`)
 - `utils/UpdateChecker.kt`: `HttpURLConnection` a `releases/latest`, parsea `tag_name`+`html_url` con `org.json`, compara el tag `(major,minor,patch,forkN)` contra la string build-constante `fork_release_tag` (`translatable="false"`, fuente de la verdad del tag del build). Robusto a iteraciones same-version (fork.10 > fork.9). Todo síncrono, llamado fuera del main thread; falla a null / «no se pudo comprobar», nunca crashea.
@@ -269,7 +269,7 @@ Motivo: el fork vive fuera de F-Droid (nadie sabe que salió fork.9 salvo quien 
 - 4 strings en los 6 locales.
 
 ### F3 — Toggle de teclado blando en el menú de apps (`feature/soft-keyboard-toggle`, `18fcc9c`)
-- El autofoco ya existía (`searchEt.requestFocus()`); el teclado blando se mostraba auto solo si `configuration.keyboard == NOKEYS` o tablet mode. Sin toggle para forzarlo con teclado físico (upstream #123/#122).
+- El autofoco ya existía (`searchEt.requestFocus()`); el teclado blando se mostraba auto solo si `configuration.keyboard == NOKEYS` o tablet mode. Sin toggle para forzarlo con teclado físico (upstream #122).
 - Preference `show_software_keyboard_in_menu` (default off) en App menu settings; DockService ORs el pref en la condición `showSoftInputOnFocus` existente — mismo mecanismo que ya funcionaba, sin path de IME nuevo que pueda fallar en overlays. 2 strings en los 6 locales.
 
 ### Cierre (verificado por CI)
@@ -278,3 +278,33 @@ Motivo: el fork vive fuera de F-Droid (nadie sabe que salió fork.9 salvo quien 
 - [x] Sin bump de versionCode (features, no release). `fork_release_tag` = `v1.15.5-fork.9` (constante del build, no un release nuevo).
 - [x] Sin dependencias nuevas; solo APIs públicas (`HttpURLConnection`, `org.json`; `BatteryManager`/`TextClock` ya en uso).
 - [x] Pendiente de confirmación en dispositivo: el check de actualizaciones aparece en Ajustes → Avanzado → Diagnóstico; el panel de diagnósticos muestra los wrappers vivos y los displays; el toggle de teclado levanta el IME con teclado físico conectado.
+
+## 2026-11-23 (novena pasada) — seguimiento de la review: seis correcciones sobre la sesión 8
+
+Motivo: la review de la sesión 8 dejó seis puntas sueltas — citas de issues incorrectas en la documentación, un check silencioso de red sin consentimiento explícito, lógica pura del parser de versión sin tests, estado del updater fuera del panel de diagnósticos, `HISTORIA.md` sin actualizar, y el primer release con `fork_release_tag` en juego (fork.10) sin checklist de bump. Seis correcciones, dos ramas (`feat/updater-followups` para el código, `docs/session-8-followups` para la documentación), sin release.
+
+### R1 — Citas de issues corregidas (`docs/session-8-followups`)
+- `docs/REGISTRO.md` §octava pasada: el toggle de teclado blando citaba «upstream #123/#122», pero #123 es «matar tareas» (otra feature distinta); la cita correcta es solo **#122**. Y la «feature #1» del listado original (zona de estado) no es un issue de upstream — era el ítem 1 de la lista de review; no existe tal issue. Aclarado a «la primera feature del listado original (ítem de la lista, no un issue de upstream)».
+- El commit `18fcc9c` y su mensaje siguen citando #123/#122 (historial ya pusheado); no se reescribe el historial. El REGISTRO es el registro vivo y ahora cita el número correcto. (#1 de la review.)
+
+### R2 — Toggle de consentimiento del check silencioso (`feat/updater-followups`, `c0f3646`)
+- `SwitchPreferenceCompat` «buscar actualizaciones automáticamente» (default on) en Ajustes → Avanzado → Diagnóstico, encima del «Check for updates» manual. `DockService` gatea el check silencioso fire-and-forget con `UpdateChecker.KEY_AUTO_CHECK`. La clave vive en las default SharedPreferences (no en las privadas del checker) para que el switch de Settings binde a ella; el manual «Check for updates» sigue funcional con el toggle off. 2 strings en los 6 locales. (#2 de la review.)
+
+### R3 — Tests del parser de versión (`feat/updater-followups`, `aca3df6`)
+- `app/src/test/.../UpdateCheckerTest.kt`: `parseVersionTuple`/`parseForkN` hechos `internal` (module-private) para cubrirlos directo; `isNewer` (público) cubierto para la semántica de comparación. Casos: tag malformado (garbage, vacío, partes no numéricas → vacío/parcial, nunca throws), sin `-fork.N` (forkN == 0), 1.15.10 vs 1.15.9 (el tuple gana al fork-N), fork.10 vs fork.9 (la regresión que motivó tuple + forkN), y auto-reconocimiento (una release no es newer que sí misma — el check de fork.10). (#3 de la review.)
+
+### R4 — Estado del updater en el panel de diagnósticos (`feat/updater-followups`, `f25453b`)
+- `DiagnosticsBuilder`: sección «Updater» con el `fork_release_tag` del build, el estado del toggle `auto_check_updates`, la última comprobación (o «never»), y el veredicto cacheado (tag + «up to date»/«update available»). `UpdateChecker.lastCheckMs(context)` expone el `last_check_ms` cacheado. Pure reads, sin red — soporte y diagnóstico en el mismo panel. (#4 de la review.)
+
+### R5 — `HISTORIA.md` al día (`docs/session-8-followups`)
+- La sesión 8 actualizó REGISTRO + AGENTS pero no HISTORIA (el paquete de mantenimiento sí la tocó). Añadidas las entradas séptima (fork.9), octava (post-fork.9 features) y novena (esta) a la Línea de tiempo, al resumen «Qué cambió» y al Mapa de ramas. Patrón fijado: cada sesión toca HISTORIA. (#5 de la review.)
+
+### R6 — Nota de release fork.10 (`docs/session-8-followups`)
+- `AGENTS.md §5`: el primer release con `fork_release_tag` en juego manda bump simultáneo de `versionCode` (1155→1156), `versionName` (1.15.5→1.15.6) y `fork_release_tag` (`v1.15.5-fork.9`→`v1.15.6-fork.10`), y verificar que el updater reconoce su propia release (`isNewer` cubierto por `UpdateCheckerTest`; tras publicar, una build con fork.10 debe ver «up to date»). (#6 de la review.)
+
+### Cierre
+
+- [ ] `Build project` (compile + lint) verde en `feat/updater-followups` y en main tras fast-forward — **el sandbox del agente no tiene Android SDK (AGENTS.md §2); CI en Actions decide**. Los tres commits siguen patrones existentes (SwitchPreferenceCompat, prefs, DiagnosticsBuilder) y las aserciones del test se trazaron contra el parser antes de commitear.
+- [x] Sin bump de versionCode (seguimiento, no release). `fork_release_tag` sigue en `v1.15.5-fork.9`.
+- [x] Sin dependencias nuevas; `androidx.preference.PreferenceManager` ya en uso (DockService).
+- [x] Pendiente de confirmación en dispositivo: el toggle aparece encima de «Check for updates»; el panel de diagnósticos muestra la sección «Updater».

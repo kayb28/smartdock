@@ -38,6 +38,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 - Cada fix de UI de strings: traducir a de/es/pa/zh-rCN/zh-rHK/zh-rTW en el mismo commit (no «luego»): la CI tumba el build si falta una.
 - APKs publicadas como GitHub Release (workflow de tags), no como artefacto de Actions (requieren login y caducan).
 - `fork_release_tag` (string `translatable="false"` en `values/strings.xml`) es la fuente de la verdad del tag de release del build; **bump obligatorio en cada release** junto a `versionCode`/`versionName` — `UpdateChecker` la compara contra `releases/latest`.
+- **Próximo release (fork.10)** — el primero con `fork_release_tag` en juego: bump simultáneo en el mismo commit de `versionCode` (1155 → 1156), `versionName` (1.15.5 → 1.15.6) y `fork_release_tag` (`v1.15.5-fork.9` → `v1.15.6-fork.10`), siguiendo el patrón versionCode 115X ↔ versionName 1.15.X ↔ tag `v1.15.X-fork.N`. Tras el bump, verificar que el updater reconoce su propia release: `UpdateChecker.isNewer("v1.15.6-fork.10", "v1.15.5-fork.9")` debe ser `true` (cubierto por `UpdateCheckerTest.higherForkIterationIsNewer`), y una vez publicada la release en GitHub, una build que lleve `v1.15.6-fork.10` debe ver «up to date» (no «update available») porque `releases/latest` == su propio `fork_release_tag` — `isNewer` devuelve `false` ante tags iguales (cubierto por `UpdateCheckerTest.ownReleaseIsNotNewerThanItself`).
 
 ## 6. Lecciones (fallas ya pagadas — no repetir)
 
