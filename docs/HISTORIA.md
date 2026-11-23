@@ -39,6 +39,7 @@ El fork (kayb28) nació de usarlo sobre un monitor USB-C: el soporte de display 
 14. **El corte de fork.11 (sesión 12)**: release de F7 (geometría de ventana por app) con bump 1157/1.15.7/`fork_release_tag` — segunda release con el triple bump simultáneo; el updater auto-reconoce «up to date» y fork.10 ve la actualización.
 15. **Los presets de geometría con nombre (sesión 13, post-fork.11, upstream #209)**: «Custom…» en Resize — cuatro sliders con preview en píxeles y Apply — y «Save as preset»: geometrías nombradas, portables entre displays (se guardan porcentajes, no píxeles), listadas en el submenú Resize y aplicables a cualquier ventana.
 16. **El corte de fork.12 (sesión 14)**: release de F5 (presets de geometría con nombre) con bump 1158/1.15.8/`fork_release_tag` — tercera release con el triple bump simultáneo; el updater auto-reconoce «up to date» y fork.11 ve la actualización.
+17. **El roadmap consolidado (sesión 17)**: los tres ítems restantes del listado original (10 trackpad, 11 workspaces, 12 acciones de notificación) entran a `docs/ROADMAP.md` con triage técnico verificado (INJECT_EVENTS/shell, APIs públicas de Notification.Action, trackpad nativo de Android 16 QPR1 como marco honesto del diferencial) y orden propuesto F8 (fork.13) → F12 → F11 → F10. Sin código.
 
 ## Mapa de documentos
 
@@ -46,6 +47,7 @@ El fork (kayb28) nació de usarlo sobre un monitor USB-C: el soporte de display 
 |---|---|---|
 | `AGENTS.md` | Guía para agentes: compilar, ramas, permisos, convenios, lecciones | Antes de tocar nada |
 | `docs/REGISTRO.md` | Diario operativo, commit por commit, con estado de CI | Para saber qué se hizo y por qué |
+| `docs/ROADMAP.md` | Listado de features del fork y triage de los pendientes | Para saber qué viene después y por qué ese orden |
 | `docs/HISTORIA.md` | Este archivo: narrativa y mapa | Para orientarse |
 | `FORK.md` | Registro público del fork, build por build (estilo WebLibre) | Para el usuario del fork |
 | `CHANGELOG-FORK.md` | Changelog formal por release | Para notas de versión |

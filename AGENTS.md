@@ -38,7 +38,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 - Cada fix de UI de strings: traducir a de/es/pa/zh-rCN/zh-rHK/zh-rTW en el mismo commit (no «luego»): la CI tumba el build si falta una.
 - APKs publicadas como GitHub Release (workflow de tags), no como artefacto de Actions (requieren login y caducan).
 - `fork_release_tag` (string `translatable="false"` en `values/strings.xml`) es la fuente de la verdad del tag de release del build; **bump obligatorio en cada release** junto a `versionCode`/`versionName` — `UpdateChecker` la compara contra `releases/latest`.
-- **Próximo release (fork.11)** — patrón fijado en fork.10 (2026-11-23, el primero con `fork_release_tag` en juego): bump simultáneo en el mismo commit de `versionCode` (1156 → 1157), `versionName` (1.15.6 → 1.15.7) y `fork_release_tag` (`v1.15.6-fork.10` → `v1.15.7-fork.11`), siguiendo el patrón versionCode 115X ↔ versionName 1.15.X ↔ tag `v1.15.X-fork.N`. Tras el bump, verificar que el updater reconoce su propia release: `isNewer("v1.15.7-fork.11", "v1.15.6-fork.10")` debe ser `true` y una build publicada debe verse «up to date» (`isNewer` devuelve `false` ante tags iguales; cubierto por `UpdateCheckerTest`).
+- **Próximo release (fork.13)** — patrón fijado en fork.10 (2026-11-23, el primero con `fork_release_tag` en juego) y ya aplicado en fork.11 y fork.12: bump simultáneo en el mismo commit de `versionCode` (1158 → 1159), `versionName` (1.15.8 → 1.15.9) y `fork_release_tag` (`v1.15.8-fork.12` → `v1.15.9-fork.13`), siguiendo el patrón versionCode 115X ↔ versionName 1.15.X ↔ tag `v1.15.X-fork.N`. Tras el bump, verificar que el updater reconoce su propia release: `isNewer("v1.15.9-fork.13", "v1.15.8-fork.12")` debe ser `true` y una build publicada debe verse «up to date» (`isNewer` devuelve `false` ante tags iguales; cubierto por `UpdateCheckerTest`). El contenido del próximo release y de los siguientes vive en `docs/ROADMAP.md`.
 
 ## 6. Lecciones (fallas ya pagadas — no repetir)
 
@@ -54,6 +54,7 @@ _La fuente de la verdad para estado y CI es GitHub; el diario operativo está en
 ## 7. Documentación interna (leer antes de tocar nada)
 
 - `docs/REGISTRO.md` — diario operativo: todo cambio con fecha UTC, motivo, build, estado.
+- `docs/ROADMAP.md` — listado de features del fork y triage de los pendientes: qué viene después y por qué ese orden.
 - `docs/HISTORIA.md` — narrativa consolidada y mapa de documentos/ramas.
 - `FORK.md` — registro público del fork, build por build (estilo WebLibre).
 - `CHANGELOG-FORK.md` — changelog formal por release del fork.

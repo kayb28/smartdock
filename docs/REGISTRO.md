@@ -431,3 +431,23 @@ Motivo: observación del dueño — `19cf09c` y `59ca7d8` llegaron a GitHub como
 
 - [x] Verificación en vivo del control 1, con historia completa: (a) el intento legítimo fue **bloqueado por un falso positivo** (tracking ref inexistente por el refspec restringido del clone) — el hook hizo su trabajo incluso antes de ser correcto; (b) fallback `ls-remote` añadido; (c) segundo intento pasó con «pre-push: main viaja desde chore/lesson7-branch-flow (lección 7 OK)» y el feed muestra «created chore/...».
 - [ ] Pendiente en clone con red de maven: `SMARTDOCK_FULL=1` sobre un cambio de lógica testeada (aquí el build/test no puede correr).
+
+## 2026-11-23 (decimoséptima pasada) — roadmap: los features 10–12 entran al listado (`chore/roadmap-f10-f12`, docs)
+
+Motivo: el dueño entrega los tres ítems restantes del listado original — **10) modo trackpad** (el móvil como panel táctil del monitor, con clic izq./der. y scroll), **11) escritorios virtuales / workspaces** (N escritorios con ventanas asignadas, conmutables por atajo), **12) acciones de notificación** (reply, archivar) desde el panel. Ninguno estaba en ningún documento: el listado vivía solo en la conversación. Sesión de triage y planificación, **sin código**.
+
+### Hecho
+
+- **`docs/ROADMAP.md` (nuevo)** — consolida el listado completo (F5–F12 con estado, release y commit) y el triage de los tres nuevos, con hechos verificados:
+  - **F12 (notificaciones)**: el panel ya vive en `NotificationService` (`NotificationListenerService`) — `StatusBarNotification` ya fluye por `NotificationAdapter`/`NotificationLayout`; `Notification.actions[]` + `RemoteInput.addResultsToIntent` son **APIs públicas** → sin Shizuku, sin permisos nuevos. La más barata del lote y la mejor candidata upstream futura (cuando exista commit, entra a `UPSTREAM-PRS.md` con entrada propia).
+  - **F11 (workspaces)**: pertenencia de ventana como estado nuevo de la capa de ventanas; conmutación por atajos **consume F8** (por eso va después del editor de combinaciones); modelo extraíble a Kotlin puro (patrón `Calculator`/`KeyboardModifiers`/`UpdateChecker`) para tests desde el día uno. Decisión pre-anotada en ROADMAP: workspaces (partición runtime) ≠ F7 (geometría por app en DB) ≠ F5 (presets) — cualquier cruce futuro será decisión documentada, no deriva.
+  - **F10 (trackpad)**: overlay de gestos en la pantalla del móvil (el dock ya rutea overlays al display elegido desde fork.9) + cursor virtual + **wrapper nuevo** con `IInputManager.injectInputEvent` por el mismo camino Shizuku/AIDL del wrapper de ActivityManager. Verificado contra AOSP: `INJECT_EVENTS` es `signature` pero **`platform.xml` la asigna al uid shell** (por eso `adb shell input` existe) → Shizuku (identidad shell) y root funcionan; degradación honesta sin permiso. Verificado el marco del diferencial: el trackpad nativo de Google llega con el modo escritorio conectado de **Android 16 QPR1** (refinado en Android 17) — el diferencial del fork es real frente a launchers de terceros y en Android 11–15 (minSdk 30); la nota queda escrita para no vender «primero en ningún sitio» sin matiz.
+- **Orden propuesto y registrado**: **F8 (fork.13) → F12 (fork.14) → F11 (fork.15) → F10 (fork.16)** — F12 barata y de APIs públicas; F11 justo tras F8 para consumir el registro de atajos y llegar con tests; F10 al final sobre la capa de ventanas consolidada y con el patrón de wrappers maduro. La numeración (10/11/12) es la del listado original, no el orden de implementación — igual que pasó con 6→9→7→5→8. Confirmación del dueño pendiente antes de cortar fork.13.
+- `AGENTS.md` §5 actualizado (el patrón de triple bump fijado en fork.10 se aplicó en fork.11 y fork.12; el próximo es **fork.13**, bump 1159/1.15.9/`v1.15.9-fork.13`) y §7 con la fila de ROADMAP; `HISTORIA.md` con la entrada de esta sesión y la fila de ROADMAP en el mapa de documentos.
+- **Pre-push hook reinstalado en este clone**: el sandbox se recicló entre sesiones y `.git/hooks` volvió a los samples — el hook vive en el repo (`scripts/install-pre-push-hook.sh`) y no en `.git`, así que **instalarlo en cada clone nuevo es paso obligatorio** (ya escrito en AGENTS §6.8; hoy lo confirmó un reciclaje real).
+
+### Cierre
+
+- [x] Push docs-only → el hook salta el build; el control de rama pasa con el flujo de dos pushes de la lección 7 (rama `chore/roadmap-f10-f12` a origin primero, main después).
+- [ ] CI verde en la punta de main tras el fast-forward.
+- [ ] Confirmación del dueño del orden propuesto antes de cortar fork.13 (F8).
