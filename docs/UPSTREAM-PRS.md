@@ -91,6 +91,13 @@ Los commits de la séptima sesión refinen los fixes de #263, #268 y #253 con ca
 - Cherry-pick: **adapta** (cadenas nuevas a traducir a los locales de upstream — mismo caso que `a51c8b9`; el fork mantiene `de, es, pa, zh-rCN, zh-rHK, zh-rTW`, upstream puede no querer todos). Aplica sobre la base del fork (`59838da`); sobre upstream 1.15.0 directo conviene re-crear el commit tras el rebase.
 - **Decisión de almacenamiento (anotada como decisión, no deriva)**: F7 (geometría por app) vive en la **DB en píxeles, por paquete** — es estado que el sistema calcula y restaura en el launch; F5 (presets) vive en **SharedPreferences JSON en porcentajes, con nombre** — es estado que el usuario define y re-aplica a voluntad en cualquier display. Son conceptos distintos con almacenamientos distintos a propósito; si algún día se consolidan (p. ej. presets como filas de la DB), que sea una decisión documentada, no una migración silenciosa.
 
+## Sesión 18 (F12, acciones de notificación desde el panel) — plegado a un commit por decisión del dueño
+
+### Acciones de notificación (reply inline, errores visibles, iconos de acciones multimedia) — sin issue upstream asignado
+- Commit único (plegado): `45b0148` — _feat(notifications): inline reply via RemoteInput, visible action errors, fix media icon resolution (F12)_ — sobre la punta de main `6f99bce` (2026-11-24). Plegado de la serie `76eacc1`+`65d709f`+`d9879cc` al «tratamiento de siempre» (un commit, cuerpo de causa raíz, inglés) por decisión del dueño; el fix erróneo `65d709f` (en español, cuerpo vacío) queda fuera del historial de la rama. Diff neto verificado idéntico al de la serie (`diff 35c3a7d..d9879cc == diff 6f99bce..45b0148`, vacío). Paridad con los pliegues `00e0558` y `0be6597`.
+- Superficie: `adapters/NotificationAdapter.kt` (dispatch de `Notification.Action`, fila de reply con `RemoteInput`, iconos de acciones multimedia vía `Action.getIcon()?.loadDrawable`) + **4 cadenas nuevas** en `values/strings.xml` y 6 locales. APIs públicas (`Notification.actions`, `PendingIntent.send`, `RemoteInput.addResultsToIntent`, `Icon.loadDrawable` API 23+): sin Shizuku, sin permisos nuevos.
+- Cherry-pick: **adapta** (cadenas nuevas a traducir a los locales de upstream — mismo caso que `a51c8b9`/`0be6597`). Autocontenida y sin privilegios: candidata natural junto a #209, con discusión previa por ser feature (no fix). Nota de diseño para el PR: el reply rellena `RemoteInput.addResultsToIntent(...)` **antes** del `actionIntent.send(context, 0, results)` — sin ese orden el reply llega vacío (no-op silencioso); los fallos de dispatch se comunican con toast, nunca en silencio (contrato de degradación del dock).
+
 ## Orden de envío propuesto
 
 Los fixes puros de causa raíz primero (rápidos de revisar y de alto valor para usuarios de upstream), los multi-concern que requieren split después, las features al final, y el endurecimiento de wrappers el último por su superficie de política. **Los refinamientos de sesión 7 van antes que sus originales de sesión 5** (son más directos); el commit plegado de display secundario va con los fixes puros.
@@ -107,7 +114,8 @@ Los fixes puros de causa raíz primero (rápidos de revisar y de alto valor para
 10. **#200** offset del handle — `f0edf9f` + `dbba38d`, feature+fix con cadenas (traducir a locales de upstream).
 11. **#263 fail-safe** — `62ee704` + `0c262fa` + `931b708` (si upstream los quiere separados del routing de sesión 7).
 12. **#209 presets de ventana** — `0be6597` (plegado de `e3a12bc`+`968b4e4`; adapta, cadenas). Feature pura que cierra un issue abierto: **candidato estrella**; discutir con upstream antes de abrir el PR (es la primera feature del paquete, no un fix).
-13. **Wrappers** (sin issue) — `f2f4727`, dependencia nueva + unseal global; **último**, tras discutir la política con upstream.
+13. **F12 acciones de notificación** — `45b0148` (plegado de la serie F12; adapta, cadenas). Sin issue asignado; APIs públicas, alta valía upstream (ROADMAP F12) — discutir con upstream junto a #209.
+14. **Wrappers** (sin issue) — `f2f4727`, dependencia nueva + unseal global; **último**, tras discutir la política con upstream.
 
 Fuera del paquete (features puras, candidatas a discusión separada, no a PR de fix): `98ebb9a` (modo escritorio externo + Send to screen), `027da00` (backup JSON completo), `c2d3bb8`/`2247850` (mejoras de UX del fork), F7 geometría por app (`496250f`, feature que depende de Shizuku para leer `getTaskBounds` — probablemente también a discusión con upstream).
 

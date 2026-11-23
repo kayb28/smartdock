@@ -472,3 +472,18 @@ Motivo: sesión de relevo con contexto de traspaso del dueño; prioridad inmedia
 - [x] Lección 8 cumplida por la vía manual: build local completo verde antes de los pushes de código (el hook estaba mudo; la red de regresión real siguió siendo CI).
 - [x] CI en verde: 3/3 check-runs success sobre `8070fca` (Build project + Build debug apk sobre main, Build project sobre la rama) y 1/1 sobre `d9879cc` (Build project de la rama F12). Histórico de la rama confirmado en CI: `76eacc1` falló (el «Unresolved reference» real), `65d709f` lo tapó con el lookup imposible y `d9879cc` está verde con el fix real.
 - [ ] Decisión del dueño: para el paquete de upstream, ¿plegar `d9879cc` sobre `65d709f`+`76eacc1` (patrón `0be6597`)? El historial del fork no se reescribe (convención §3); el fold corresponde a la rama `upstream-pr/*` cuando se decida enviar.
+
+## 2026-11-24 (decimonovena pasada) — revisión del dueño: F12 se pliega al tratamiento de siempre (`feature/notification-actions`, `45b0148`)
+
+Motivo: observación del dueño tras el cierre de la sesión 18 — el fix iba apilado como commit encima (`65d709f` + `d9879cc`) en vez de plegarse. Válido para seguir trabajando, pero cuando F12 vaya a upstream la rama necesita el tratamiento de siempre (un commit, cuerpo de causa raíz, inglés) y el commit `65d709f` (español, cuerpo vacío, fix imposible) no debe quedar en el historial de la rama. La pendiente «¿plegar?» de la entrada anterior queda resuelta: **sí, pliegue sobre la propia rama**.
+
+### Hecho
+
+- **Plegado de la serie F12** (paridad con `00e0558`/`0be6597`): `feature/notification-actions` reescrita a un único commit **`45b0148`** sobre la punta de main (`6f99bce`) — título de `76eacc1` con cuerpo de causa raíz completo en inglés (dispatch vía `actionIntent.send`, reply con `RemoteInput.addResultsToIntent` **antes** del send, toasts visibles, iconos vía `Action.getIcon()?.loadDrawable` con la causa raíz real del `Int` deprecado y del `getIdentifier` imposible, cadenas a los 6 locales). Los tres commits previos (`76eacc1`, `65d709f`, `d9879cc`) salen del historial — el fix erróneo ya no queda en ningún lado. Diff neto verificado **idéntico** (`diff 35c3a7d..d9879cc == diff 6f99bce..45b0148`, vacío). Reescritura de la rama sin mergear instruida por el dueño, empujada con `--force-with-lease`; main intacto.
+- **Lección operativa del plegado (cazada a tiempo por la verificación de diff)**: el primer intento usaba `git reset --soft <base-nueva> + commit`, que arrastra el árbol del HEAD viejo y el commit resultante **revertía** los docs de la sesión 18 (el árbol de `d9879cc` no los contenía). El patrón correcto para plegar sobre una base más nueva es `git cherry-pick -n <rango> && git commit`: acumula solo los cambios de la serie sobre la base. La comparación de diffs netos (patrón de los pliegues anteriores) lo cazó antes de empujar.
+- Entrada F12 en `docs/UPSTREAM-PRS.md`: commit único `45b0148`, superficie, cherry-pick **adapta** (cadenas a locales de upstream), nota de diseño del reply, y puesto 13 del orden de envío (junto a #209, tras discusión con upstream; el envío sigue siendo decisión del dueño). HISTORIA al día.
+
+### Cierre
+
+- [ ] Push `--force-with-lease` de `45b0148` + CI en verde en la rama plegada (pendiente de credencial de trabajo en el momento de redactar; se documenta al cerrar).
+- [ ] Pendientes del dueño: orden de implementación F8/F10/F11/F12 y decisión de envío a upstream.
