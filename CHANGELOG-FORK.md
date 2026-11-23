@@ -3,6 +3,14 @@
 _Changelog formal de las releases del fork de Smart Dock. Formato Keep a Changelog, en español._
 _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/changelogs/`; aquí solo el fork._
 
+## [v1.15.7-fork.11] — 2026-11-23
+
+Publicada como GitHub Release (APK `SmartDock-fork-debug.apk`, el nombre real del asset en todas las releases del fork; el tag lo identifica el build vía `fork_release_tag` en Settings → About). Base: `v1.15.6-fork.10` + 1 commit de feature + 2 commits de docs (rama `feature/per-app-window-geometry` + `chore/f7-docs`, fast-forward). versionCode 1157. El updater compara el tag del build contra `releases/latest` de GitHub (`UpdateCheckerTest.ownReleaseIsNotNewerThanItself` sigue garantizando el auto-reconocimiento «up to date»).
+
+### Añadido
+
+- **Geometría de ventana por app** (F7, `496250f`): nueva entrada «Remember window size» en el menú contextual de una app en ejecución (freeform, gated a Shizuku — el mismo privilegio que Close/Resize ya exigen): lee los bounds actuales de la tarea vía `IActivityManager.getTaskBounds` (la llamada oculta detrás del `resizeTask` que el dock ya usa, mismo contrato de degradación que `forceStopPackage`: null, nunca escapa al caller) y los guarda por paquete en cuatro columnas nuevas de la DB (v2, ALTER TABLE en upgrade — las installs viejas conservan sus modos guardados). El siguiente lanzamiento de esa app restaura esos bounds como nuevo modo de lanzamiento por-app **«custom»**, en vez de uno de los modos fijos (standard/maximized/portrait/tiled/fullscreen). Defensas: los bounds guardados se clampan al display de destino (una ventana recordada en otra pantalla o contra un tamaño de pantalla caduco no abre de tamaño cero — la misma clase de bug del Rect vacío corregido en fork.10), y una geometría ausente o inusable cae a «standard» en vez de pasar bounds rotos. Toasts `window_size_remembered` / `window_size_unavailable`: nunca un no-op silencioso. 3 strings nuevas traducidas a los 6 locales mantenidos.
+
 ## [v1.15.6-fork.10] — 2026-11-23
 
 Publicada como GitHub Release (APK `SmartDock-fork-debug.apk`, el nombre real del asset en todas las releases del fork; el tag lo identifica el build vía `fork_release_tag` en Settings → About). Base: `v1.15.5-fork.9` + 13 commits de las sesiones 8–9 (5 features, 2 seguimientos del updater, 1 test, 5 docs/chore) + 2 commits de release (rama `chore/release-fork.10`, fast-forward). versionCode 1156. Primera release con `fork_release_tag` en juego: el updater compara el tag del build contra `releases/latest` de GitHub, y `UpdateCheckerTest.ownReleaseIsNotNewerThanItself` garantiza que una build se reconozca a sí misma como «up to date».
