@@ -68,6 +68,7 @@ Los commits de la séptima sesión refinen los fixes de #263, #268 y #253 con ca
 
 ### #263 — routing de overlay al display secundario (refinamiento)
 - Commits: `df4085d` + `9f0f96e` + `51be96a` — **plegar en uno solo**.
+- **Plegado producido (2026-11-23)**: rama `upstream-pr/secondary-display-createwindowcontext`, commit `00e0558` sobre `a51c8b9` (la base donde se autoró `df4085d`). Diff verificado idéntico al net de los tres (`diff a51c8b9..00e0558 == diff a51c8b9..51be96a` sobre `DeviceUtils.kt`, vacío). Patch portable `git am`-able generado. Aplica sobre la base del fork (`a51c8b9`, que ya tiene el rewrite de `getDisplayContext` de sesión 5); **no aplica directo a upstream 1.15.0** — allí `getDisplayContext` es aún un one-liner sin el guard fail-safe, así que el cherry-pick conflictúa. Para el PR upstream, llevarlo después de los commits de sesión 5 (`62ee704` + `0c262fa` + `931b708`) o plegarlo con ellos en un único commit orientado a upstream.
 - Superficie: `Utils.getDisplayContext` (~10 líneas).
 - Cherry-pick: **limpio** una vez plegado. Puro causa raíz, sin cadenas ni archivos nuevos. Complementa `62ee704` + `0c262fa` + `931b708` (routing real del overlay al display elegido, no solo selección fail-safe del display).
 
