@@ -382,4 +382,10 @@
     <string name="update_available_message">Hay una versión más reciente del fork: %1$s</string>
     <string name="could_not_check">No se pudieron comprobar las actualizaciones. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="open_release">Abrir versión</string>
+
+    <!-- Diagnostics panel (Settings, Advanced, Diagnostics) -->
+    <string name="view_diagnostics">Ver diagnóstico</string>
+    <string name="view_diagnostics_summary">Muestra el estado en tiempo de ejecución del dock (wrappers, permisos, pantallas)</string>
+    <string name="diagnostics_panel_title">Diagnóstico</string>
+    <string name="share_diagnostics">Compartir diagnóstico</string>
 </resources>

@@ -384,4 +384,10 @@
     <string name="update_available_message">有較新的 fork 版本：%1$s</string>
     <string name="could_not_check">無法檢查更新。請檢查網路連線後重試。</string>
     <string name="open_release">開啟發行版</string>
+
+    <!-- Diagnostics panel (Settings, Advanced, Diagnostics) -->
+    <string name="view_diagnostics">檢視診斷</string>
+    <string name="view_diagnostics_summary">顯示 dock 的執行狀態（包裝器、權限、顯示器）</string>
+    <string name="diagnostics_panel_title">診斷</string>
+    <string name="share_diagnostics">分享診斷</string>
 </resources>

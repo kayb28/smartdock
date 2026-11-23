@@ -385,4 +385,10 @@
     <string name="update_available_message">ਇੱਕ ਨਵਾਂ ਫੋਰਕ ਰੀਲਿਜ਼ ਉਪਲਬਧ ਹੈ: %1$s</string>
     <string name="could_not_check">ਅੱਪਡੇਟਾਂ ਲਈ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕੀ। ਆਪਣੀ ਕਨੈਕਸ਼ਨ ਜਾਂਚੋ ਅਤੇ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>
     <string name="open_release">ਰੀਲਿਜ਼ ਖੋਲ੍ਹੋ</string>
+
+    <!-- Diagnostics panel (Settings, Advanced, Diagnostics) -->
+    <string name="view_diagnostics">ਡਾਇਗਨੋਸਟਿਕਸ ਵੇਖੋ</string>
+    <string name="view_diagnostics_summary">ਡੌਕ ਦੀ ਰਨਟਾਈਮ ਸਥਿਤੀ ਵੇਖਾਉਂਦਾ ਹੈ (ਰੈਪਰ, ਇਜਾਜ਼ਤਾਂ, ਡਿਸਪਲੇਅ)</string>
+    <string name="diagnostics_panel_title">ਡਾਇਗਨੋਸਟਿਕਸ</string>
+    <string name="share_diagnostics">ਡਾਇਗਨੋਸਟਿਕਸ ਸਾਂਝਾ ਕਰੋ</string>
 </resources>

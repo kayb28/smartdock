@@ -385,4 +385,10 @@
     <string name="update_available_message">A newer fork release is available: %1$s</string>
     <string name="could_not_check">Could not check for updates. Check your connection and try again.</string>
     <string name="open_release">Open release</string>
+
+    <!-- Diagnostics panel (Settings, Advanced, Diagnostics) -->
+    <string name="view_diagnostics">View diagnostics</string>
+    <string name="view_diagnostics_summary">Shows the dock\'s runtime health (wrappers, permissions, displays)</string>
+    <string name="diagnostics_panel_title">Diagnostics</string>
+    <string name="share_diagnostics">Share diagnostics</string>
 </resources>

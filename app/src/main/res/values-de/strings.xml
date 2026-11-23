@@ -384,4 +384,10 @@
     <string name="update_available_message">Eine neuere Fork-Version ist verfügbar: %1$s</string>
     <string name="could_not_check">Update-Prüfung fehlgeschlagen. Verbindung prüfen und erneut versuchen.</string>
     <string name="open_release">Release öffnen</string>
+
+    <!-- Diagnostics panel (Settings, Advanced, Diagnostics) -->
+    <string name="view_diagnostics">Diagnose anzeigen</string>
+    <string name="view_diagnostics_summary">Zeigt den Laufzeitstatus des Docks (Wrapper, Berechtigungen, Displays)</string>
+    <string name="diagnostics_panel_title">Diagnose</string>
+    <string name="share_diagnostics">Diagnose teilen</string>
 </resources>

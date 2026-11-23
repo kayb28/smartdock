@@ -24,6 +24,7 @@ import cu.axel.smartdock.R
 import cu.axel.smartdock.preferences.SliderPreference
 import cu.axel.smartdock.utils.CrashLog
 import cu.axel.smartdock.utils.DeviceUtils
+import cu.axel.smartdock.utils.DiagnosticsBuilder
 import cu.axel.smartdock.utils.UpdateChecker
 import cu.axel.smartdock.utils.Utils
 
@@ -87,6 +88,29 @@ class AdvancedPreferences : PreferenceFragmentCompat() {
                 val latest = UpdateChecker.fetchLatest()
                 main.post { showUpdateResult(ctx, latest) }
             }.start()
+            false
+        }
+
+        // Diagnostics panel: a health snapshot (service + wrapper liveness +
+        // permissions + displays + framework + last crash) shown in a dialog
+        // and shareable via ACTION_SEND so a bug report carries context.
+        findPreference<Preference>("view_diagnostics")!!.setOnPreferenceClickListener {
+            val text = DiagnosticsBuilder.build(requireContext())
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.diagnostics_panel_title)
+                .setMessage(text)
+                .setPositiveButton(R.string.share_diagnostics) { _, _ ->
+                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, text)
+                    }
+                    try {
+                        startActivity(Intent.createChooser(shareIntent, null))
+                    } catch (_: Throwable) {
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
             false
         }
 

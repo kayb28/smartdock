@@ -120,6 +120,7 @@ import cu.axel.smartdock.utils.AppUtils
 import cu.axel.smartdock.utils.ColorUtils
 import cu.axel.smartdock.utils.ColorUtils.getMainColors
 import cu.axel.smartdock.utils.CrashLog
+import cu.axel.smartdock.utils.DockServiceState
 import cu.axel.smartdock.utils.UpdateChecker
 import cu.axel.smartdock.utils.DeepShortcutManager
 import cu.axel.smartdock.utils.DeviceUtils
@@ -295,6 +296,9 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         activityManagerWrapper = null
         wifiManagerWrapper = null
         bluetoothManagerWrapper = null
+        DockServiceState.activityManagerWrapper = null
+        DockServiceState.wifiManagerWrapper = null
+        DockServiceState.bluetoothManagerWrapper = null
     }
 
     private fun initWrappers() {
@@ -326,11 +330,17 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 CrashLog.log("BluetoothManagerWrapper", t)
             }
         }
+        // Mirror wrapper state into DockServiceState so the diagnostics
+        // panel can read isAlive() without reaching into the service.
+        DockServiceState.activityManagerWrapper = activityManagerWrapper
+        DockServiceState.wifiManagerWrapper = wifiManagerWrapper
+        DockServiceState.bluetoothManagerWrapper = bluetoothManagerWrapper
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
         isRunning = true
+        DockServiceState.isRunning = true
         Utils.startupTime = System.currentTimeMillis()
         systemApp = AppUtils.isSystemApp(this, packageName)
         maxApps = sharedPreferences.getString("max_running_apps", "10")!!.toInt()
@@ -2529,6 +2539,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
 
     override fun onDestroy() {
         isRunning = false
+        DockServiceState.reset()
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
         // Unregister every registered receiver: a recreated service left the
         // anonymous ones registered, leaking (and double-firing) them.

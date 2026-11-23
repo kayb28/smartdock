@@ -142,5 +142,10 @@
             android:key="check_for_updates"
             android:title="@string/check_for_updates"
             android:summary="@string/check_for_updates_summary" />
+
+        <Preference
+            android:key="view_diagnostics"
+            android:title="@string/view_diagnostics"
+            android:summary="@string/view_diagnostics_summary" />
     </PreferenceCategory>
 </PreferenceScreen>
