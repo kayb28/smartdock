@@ -20,6 +20,12 @@ set -e
 
 zero=0000000000000000000000000000000000000000
 
+# stdin (la lista de refs del push) es un único flujo: capturarlo UNA vez para
+# que los dos controles lo lean completo. Sin esto, el primer while read agota
+# stdin y el segundo ve cero refs — todo push decía «solo documentación, sin
+# build» y el gate de la lección 8 estaba mudo desde que existe el control 1.
+refs_input=$(cat)
+
 # ---------- Control 1: flujo de ramas para pushes a main ----------
 branch_ok=1
 while read -r local_ref local_sha remote_ref remote_sha; do
@@ -52,7 +58,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   else
     echo "pre-push: main viaja desde $carrier (lección 7 OK)"
   fi
-done
+done <<< "$refs_input"
 
 if [ "${SMARTDOCK_SKIP_BRANCH_CHECK:-0}" = "1" ]; then
   echo "pre-push: AVISO — chequeo de flujo de ramas saltado por SMARTDOCK_SKIP_BRANCH_CHECK=1 (lección 7)"
@@ -76,7 +82,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     code_changed=1
     break
   fi
-done
+done <<< "$refs_input"
 
 if [ "$code_changed" = "0" ]; then
   echo "pre-push: solo documentación, sin build"
