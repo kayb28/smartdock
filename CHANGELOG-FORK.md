@@ -3,6 +3,14 @@
 _Changelog formal de las releases del fork de Smart Dock. Formato Keep a Changelog, en español._
 _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/changelogs/`; aquí solo el fork._
 
+## [v1.15.8-fork.12] — 2026-11-23
+
+Publicada como GitHub Release (APK `SmartDock-fork-debug.apk`, el nombre real del asset en todas las releases del fork; el tag lo identifica el build vía `fork_release_tag` en Settings → About). Base: `v1.15.7-fork.11` + 2 commits de feature + 1 commit de docs (rama `feature/window-presets` + `chore/f5-docs`, fast-forward). versionCode 1158. El updater compara el tag del build contra `releases/latest` de GitHub (`UpdateCheckerTest.ownReleaseIsNotNewerThanItself` sigue garantizando el auto-reconocimiento «up to date»).
+
+### Añadido
+
+- **Presets de geometría de ventana con nombre** (F5, upstream #209, `e3a12bc`+`968b4e4`): el submenú Resize de una app en ejecución gana **«Custom…»** — diálogo con cuatro sliders (left/top/width/height como porcentajes del área usable del display) y preview en píxeles, Apply para redimensionar la tarea, «Save as preset» para guardar la geometría con nombre — y los presets guardados se listan directamente en el submenú y aplican a cualquier ventana («Delete presets…» los gestiona). El almacenamiento (`utils/WindowPresets.kt`) es SharedPreferences JSON con `org.json`: guarda **porcentajes, no píxeles**, para que un preset re-aplique en el display donde viva la tarea (mismo razonamiento por-display que `makeLaunchBounds`); toda lectura degrada a vacío ante entradas malformadas y `toBounds` clampa y valida (un preset editado a mano jamás produce la ventana de tamaño cero — misma guardia que el modo «custom» de fork.11). `Action` gana payload opcional (el nombre del preset) y `MenuCommand` tres comandos nuevos — el dispatch sigue por comando, nunca por texto visible. Bounds calculados contra el display real de la tarea (`resolveDisplayId`); resize por el mismo camino Shizuku con el mismo try/catch. 11 strings nuevas traducidas a los 6 locales mantenidos. Completa F5 del listado original: upstream #209 pedía «set up and store a few of these predefined window positions».
+
 ## [v1.15.7-fork.11] — 2026-11-23
 
 Publicada como GitHub Release (APK `SmartDock-fork-debug.apk`, el nombre real del asset en todas las releases del fork; el tag lo identifica el build vía `fork_release_tag` en Settings → About). Base: `v1.15.6-fork.10` + 1 commit de feature + 2 commits de docs (rama `feature/per-app-window-geometry` + `chore/f7-docs`, fast-forward). versionCode 1157. El updater compara el tag del build contra `releases/latest` de GitHub (`UpdateCheckerTest.ownReleaseIsNotNewerThanItself` sigue garantizando el auto-reconocimiento «up to date»).
