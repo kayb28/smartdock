@@ -36,6 +36,7 @@ El fork (kayb28) nació de usarlo sobre un monitor USB-C: el soporte de display 
 11. **Consentimiento y diagnosabilidad del updater (sesión 9)**: toggle explícito «buscar actualizaciones automáticamente» (default on) sobre el check silencioso, tests unitarios del parser de versión, y estado del updater (build tag, auto-check, última comprobación, veredicto cacheado) integrado en el panel de diagnósticos.
 12. **El corte de fork.10 (sesión 10)**: release de las cinco features post-fork.9 (updater, diagnósticos, teclado blando, force-stop, selector de pantalla del dock) con el primer bump simultáneo de `versionCode`/`versionName`/`fork_release_tag` — el updater compara el tag del build contra `releases/latest` y la build se reconoce a sí misma como «up to date».
 13. **La geometría de ventana por app (sesión 11, post-fork.10)**: «Remember window size» guarda los bounds actuales de una ventana por paquete (DB v2 + `getTaskBounds` vía Shizuku) y el siguiente lanzamiento los restaura como modo de lanzamiento «custom», con clamp al display de destino y fallback a «standard».
+14. **El corte de fork.11 (sesión 12)**: release de F7 (geometría de ventana por app) con bump 1157/1.15.7/`fork_release_tag` — segunda release con el triple bump simultáneo; el updater auto-reconoce «up to date» y fork.10 ve la actualización.
 
 ## Mapa de documentos
 
@@ -60,7 +61,8 @@ El fork (kayb28) nació de usarlo sobre un monitor USB-C: el soporte de display 
 - `feature/update-checker`, `feature/diagnostics-panel`, `feature/soft-keyboard-toggle` — históricos congelados de la sesión 8 (post-fork.9); sin tag (no fue release). No pushear encima.
 - `feat/updater-followups`, `docs/session-8-followups` — seguimiento de la review (sesión 9); sin tag. Consolidadas a main por fast-forward (2026-11-23).
 - `feature/per-app-window-geometry`, `chore/f7-docs` — geometría de ventana por app (sesión 11, post-fork.10); consolidadas a main por fast-forward; sin tag (no fue release). No pushear encima.
-- Tags: `v1.15.0-fork.4` → `0eac1a4`; `v1.15.1-fork.5` → main consolidada + bump 1151; `v1.15.2-fork.6` → jornada de las 12 mejoras (bump 1152); `v1.15.3-fork.7` → cierre de issues reportados (bump 1153); `v1.15.4-fork.8` → fix del crash de wrappers (bump 1154); `v1.15.5-fork.9` → display secundario + accesibilidad (bump 1155); `v1.15.6-fork.10` → updater + diagnósticos + force-stop + selector de pantalla del dock (bump 1156, primera con `fork_release_tag` en juego).
+- `chore/release-fork.11` — corte de la release v1.15.7-fork.11 (bump 1157); consolidada a main por fast-forward; allí vive el tag `v1.15.7-fork.11`. No pushear encima.
+- Tags: `v1.15.0-fork.4` → `0eac1a4`; `v1.15.1-fork.5` → main consolidada + bump 1151; `v1.15.2-fork.6` → jornada de las 12 mejoras (bump 1152); `v1.15.3-fork.7` → cierre de issues reportados (bump 1153); `v1.15.4-fork.8` → fix del crash de wrappers (bump 1154); `v1.15.5-fork.9` → display secundario + accesibilidad (bump 1155); `v1.15.6-fork.10` → updater + diagnósticos + force-stop + selector de pantalla del dock (bump 1156, primera con `fork_release_tag` en juego); `v1.15.7-fork.11` → geometría de ventana por app (bump 1157).
 - Próximas ramas: cortar de `main`, prefijos `bugfix/` (fixes) o `feature/` (funciones). Consolidar a main solo por fast-forward (o merge sin conflicto si upstream se cruza por el medio).
 
 ## Qué NO ha hecho el fork (límites actuales)

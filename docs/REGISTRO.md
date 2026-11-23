@@ -345,3 +345,20 @@ Motivo: F7 del listado original — cada app puede conservar su propia geometrí
 - [x] Sin bump de versionCode (feature, no release). El corte será fork.11 en el próximo bump 1157/1.15.7.
 - [x] Sin dependencias nuevas; solo APIs públicas + la llamada oculta del AIDL que el wrapper ya degrada a null.
 - [ ] Pendiente de confirmación en dispositivo: guardar el tamaño de una ventana reposicionada y relanzar la app restaura la geometría; un cambio de display posterior no abre ventanas de tamaño cero.
+
+## 2026-11-23 (duodécima pasada) — Corte de fork.11: release v1.15.7-fork.11 (`chore/release-fork.11`, `e393a6c`)
+
+Motivo: cortar F7 (geometría de ventana por app) como release del fork, replicando el procedimiento fijado en fork.10: rama `chore/release-fork.11` con bump simultáneo `versionCode` 1157 / `versionName` 1.15.7 / `fork_release_tag` v1.15.7-fork.11 + entrada en `CHANGELOG-FORK.md`, fast-forward a main, tag anotado `v1.15.7-fork.11`, workflow de release, body manual, verificación de updater.
+
+- El corte no toca código de la app: `app/build.gradle` + `strings.xml` (`fork_release_tag`) + `CHANGELOG-FORK.md` (3 ficheros, +11/−3).
+- La entrada del CHANGELOG-FORK recoge F7 con los detalles del `496250f`: `getTaskBounds` vía Shizuku (degradación null como `forceStopPackage`), DB v2 con ALTER TABLE, modo «custom» con clamp y fallback, toasts, 6 locales.
+
+### Cierre
+
+- [x] `Build project` verde sobre `e393a6c` antes del tag (05:50 UTC) y 5/5 check-runs success después (2× build sobre el tag + 2× build sobre main + release, 05:51–05:55 UTC).
+- [x] `Release debug apk` publicó la release a las 05:53 UTC: `releases/latest` = `v1.15.7-fork.11`, asset `SmartDock-fork-debug.apk` (13229422 bytes ≈ 13.2 MB).
+- [x] **Body de la release**: el workflow publicó el body automático («Full Changelog»); editado con el resumen en inglés de F7 + link al CHANGELOG (paridad con fork.9/fork.10; script `scripts/edit_fork11_body.py` fuera del repo).
+- [x] Sin bump regresivo: 1157 > 1156; se instala encima de fork.10 sin desinstalar ni perder ajustes (mismo keystore debug, cert `4680C231…B54B41DB`).
+- [x] Sin cambios de código de la app en el corte: solo `app/build.gradle` + `strings.xml` (`fork_release_tag`) + `CHANGELOG-FORK.md`.
+- [x] Verificación updater: `releases/latest` == `v1.15.7-fork.11` == `fork_release_tag` del build → una instalación con fork.11 se reconoce «up to date» (`UpdateCheckerTest.ownReleaseIsNotNewerThanItself` en CI); una instalación con fork.10 ve «update available» (1.15.7-fork.11 > 1.15.6-fork.10).
+- [ ] Pendiente de confirmación en dispositivo: con fork.10 instalada, el updater ofrece la actualización; con fork.11 instalada, «up to date»; guardar tamaño de ventana + relanzar restaura la geometría.
