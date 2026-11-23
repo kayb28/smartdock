@@ -487,3 +487,22 @@ Motivo: observación del dueño tras el cierre de la sesión 18 — el fix iba a
 
 - [x] Push `--force-with-lease` de `45b0148` (`d9879cc...45b0148`, forced update — la rama queda en el commit único) + CI verde: 1/1 sobre `45b0148` (Build project de la rama plegada) y 3/3 sobre `6d1074d` (Build project + Build debug apk sobre main, Build project sobre la rama de docs).
 - [ ] Pendientes del dueño: orden de implementación F8/F10/F11/F12 y decisión de envío a upstream.
+
+## 2026-11-24 (vigésima pasada) — reconciliación del roadmap, cierre de F12 y corte de fork.13 (`chore/roadmap-reconcile`, `chore/release-fork.13`)
+
+Motivo: correcciones del dueño sobre la documentación (numeración barajada del ROADMAP, contradicción del orden) + checklist de cierre de F12 (verificaciones, estado de la rama, orden del reply, pliegue upstream) + merge a main y release fork.13 con el bump pre-registrado en AGENTS §5. El dueño cierra el checkbox de confirmación de orden delegando la decisión.
+
+### Hecho
+
+- **ROADMAP reconciliado (`7a2237b`)**: la tabla de la versión 2026-11-23 estaba barajada — rotulaba F5 = presets (#209), F6 = force-stop, F9 = selector de pantalla, cuando el listado original del dueño es **F5 = snap zones, F6 = colocación del dock, F9 = matar tareas** (el nombre de la rama `feature/dock-placement-killtasks` de fork.10 confirma el mapeo). Restaurada: F5 = zonas de anclado (**⏳ pendiente de triage** — ítem hasta ahora desaparecido del documento pese a que la cabecera prometía fidelidad a la lista), F6 = `0049dd0`, F9 = `b716860`; los presets con nombre quedan como **entrada aparte** vinculada a upstream #209 (no eran un ítem numerado). Nota de reconciliación bajo la tabla para leer las referencias históricas «F5/F6/F9» de REGISTRO/HISTORIA/UPSTREAM-PRS.
+- **Orden de implementación decidido**: **F12 (fork.13) → F8 (fork.14) → F11 (fork.15) → F10 (fork.16)** — F12 estaba terminada y F8 sin empezar; en la práctica F12 sale antes sí o sí, y el plan de releases se reajusta en consecuencia (F12 = fork.13, no fork.14). F5 (snap zones) queda **pendiente de triage**, con nota de mirar su interacción con los presets y F7 antes de programarla. La contradicción del documento anterior («F8 fork.13» en la tabla vs «F12 primero» en los bullets) queda resuelta de paso.
+- **Verificaciones de cierre de F12**: (a) `feature/notification-actions` = `45b0148` en origin, un solo commit — el aviso «este commit no pertenece a ninguna rama» de `d9879cc` es el esperado tras el pliegue (huérfano **por diseño**, nada perdido); (b) el reply llama `RemoteInput.addResultsToIntent(...)` **antes** del `actionIntent.send` (verificado línea a línea en `NotificationAdapter.kt`: 109 → 110) — el texto no va vacío; (c) el pliegue para upstream ya estaba hecho (`45b0148`, inglés, causa raíz) y con entrada en `UPSTREAM-PRS.md` — `65d709f` (español, cuerpo vacío) no sale hacia upstream.
+- **F12 mergeara en main (`81bdd89`)** por fast-forward: la rama se re-encadenó sobre la punta de main (un commit = un rebase trivial) con diff neto verificado idéntico por segunda vez; push de rama y main en dos pasos (lección 7). El hook corrió `assembleDebug` en cada push de código — de paso confirmó que dispara también en pushes de ramas nuevas (chequeo conservador del hook) y que necesita `JAVA_HOME` exportado en el entorno de push.
+- **Corte de fork.13 (`8cb300e`)**: bump simultáneo `versionCode` 1159 / `versionName` 1.15.9 / `fork_release_tag` `v1.15.9-fork.13` + entrada de `CHANGELOG-FORK.md` (F12 + corrección de iconos + infraestructura de la sesión), patrón de fork.10–12. Tag `v1.15.9-fork.13` publicado; el workflow de release construye la APK.
+- **Verificación del updater (la de siempre)**: `./gradlew test` verde antes del push — la suite `UpdateCheckerTest` cubre el parser de tags, la iteración same-version y el auto-reconocimiento «up to date».
+- Nota operativa: las URLs firmadas de adjuntos caducan en ~15–30 min y el transporte enmascara firmas dentro de URLs y asignaciones; la descarga fiable arma la URL por partes dentro de bash. La credencial de trabajo se borró del sandbox al final de la sesión.
+
+### Cierre
+
+- [ ] Release `v1.15.9-fork.13` publicada + CI verde en el tag + asset verificado (badging 1159/1.15.9, cert `4680C231…B54B41DB`, `releases/latest == fork_release_tag` del build) — cierre con commit aparte.
+- [ ] Pendientes del dueño: triage de F5 (snap zones); decisión de envío a upstream.
