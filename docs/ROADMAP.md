@@ -14,7 +14,7 @@ _Fuente de la verdad del listado de features y de su orden de implementación. L
 | F9 | Selector de pantalla del dock | ✅ hecha | fork.10 (`0049dd0`) |
 | F10 | Modo trackpad (el móvil como panel táctil del monitor) | 📋 triado (abajo) | — |
 | F11 | Escritorios virtuales / workspaces | 📋 triado (abajo) | — |
-| F12 | Acciones de notificación desde el panel | 📋 triado (abajo) | — |
+| F12 | Acciones de notificación desde el panel | ⏳ **en curso** | rama `feature/notification-actions` (sin mergear) |
 
 ## Orden de implementación propuesto (2026-11-23)
 
@@ -36,10 +36,10 @@ _Fuente de la verdad del listado de features y de su orden de implementación. L
 
 ### F11 — Escritorios virtuales / workspaces
 
-- **Mecanismo**: pertenencia de ventana a workspace como **estado nuevo de la capa de ventanas** (runtime del `DockService`); conmutación = conjuntos show/hide de overlays; atajos de conmutación vía F8. La persistencia del workspace activo sigue las decisiones de almacenamiento existentes.
+- **Mecanismo**: pertenencia de ventana a workspace como **estado nuevo de la capa de ventanas** (runtime del `DockService`) + **modelo propio de membresía y reordenado de tareas vía Shizuku** (`IActivityManager`); atajos de conmutación vía F8. Redacción corregida (2026-11-24): la versión anterior decía «conmutación = conjuntos show/hide de overlays», y es **incorrecta** — las ventanas de las apps son **tareas freeform reales** del sistema, no overlays del dock; conmutar exige mover/ocultar esas tareas con las llamadas privilegiadas del wrapper, no manipular ventanas propias. La persistencia del workspace activo sigue las decisiones de almacenamiento existentes.
 - **Tests desde el día uno**: el modelo (asignar / mover / conmutar / persistir) se extrae a Kotlin puro — el patrón ya usado por `Calculator`/`KeyboardModifiers`/`UpdateChecker` (helpers JVM que `./gradlew test` corre); la visibilidad de overlays queda para instrumentados.
 - **Decisión pre-anotada (misma disciplina que la de almacenamiento F5/F7)**: workspaces (partición runtime de ventanas) ≠ F7 (geometría por app en DB, píxeles) ≠ F5 (presets con nombre en SharedPreferences, porcentajes). Tres ejes distintos a propósito; si algún día se cruzan (p. ej. geometría por workspace), será decisión documentada, no deriva.
-- **Riesgos**: foco global (una sola ventana enfocada a la vez), interacción con «mostrar todas las apps», multi-display (¿workspace global o por display? — a decidir en diseño), coste de conmutación con muchas ventanas.
+- **Riesgos**: foco global (una sola ventana enfocada a la vez), interacción con «mostrar todas las apps», multi-display (¿workspace global o por display? — a decidir en diseño), coste de conmutación con muchas ventanas, y **privilegios sobre tareas ajenas**: las tareas pertenecen al sistema y a otras apps, así que ocultarlas/reordenarlas entre workspaces exige llamadas privilegiadas (`IActivityManager` vía Shizuku/root) sobre tareas que no son del dock — riesgo real de interferir con la gestión de tareas del SO, con degradación obligatoria cuando el privilegio falte.
 - **Valor upstream**: **bajo** — integración profunda en la capa de ventanas del fork; difícil de cherry-pick.
 
 ### F10 — Modo trackpad (el móvil como panel táctil del monitor)
@@ -48,7 +48,7 @@ _Fuente de la verdad del listado de features y de su orden de implementación. L
 - **Permisos**: `INJECT_EVENTS` es `signature`, pero **`platform.xml` de AOSP la asigna al uid shell** (por eso existe `adb shell input`) → funcionan **Shizuku (identidad shell)** y root; la app de sistema con firma de plataforma queda como camino futuro. Sin permiso: degradación honesta — entrada visible en el menú, deshabilitada y con explicación, nada silencioso (mismo contrato que CLOSE/RESIZE, ya gated a Shizuku).
 - **Gestos v1**: un dedo mueve el cursor; tap = clic izquierdo; dos dedos = scroll (`ACTION_SCROLL` con ejes V/H); tap de dos dedos = clic derecho; v2: arrastre (doble-tap y mantener) y velocidad de puntero configurable en Ajustes.
 - **Riesgos**: displayId correcto del monitor (resolución por categoría presentation — lección 6 de AGENTS.md), suavidad del cursor (inyección async + velocidad), batería (toggle explícito: el overlay solo vive en modo trackpad), generación correcta de multitouch.
-- **Nota honesta (marco del diferencial)**: el modo escritorio nativo de Google para displays conectados (**Android 16 QPR1**, refinado en Android 17) ya convierte la pantalla del teléfono en trackpad. El diferencial es real frente a **launchers de terceros** y en **Android 11–15** (minSdk 30 del fork); no vender «primero en ningún sitio» sin ese matiz.
+- **Nota honesta (marco del diferencial)**: ⚠️ **SIN VERIFICAR** — se afirma que el modo escritorio nativo de Google para displays conectados ya convierte la pantalla del teléfono en trackpad (citado como **Android 16 QPR1**, «refinado en Android 17»), pero puede tratarse de una beta o de una flag: **fuente pendiente de confirmar** antes de dar el hecho por bueno. Si se confirma, el diferencial del fork es real frente a **launchers de terceros** y en **Android 11–15** (minSdk 30 del fork); no vender «primero en ningún sitio» sin ese matiz.
 - **Valor upstream**: **política** — la función central depende de Shizuku/inyección; discusión previa con upstream antes de proponer nada.
 
 ## Reglas transversales (se aplican a los tres)
