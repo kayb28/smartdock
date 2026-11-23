@@ -102,14 +102,16 @@ object UpdateChecker {
         return parseForkN(latest) > parseForkN(current)
     }
 
-    // "v1.15.5-fork.9" -> [1, 15, 5]
-    private fun parseVersionTuple(tag: String): List<Int> {
+    // "v1.15.5-fork.9" -> [1, 15, 5]. `internal` so unit tests can exercise
+    // the parser directly (UpdateCheckerTest); still module-private.
+    internal fun parseVersionTuple(tag: String): List<Int> {
         val core = tag.removePrefix("v").substringBefore("-").trim()
         return core.split(".").mapNotNull { it.toIntOrNull() }
     }
 
-    // "v1.15.5-fork.9" -> 9 ; "v1.15.5" (no fork suffix) -> 0
-    private fun parseForkN(tag: String): Int {
+    // "v1.15.5-fork.9" -> 9 ; "v1.15.5" (no fork suffix) -> 0. `internal` for
+    // direct unit-test coverage (UpdateCheckerTest); still module-private.
+    internal fun parseForkN(tag: String): Int {
         val marker = "-fork."
         val idx = tag.indexOf(marker)
         if (idx < 0) return 0
