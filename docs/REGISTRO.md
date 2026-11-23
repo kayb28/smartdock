@@ -250,3 +250,31 @@ Rama: `bugfix/secondary-display-accessibility-regression`, 4 commits de fix + 1 
 - [x] `./gradlew build` (compile + lint + test) verde en la rama y en main tras fast-forward.
 - [x] Sin bump regresivo: versionCode 1155 > 1154; se instala encima de fork.8 sin desinstalar ni perder ajustes (mismo keystore, cert `4680C231…B54B41DB`).
 - [x] Estado: **pendiente de confirmación del usuario en dispositivo** — dock visible en la pantalla secundaria con `prefer_last_display`, botón de accesibilidad en icono activado con el toggle ON, y Reactivar restaurando el servicio en el estado listado-pero-no-bound. Si el wrapper de ActivityManager sigue sin linkear en el framework del dispositivo, el dock funciona con la API pública de recents y el panel Wi-Fi del sistema (fork.8); registrar el resultado en `logcat -s SmartDock` y en Ajustes → Avanzado → Diagnóstico.
+
+## 2026-11-23 (octava pasada) — tres features de UX/soporte post-fork.9: update checker, panel de diagnósticos, toggle de teclado
+
+Motivo: el fork vive fuera de F-Droid (nadie sabe que salió fork.9 salvo quien mire el repo), los reportes de bug llegan sin contexto, y en dispositivos con teclado físico el menú de apps no ofrece teclado blando aunque el upstream #123/#122 lo pide. Tres features con APIs públicas y sin dependencias nuevas. La feature #1 del listado original (zona de estado: reloj/batería/wifi) **ya existía completa** en el fork (`dock.xml` `status_area` + `updateQuickSettings` con prefs `enable_qs_*` por orientación, `TextClock` en `date_btn`), así que no se reimplementó — solo se reportó.
+
+### F1 — Comprobador de actualizaciones contra GitHub Releases (`feature/update-checker`, `55ab8ac`)
+- `utils/UpdateChecker.kt`: `HttpURLConnection` a `releases/latest`, parsea `tag_name`+`html_url` con `org.json`, compara el tag `(major,minor,patch,forkN)` contra la string build-constante `fork_release_tag` (`translatable="false"`, fuente de la verdad del tag del build). Robusto a iteraciones same-version (fork.10 > fork.9). Todo síncrono, llamado fuera del main thread; falla a null / «no se pudo comprobar», nunca crashea.
+- `DockService.onServiceConnected`: check silencioso fire-and-forget en `Dispatchers.IO`, rate-limited a 1×/24h vía SharedPreferences, cachea el veredicto para que Ajustes lo muestre sin red.
+- `AdvancedPreferences`: preference «Check for updates» en Diagnostics; fetch en vivo en `Thread`+`Handler(main)` (sin `lifecycle-runtime-ktx`), `MaterialAlertDialog` con botón «Open release» (`ACTION_VIEW`).
+- `AndroidManifest`: añadido `INTERNET` (permission normal, auto-concedido) — el app no tenía permiso de red porque la web search lanza browser externo.
+- 8 strings + `fork_release_tag` en los 6 locales mantenidos.
+
+### F2 — Panel de salud en Diagnóstico (`feature/diagnostics-panel`, `8f4f61b`)
+- `utils/DockServiceState.kt`: object global (patrón `CrashLog`) que espeja los wrappers vivos + `isRunning`; DockService lo pobla en `initWrappers`/`destroyWrappers`/`onServiceConnected`/`onDestroy`.
+- `utils/DiagnosticsBuilder.kt`: snapshot en texto plano — service running, `isAlive()` de los 3 wrappers (ActivityManager/WifiManager/BluetoothManager), Shizuku bound / system-app / `WRITE_SECURE_SETTINGS`, lista de displays, Build SDK/release/device, y tail de 600 chars del último crash. Pure reads, sin I/O, sin throws. Labels en inglés (output diagnóstico, como los crash logs).
+- `AdvancedPreferences`: preference «View diagnostics» en Diagnostics; `MaterialAlertDialog` con botón «Share diagnostics» (`ACTION_SEND`) siguiendo el patrón de `view_crash_log`.
+- 4 strings en los 6 locales.
+
+### F3 — Toggle de teclado blando en el menú de apps (`feature/soft-keyboard-toggle`, `18fcc9c`)
+- El autofoco ya existía (`searchEt.requestFocus()`); el teclado blando se mostraba auto solo si `configuration.keyboard == NOKEYS` o tablet mode. Sin toggle para forzarlo con teclado físico (upstream #123/#122).
+- Preference `show_software_keyboard_in_menu` (default off) en App menu settings; DockService ORs el pref en la condición `showSoftInputOnFocus` existente — mismo mecanismo que ya funcionaba, sin path de IME nuevo que pueda fallar en overlays. 2 strings en los 6 locales.
+
+### Cierre (verificado por CI)
+
+- [x] `Build project` (compile + lint) y `Build debug apk` verde en cada rama y en main tras fast-forward (`55ab8ac`, `8f4f61b`, `18fcc9c`).
+- [x] Sin bump de versionCode (features, no release). `fork_release_tag` = `v1.15.5-fork.9` (constante del build, no un release nuevo).
+- [x] Sin dependencias nuevas; solo APIs públicas (`HttpURLConnection`, `org.json`; `BatteryManager`/`TextClock` ya en uso).
+- [x] Pendiente de confirmación en dispositivo: el check de actualizaciones aparece en Ajustes → Avanzado → Diagnóstico; el panel de diagnósticos muestra los wrappers vivos y los displays; el toggle de teclado levanta el IME con teclado físico conectado.
