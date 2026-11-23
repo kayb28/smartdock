@@ -28,6 +28,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
 import android.content.res.Configuration
 import android.graphics.PorterDuff
+import android.graphics.Rect
 import android.hardware.display.DisplayManager
 import android.hardware.usb.UsbManager
 import android.media.AudioManager
@@ -560,6 +561,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 if (app.tasks[0].windowingMode == WINDOWING_MODE_FREEFORM) {
                     actions.add(Action(R.drawable.ic_launch_mode, getString(R.string.resize), MenuCommand.RESIZE))
                     actions.add(Action(R.drawable.ic_snap_top, getString(R.string.snap), MenuCommand.SNAP))
+                    actions.add(Action(R.drawable.ic_corners, getString(R.string.remember_window_size), MenuCommand.SAVE_WINDOW_SIZE))
                 }
                 actions.add(Action(R.drawable.ic_close, getString(R.string.close), MenuCommand.CLOSE))
                 actions.add(Action(R.drawable.ic_power, getString(R.string.force_stop), MenuCommand.FORCE_STOP))
@@ -1088,8 +1090,20 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             )
                 db.saveLaunchMode(packageName, launchMode)
 
+        // F7: a remembered per-app geometry launches as the "custom"
+        // mode; if the geometry is gone (old DB, cleared row) the standard
+        // window is used instead of passing unusable bounds.
+        var customBounds: Rect? = null
+        if (launchMode == "custom" && packageName != null) {
+            val saved = db.getWindowGeometry(packageName)
+            if (saved != null && saved.width() > 0 && saved.height() > 0)
+                customBounds = saved
+            else
+                launchMode = "standard"
+        }
+
         val options = AppUtils.makeActivityOptions(
-            context, launchMode, dockHeight, displayId, allowSecondary
+            context, launchMode, dockHeight, displayId, allowSecondary, customBounds
         )
 
         //Used only for work apps
@@ -1385,6 +1399,25 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
      * be used. A failed resize (binder hiccup, dead Shizuku, vanished task)
      * must never take the whole dock down.
      */
+    /**
+     * Remember the current window geometry of a running task for its app
+     * (F7): the stored bounds become the app's per-app "custom" launch
+     * mode that getDefaultLaunchMode picks up on the next launch. Bounds
+     * come from the Shizuku getTaskBounds mirror of resizeTask — same
+     * hidden API family, same degradation contract. A save that cannot
+     * read the bounds toasts instead of failing silently.
+     */
+    private fun rememberWindowSize(app: DockApp) {
+        val task = app.tasks.firstOrNull() ?: return
+        val bounds = activityManagerWrapper?.getTaskBounds(task.id)
+        if (bounds == null || bounds.width() <= 0 || bounds.height() <= 0) {
+            Toast.makeText(this, R.string.window_size_unavailable, Toast.LENGTH_SHORT).show()
+            return
+        }
+        db.saveWindowGeometry(app.packageName, bounds)
+        Toast.makeText(this, R.string.window_size_remembered, Toast.LENGTH_SHORT).show()
+    }
+
     private fun resizeTask(app: DockApp, mode: String) {
         val task = app.tasks.firstOrNull() ?: return
         try {
@@ -1543,6 +1576,9 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     windowManager.removeView(view)
                 } else if (action.command == MenuCommand.FULLSCREEN) {
                     resizeTask(app, "fullscreen")
+                    windowManager.removeView(view)
+                } else if (action.command == MenuCommand.SAVE_WINDOW_SIZE) {
+                    rememberWindowSize(app)
                     windowManager.removeView(view)
                 } else if (action.command == MenuCommand.TOP) {
                     resizeTask(app, "tiled-top")

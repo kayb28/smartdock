@@ -343,6 +343,9 @@
     <string name="force_stop">Forzar cierre</string>
     <string name="force_stopped">Proceso detenido a la fuerza</string>
     <string name="force_stop_unavailable">Forzar cierre no disponible (Shizuku no activo)</string>
+    <string name="remember_window_size">Recordar tamaño de ventana</string>
+    <string name="window_size_remembered">Tamaño de ventana recordado para esta app</string>
+    <string name="window_size_unavailable">No se pudo leer el tamaño de la ventana (Shizuku no activo)</string>
     <string name="hide_notifications">Ocultar notificaciones</string>
     <string name="hide_notification_panel">Ocultar notificaciones para esta app en el panel? Puede configuar las notificaiones ocultas en los ajustes del Panel de Notificaciones</string>
     <string name="dock_hidden_message_swipe">Smart Dock está oculto, puede mostarlo de nuevo vía:\n- Deslizando desde la parte inferior de la pantalla (teléfono)\n- Pasando el cursor del ratón cerca de la parte inferior de la pantalla (escritorio)</string>

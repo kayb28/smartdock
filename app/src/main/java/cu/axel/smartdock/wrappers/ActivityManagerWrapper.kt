@@ -72,6 +72,22 @@ class ActivityManagerWrapper {
         }
     }
 
+    /**
+     * Current bounds of a task (fork F7, per-app window geometry): the
+     * hidden framework call behind the dock's own resizeTask. Same
+     * degradation contract as forceStop — returns null if the wrapper is
+     * dead or the framework call throws, never escapes to the caller.
+     */
+    fun getTaskBounds(taskId: Int): Rect? {
+        val am = activityManager ?: return null
+        return try {
+            am.getTaskBounds(taskId)
+        } catch (t: Throwable) {
+            Log.e(TAG, "getTaskBounds failed: $t")
+            null
+        }
+    }
+
     fun removeTask(taskId: Int): Boolean {
         return try {
             activityManager?.removeTask(taskId) ?: false

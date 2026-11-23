@@ -43,7 +43,8 @@ enum class MenuCommand {
     FORCE_STOP,
     SEND_TO_DISPLAY,
     CHANGE_WALLPAPER,
-    DISPLAY_SETTINGS
+    DISPLAY_SETTINGS,
+    SAVE_WINDOW_SIZE
 }
 
 class Action(val icon: Int, val text: String, val command: MenuCommand = MenuCommand.NONE)

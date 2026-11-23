@@ -336,7 +336,8 @@ object AppUtils {
     }
 
     fun makeLaunchBounds(
-        context: Context, mode: String, dockHeight: Int, displayId: Int = Display.DEFAULT_DISPLAY
+        context: Context, mode: String, dockHeight: Int, displayId: Int = Display.DEFAULT_DISPLAY,
+        customBounds: Rect? = null
     ): Rect {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         var left = 0
@@ -404,13 +405,33 @@ object AppUtils {
                 right = deviceWidth
                 bottom = deviceHeight
             }
+
+            // F7: per-app remembered geometry, clamped to the display it is
+            // applied to (a window remembered on another screen, or against
+            // a stale screen size, must not produce the empty-Rect
+            // zero-window bug); anything unusable falls back to standard.
+            "custom" -> {
+                val saved = customBounds
+                if (saved != null) {
+                    left = saved.left.coerceIn(0, deviceWidth)
+                    top = saved.top.coerceIn(0, deviceHeight)
+                    right = saved.right.coerceIn(0, deviceWidth)
+                    bottom = saved.bottom.coerceIn(0, deviceHeight)
+                }
+                if (right - left <= 0 || bottom - top <= 0) {
+                    left = (deviceWidth / (5 * scaleFactor)).toInt()
+                    top = ((usableHeight + statusBarHeight) / (7 * scaleFactor)).toInt()
+                    right = deviceWidth - left
+                    bottom = usableHeight + dockHeight - top
+                }
+            }
         }
         return Rect(left, top, right, bottom)
     }
 
     fun makeActivityOptions(
         context: Context, mode: String, dockHeight: Int, displayId: Int,
-        allowSecondary: Boolean = true
+        allowSecondary: Boolean = true, customBounds: Rect? = null
     ): ActivityOptions {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val secondary = allowSecondary
@@ -435,7 +456,7 @@ object AppUtils {
         else {
             windowMode = WINDOWING_MODE_FREEFORM
             options.launchBounds = makeLaunchBounds(
-                context, mode, dockHeight, display
+                context, mode, dockHeight, display, customBounds
             )
         }
         options.launchDisplayId = display
