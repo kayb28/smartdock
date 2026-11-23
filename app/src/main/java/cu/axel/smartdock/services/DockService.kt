@@ -6,6 +6,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
 import android.app.ActivityManager
+import android.app.AlertDialog
 import android.app.KeyguardManager
 import android.app.Notification
 import android.app.PendingIntent.CanceledException
@@ -85,6 +86,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import cu.axel.smartdock.INotificationCallback
 import cu.axel.smartdock.INotificationServiceBridge
@@ -125,6 +127,7 @@ import cu.axel.smartdock.utils.DockServiceState
 import cu.axel.smartdock.utils.UpdateChecker
 import cu.axel.smartdock.utils.DeepShortcutManager
 import cu.axel.smartdock.utils.DeviceUtils
+import cu.axel.smartdock.utils.WindowPresets
 import cu.axel.smartdock.utils.IconPackUtils
 import cu.axel.smartdock.utils.KeyboardModifiers
 import cu.axel.smartdock.utils.MetaMenuTracker
@@ -1418,6 +1421,189 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         Toast.makeText(this, R.string.window_size_remembered, Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * Builds the Resize submenu (F5 adds the Custom… dialog and the saved
+     * presets of #209 below the fixed modes).
+     */
+    private fun getResizeActions(): ArrayList<Action> {
+        val actions = ArrayList<Action>()
+        actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
+        actions.add(Action(R.drawable.ic_standard, getString(R.string.standard), MenuCommand.STANDARD))
+        actions.add(Action(R.drawable.ic_maximized, getString(R.string.maximized), MenuCommand.MAXIMIZED))
+        actions.add(Action(R.drawable.ic_portrait, getString(R.string.portrait), MenuCommand.PORTRAIT))
+        actions.add(Action(R.drawable.ic_fullscreen, getString(R.string.fullscreen), MenuCommand.FULLSCREEN))
+        actions.add(Action(R.drawable.ic_corners, getString(R.string.window_custom), MenuCommand.WINDOW_CUSTOM))
+        for (preset in WindowPresets.list(this))
+            actions.add(Action(
+                R.drawable.ic_snap_top, preset,
+                MenuCommand.WINDOW_PRESET, preset
+            ))
+        if (WindowPresets.list(this).isNotEmpty())
+            actions.add(Action(
+                R.drawable.ic_close, getString(R.string.window_presets_delete),
+                MenuCommand.WINDOW_PRESET_DELETE
+            ))
+        return actions
+    }
+
+    /**
+     * Apply a saved preset to a running task (F5): the stored percents
+     * are resolved against the display the task actually lives on — same
+     * per-display reasoning as resizeTask — and sent through the same
+     * Shizuku resize path. A preset that vanished between building the
+     * menu and the click is a no-op, not a crash.
+     */
+    private fun applyWindowPreset(app: DockApp, name: String?) {
+        val task = app.tasks.firstOrNull() ?: return
+        if (name == null) return
+        val percents = WindowPresets.get(this, name) ?: return
+        val displayId = AppUtils.resolveDisplayId(this, task.displayId)
+        val displayBounds = DeviceUtils.getDisplayBounds(this, displayId)
+        val statusBar = DeviceUtils.getStatusBarHeight(this)
+        val navHeight = DeviceUtils.getNavBarHeight(this)
+        val usableHeight = if (DeviceUtils.shouldApplyNavbarFix())
+            displayBounds.height() - max(dockHeight, navHeight) - statusBar
+        else displayBounds.height() - dockHeight - statusBar
+        val bounds = WindowPresets.toBounds(
+            displayBounds.left, displayBounds.width(),
+            displayBounds.top + statusBar, usableHeight, percents
+        )
+        try {
+            activityManagerWrapper?.resizeTask(task.id, bounds)
+            Toast.makeText(this, R.string.window_preset_applied, Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Log.e(packageName, "applyWindowPreset failed: $e")
+        }
+    }
+
+    /**
+     * Delete-presets submenu (F5): one entry per saved preset, tap to
+     * remove it and stay in the submenu so several can be cleaned up in
+     * one visit; Back returns to the Resize submenu (it is rebuilt, so
+     * gone presets disappear from it).
+     */
+    private fun showDeletePresetsDialog(view: View) {
+        val actions = ArrayList<Action>()
+        actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
+        for (preset in WindowPresets.list(this))
+            actions.add(Action(
+                R.drawable.ic_close, preset,
+                MenuCommand.WINDOW_PRESET_DELETE, preset
+            ))
+        view.findViewById<ListView>(R.id.tasks_lv).adapter =
+            AppActionsAdapter(context, actions)
+    }
+
+    /**
+     * Custom window geometry dialog (F5, upstream #209): four sliders
+     * (left/top/width/height as percents of the usable display) with a
+     * live preview of the resulting bounds, Apply to resize the running
+     * task, and Save as preset to store the named geometry for the
+     * Resize submenu. The menu window closes before the dialog opens
+     * (overlap over system windows otherwise).
+     */
+    private fun showCustomWindowDialog(view: View, app: DockApp) {
+        val task = app.tasks.firstOrNull() ?: return
+        windowManager.removeView(view)
+
+        val displayId = AppUtils.resolveDisplayId(this, task.displayId)
+        val displayBounds = DeviceUtils.getDisplayBounds(this, displayId)
+        val dock = dockHeight
+        val statusBar = DeviceUtils.getStatusBarHeight(this)
+        val navHeight = DeviceUtils.getNavBarHeight(this)
+        val usableHeight = if (DeviceUtils.shouldApplyNavbarFix())
+            displayBounds.height() - max(dock, navHeight) - statusBar
+        else displayBounds.height() - dock - statusBar
+
+        val dialogView = LayoutInflater.from(this)
+            .inflate(R.layout.custom_window_dialog, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.window_custom)
+            .setView(dialogView)
+            .setPositiveButton(R.string.window_save_preset, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create()
+
+        // Slider percent values; bounds are computed from them on every
+        // change so the preview never drifts from what Apply will send.
+        var leftPct = 10
+        var topPct = 10
+        var widthPct = 50
+        var heightPct = 60
+
+        fun currentBounds(): Rect {
+            val w = displayBounds.width() * widthPct / 100
+            val h = usableHeight * heightPct / 100
+            val left = displayBounds.left + displayBounds.width() * leftPct / 100
+            val top = displayBounds.top + statusBar + usableHeight * topPct / 100
+            return Rect(left, top, left + w, top + h)
+        }
+
+        fun clampPct(which: Int, value: Int): Int {
+            // width/height sliders depend on the position ones: clamp so
+            // left+width and top+height never exceed 100%.
+            val cap = if (which == 2) 100 - leftPct else if (which == 3) 100 - topPct else 100
+            return value.coerceIn(0, cap)
+        }
+
+        fun updatePreview() {
+            val b = currentBounds()
+            dialogView.findViewById<TextView>(R.id.preview_tv).text =
+                getString(R.string.window_custom_preview, b.width(), b.height(), b.left, b.top)
+        }
+
+        // Keep the pairings coherent when a position slider moves: the
+        // width/height sliders re-clamp against the new cap.
+        val seekBars = arrayOfNulls<SeekBar>(4)
+        val leftSb = dialogView.findViewById<SeekBar>(R.id.left_sb)
+        seekBars[0] = leftSb
+        val topSb = dialogView.findViewById<SeekBar>(R.id.top_sb)
+        seekBars[1] = topSb
+        val widthSb = dialogView.findViewById<SeekBar>(R.id.width_sb)
+        seekBars[2] = widthSb
+        val heightSb = dialogView.findViewById<SeekBar>(R.id.height_sb)
+        seekBars[3] = heightSb
+
+        val listener = object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                when (seekBar) {
+                    leftSb -> { leftPct = clampPct(0, progress) }
+                    topSb -> { topPct = clampPct(1, progress) }
+                    widthSb -> { widthPct = clampPct(2, progress) }
+                    heightSb -> { heightPct = clampPct(3, progress) }
+                }
+                updatePreview()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        }
+        for (sb in seekBars) sb?.setOnSeekBarChangeListener(listener)
+
+        dialogView.findViewById<Button>(R.id.apply_btn).setOnClickListener {
+            activityManagerWrapper?.resizeTask(task.id, currentBounds())
+        }
+
+        // "Save as preset" stores the four percents (not the resolved
+        // pixel bounds) under the name the user types: re-applied against
+        // whichever display the task is on, so a preset survives screen
+        // changes. A dialog-within-a-dialog is fine here — the preset
+        // dialog closes the geometry one first.
+        dialog.show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nameEt = dialogView.findViewById<EditText>(R.id.preset_name_et)
+            val name = nameEt.text.toString().trim()
+            if (name.isEmpty()) {
+                nameEt.error = getString(R.string.window_preset_name_empty)
+                return@setOnClickListener
+            }
+            WindowPresets.save(this, name, leftPct, topPct, widthPct, heightPct)
+            Toast.makeText(this, R.string.window_preset_saved, Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+        updatePreview()
+    }
+
     private fun resizeTask(app: DockApp, mode: String) {
         val task = app.tasks.firstOrNull() ?: return
         try {
@@ -1539,13 +1725,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     actions.add(Action(R.drawable.ic_arrow_right, getString(R.string.right), MenuCommand.RIGHT))
                     actionsLv.adapter = AppActionsAdapter(context, actions)
                 } else if (action.command == MenuCommand.RESIZE) {
-                    val actions = ArrayList<Action>()
-                    actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
-                    actions.add(Action(R.drawable.ic_standard, getString(R.string.standard), MenuCommand.STANDARD))
-                    actions.add(Action(R.drawable.ic_maximized, getString(R.string.maximized), MenuCommand.MAXIMIZED))
-                    actions.add(Action(R.drawable.ic_portrait, getString(R.string.portrait), MenuCommand.PORTRAIT))
-                    actions.add(Action(R.drawable.ic_fullscreen, getString(R.string.fullscreen), MenuCommand.FULLSCREEN))
-                    actionsLv.adapter = AppActionsAdapter(context, actions)
+                    actionsLv.adapter = AppActionsAdapter(context, getResizeActions())
                 } else if (action.command == MenuCommand.SNAP) {
                     val actions = ArrayList<Action>()
                     actions.add(Action(R.drawable.ic_arrow_back, "", MenuCommand.BACK))
@@ -1580,6 +1760,22 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 } else if (action.command == MenuCommand.SAVE_WINDOW_SIZE) {
                     rememberWindowSize(app)
                     windowManager.removeView(view)
+                } else if (action.command == MenuCommand.WINDOW_CUSTOM) {
+                    showCustomWindowDialog(view, app)
+                } else if (action.command == MenuCommand.WINDOW_PRESET) {
+                    applyWindowPreset(app, action.payload)
+                    windowManager.removeView(view)
+                } else if (action.command == MenuCommand.WINDOW_PRESET_DELETE) {
+                    // No payload: the "Delete presets…" entry opens the
+                    // deletion submenu; with one it deletes that preset
+                    // and stays there for more deletions.
+                    if (action.payload == null)
+                        showDeletePresetsDialog(view)
+                    else {
+                        WindowPresets.delete(this, action.payload)
+                        Toast.makeText(this, R.string.window_preset_deleted, Toast.LENGTH_SHORT).show()
+                        showDeletePresetsDialog(view)
+                    }
                 } else if (action.command == MenuCommand.TOP) {
                     resizeTask(app, "tiled-top")
                     windowManager.removeView(view)

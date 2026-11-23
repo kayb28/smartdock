@@ -348,6 +348,16 @@
     <string name="remember_window_size">Fenstergroße merken</string>
     <string name="window_size_remembered">Fenstergroße für diese App gemerkt</string>
     <string name="window_size_unavailable">Fenstergroße konnte nicht gelesen werden (Shizuku nicht aktiv)</string>
+    <string name="window_custom">Benutzerdefiniert…</string>
+    <string name="window_custom_preview">Breite × Höhe: %1$d × %2$d px\nPosition: %3$d, %4$d px</string>
+    <string name="apply">Anwenden</string>
+    <string name="window_save_preset">Als Preset speichern</string>
+    <string name="window_preset_name_hint">Preset-Name</string>
+    <string name="window_preset_name_empty">Geben Sie einen Namen für das Preset ein</string>
+    <string name="window_preset_saved">Preset gespeichert</string>
+    <string name="window_preset_applied">Preset angewendet</string>
+    <string name="window_presets_delete">Presets löschen…</string>
+    <string name="window_preset_deleted">Preset gelöscht</string>
     <string name="hide_notifications">Hide notifications</string>
     <string name="hide_notification_panel">Hide notifications for this app from the panel? You can configure hidden notifications in Notification panel settings</string>
     <string name="dock_hidden_message_swipe">Smart Dock has been hidden, you can activate it again by:\n- Swiping up from the bottom of the screen (phone)\n- Hovering the mouse pointer near the bottom of the screen (desktop)</string>

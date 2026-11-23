@@ -44,7 +44,18 @@ enum class MenuCommand {
     SEND_TO_DISPLAY,
     CHANGE_WALLPAPER,
     DISPLAY_SETTINGS,
-    SAVE_WINDOW_SIZE
+    SAVE_WINDOW_SIZE,
+    WINDOW_CUSTOM,
+    WINDOW_PRESET,
+    WINDOW_PRESET_DELETE
 }
 
-class Action(val icon: Int, val text: String, val command: MenuCommand = MenuCommand.NONE)
+/**
+ * [payload] carries command-scoped data the dispatch needs beyond the
+ * command itself (e.g. the preset name for [MenuCommand.WINDOW_PRESET]);
+ * the visible [text] stays a label only.
+ */
+class Action(
+    val icon: Int, val text: String, val command: MenuCommand = MenuCommand.NONE,
+    val payload: String? = null
+)

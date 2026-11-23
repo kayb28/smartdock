@@ -349,6 +349,16 @@
     <string name="remember_window_size">記住視窗大小</string>
     <string name="window_size_remembered">已記住此應用程式的視窗大小</string>
     <string name="window_size_unavailable">無法讀取視窗大小（Shizuku 未啟用）</string>
+    <string name="window_custom">自訂…</string>
+    <string name="window_custom_preview">寬 × 高：%1$d × %2$d px\n位置：%3$d, %4$d px</string>
+    <string name="apply">套用</string>
+    <string name="window_save_preset">儲存為預設</string>
+    <string name="window_preset_name_hint">預設名稱</string>
+    <string name="window_preset_name_empty">請輸入預設名稱</string>
+    <string name="window_preset_saved">預設已儲存</string>
+    <string name="window_preset_applied">預設已套用</string>
+    <string name="window_presets_delete">刪除預設…</string>
+    <string name="window_preset_deleted">預設已刪除</string>
     <string name="hide_notifications">Hide notifications</string>
     <string name="hide_notification_panel">Hide notifications for this app from the panel? You can configure hidden notifications in Notification panel settings</string>
     <string name="dock_hidden_message_swipe">Smart Dock has been hidden, you can activate it again by:\n- Swiping up from the bottom of the screen (phone)\n- Hovering the mouse pointer near the bottom of the screen (desktop)</string>
