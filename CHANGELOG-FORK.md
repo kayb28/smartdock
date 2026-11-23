@@ -3,6 +3,22 @@
 _Changelog formal de las releases del fork de Smart Dock. Formato Keep a Changelog, en español._
 _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/changelogs/`; aquí solo el fork._
 
+## [v1.15.6-fork.10] — 2026-11-23
+
+Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.6-fork.10.apk`). Base: `v1.15.5-fork.9` + 13 commits de las sesiones 8–9 (5 features, 2 seguimientos del updater, 1 test, 5 docs/chore) + 2 commits de release (rama `chore/release-fork.10`, fast-forward). versionCode 1156. Primera release con `fork_release_tag` en juego: el updater compara el tag del build contra `releases/latest` de GitHub, y `UpdateCheckerTest.ownReleaseIsNotNewerThanItself` garantiza que una build se reconozca a sí misma como «up to date».
+
+### Añadido
+
+- **Comprobador de actualizaciones contra GitHub Releases** (`55ab8ac`, `c0f3646`, `aca3df6`): el fork vive fuera de F-Droid, así que hasta ahora nadie sabía que salió una release salvo mirando el repo. `UpdateChecker` consulta `releases/latest` con `HttpURLConnection` (sin dependencias nuevas), compara el tag `(major, minor, patch, forkN)` contra la string del build `fork_release_tag` — robusto a iteraciones same-version (fork.10 sobre 1.15.6 > fork.9 sobre 1.15.5) — y degrada a «no se pudo comprobar» sin crashear jamás. Check silencioso 1×/24h en `onServiceConnected`, gated por el toggle «buscar actualizaciones automáticamente» (default on) que añade `c0f3646`, más comprobación manual en Ajustes → Avanzado → Diagnóstico con botón «Open release». Tests unitarios del parser de versión (`aca3df6`).
+- **Panel de diagnósticos** (`8f4f61b`, `f25453b`): Ajustes → Avanzado → Diagnóstico → «View diagnostics»: servicio vivo, `isAlive()` de los tres wrappers Shizuku, permisos (Shizuku / app de sistema / WRITE_SECURE_SETTINGS), lista de displays, Build SDK/release/device, tail de 600 chars del último crash y sección «Updater» (tag del build, auto-check, última comprobación, veredicto cacheado). Botón «Share diagnostics» (ACTION_SEND) para adjuntarlo al bug report — los reportes llegan con contexto en vez de una captura.
+- **Force-stop de apps desde el menú contextual del dock** (#123, `b716860`): nuevo `MenuCommand.FORCE_STOP` bajo Close, gated a permiso Shizuku (el mismo que Close ya exige): `IActivityManager.forceStopPackage` vía el wrapper del fork termina el proceso de verdad — `removeTask` (Close) solo lo quita de recents. Toasts `force_stopped` / `force_stop_unavailable`: nunca un no-op silencioso.
+- **Selector explícito de pantalla del dock** (`0049dd0`): el «a qué pantalla va el dock» deja de ser un toggle oculto (`prefer_last_display` en Avanzado) y es ahora un `ListPreference` `dock_display_placement` (Primaria / Externa). Los cinco puntos de lectura y el listener de prefs migran a la nueva clave; el default «primaria» conserva el comportamiento anterior. «Ambos» (dock en dos pantallas a la vez) queda aplazado: exige una segunda ventana overlay.
+- **Toggle de teclado blando en el menú de apps** (#122, `18fcc9c`): `show_software_keyboard_in_menu` (default off) fuerza el IME en el buscador del menú con teclado físico conectado (p. ej. teclado Bluetooth en un móvil); sin el toggle, el teclado solo salía auto en dispositivos sin teclas.
+
+### Notas
+
+- Primera versión del fork con permiso **INTERNET** (normal, se concede solo): hasta fork.9 la app no tenía ningún permiso de red — el updater lo añade. Toggle de consentimiento para el check silencioso incluido (default on).
+
 ## [v1.15.5-fork.9] — 2026-11-22
 
 Publicada como GitHub Release (APK `SmartDock-fork-debug-v1.15.5-fork.9.apk`). Base: `main` 2837744 + 4 commits (rama `bugfix/secondary-display-accessibility-regression`, fast-forward). versionCode 1155.

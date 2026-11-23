@@ -304,7 +304,26 @@ Motivo: la review de la sesión 8 dejó seis puntas sueltas — citas de issues 
 
 ### Cierre
 
-- [ ] `Build project` (compile + lint) verde en `feat/updater-followups` y en main tras fast-forward — **el sandbox del agente no tiene Android SDK (AGENTS.md §2); CI en Actions decide**. Los tres commits siguen patrones existentes (SwitchPreferenceCompat, prefs, DiagnosticsBuilder) y las aserciones del test se trazaron contra el parser antes de commitear.
+- [x] `Build project` (compile + lint) verde en `feat/updater-followups` y en main tras fast-forward — **el sandbox del agente no tiene Android SDK (AGENTS.md §2); CI en Actions decide**. Los tres commits siguen patrones existentes (SwitchPreferenceCompat, prefs, DiagnosticsBuilder) y las aserciones del test se trazaron contra el parser antes de commitear. Confirmado el 2026-11-23: 3× `build` success sobre `0049dd0` (runs 45104065018, 45104068516, 45104068538).
 - [x] Sin bump de versionCode (seguimiento, no release). `fork_release_tag` sigue en `v1.15.5-fork.9`.
 - [x] Sin dependencias nuevas; `androidx.preference.PreferenceManager` ya en uso (DockService).
 - [x] Pendiente de confirmación en dispositivo: el toggle aparece encima de «Check for updates»; el panel de diagnósticos muestra la sección «Updater».
+
+## 2026-11-23 (décima pasada) — corte de fork.10: bump 1156 + primera release con `fork_release_tag` en juego
+
+Motivo: CI verde sobre `0049dd0` (F6+F9), 13 commits acumulados desde el tag `v1.15.5-fork.9` (5 features, 2 seguimientos del updater, 1 test y 5 docs/chore) sin bugs abiertos del fork — toca release. Primer corte con `fork_release_tag` en juego (nota R6 de la novena pasada): bump simultáneo de las tres piezas en el mismo commit. Rama `chore/release-fork.10`, fast-forward a main.
+
+### Release
+
+- **Bump de release** (`a2db2ca`): `versionCode` 1155→1156 y `versionName` 1.15.5→1.15.6 en `app/build.gradle` + `fork_release_tag` `v1.15.5-fork.9`→`v1.15.6-fork.10` en `values/strings.xml`, en el mismo commit. Un tag viejo haría que la build nueva se ofreciera «update available» contra sí misma en `releases/latest`.
+- **Verificación del updater** (lógica de `isNewer` simulada línea a línea desde `UpdateChecker.kt` + `UpdateCheckerTest` en CI): `isNewer("v1.15.6-fork.10", "v1.15.5-fork.9")` = **true** (nueva release detectada) y `isNewer("v1.15.6-fork.10", "v1.15.6-fork.10")` = **false** (auto-reconocimiento, «up to date»). 7/7 checks del script de verificación en verde.
+- **Tag anotado** `v1.15.6-fork.10` («SmartDock fork v1.15.6-fork.10 (versionCode 1156)») sobre la punta de main tras el ff → `release_apk.yml` publica la GitHub Release con `SmartDock-fork-debug-v1.15.6-fork.10.apk`.
+- **Docs**: CHANGELOG-FORK.md (sección fork.10), FORK.md (fila 1156), HISTORIA.md (ítem 12 + mapa de ramas/tags), AGENTS.md (§1 identidad 1156/1.15.6, §3 main, §5 próximo release → fork.11).
+
+### Cierre
+
+- [ ] `Build project` verde sobre `a2db2ca` (bump) y sobre la punta de main; `release_apk.yml` publica la release — **CI decide (sandbox sin SDK)**.
+- [x] Sin bump regresivo: 1156 > 1155; se instala encima de fork.9 sin desinstalar ni perder ajustes (mismo keystore, cert `4680C231…B54B41DB`).
+- [x] Sin cambios de código de la app en el corte: solo `app/build.gradle` + `strings.xml` (`fork_release_tag`) + documentación.
+- [x] Verificación updater: nueva release detectada vs fork.9 y auto-reconocimiento «up to date» (simulación + tests en CI).
+- [ ] Pendiente de confirmación en dispositivo: con fork.10 instalada y `releases/latest` == `v1.15.6-fork.10`, el updater muestra «up to date» y no «update available».
