@@ -40,6 +40,7 @@ enum class MenuCommand {
     LEFT,
     RIGHT,
     CLOSE,
+    FORCE_STOP,
     SEND_TO_DISPLAY,
     CHANGE_WALLPAPER,
     DISPLAY_SETTINGS

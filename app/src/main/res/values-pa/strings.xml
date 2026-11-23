@@ -341,6 +341,9 @@
     <string name="dock_hidden">ਡੌਕ ਲੁਕਿਆ ਹੋਇਆ</string>
     <string name="dock_hidden_message_handle">ਸਮਾਰਟ ਡੌਕ ਨੂੰ ਲੁਕਾ ਦਿੱਤਾ ਗਿਆ ਹੈ, ਤੁਸੀਂ ਹੈਂਡਲ ਤੇ ਟੈਪ ਕਰਕੇ ਇਸਨੂੰ ਦੁਬਾਰਾ ਐਕਟਿਵ ਕਰ ਸਕਦੇ ਹੋ।</string>
     <string name="close">ਬੰਦ ਕਰੋ</string>
+    <string name="force_stop">ਜ਼ਬਰਦਸਤੀ ਬੰਦ ਕਰੋ</string>
+    <string name="force_stopped">ਪ੍ਰੋਸੈਸ ਜ਼ਬਰਦਸਤੀ ਬੰਦ ਕੀਤਾ</string>
+    <string name="force_stop_unavailable">ਜ਼ਬਰਦਸਤੀ ਬੰਦ ਕਰਨ ਉਪਲਬਧ ਨਹੀਂ (Shizuku ਸਰਗਰਮ ਨਹੀਂ)</string>
     <string name="hide_notifications">ਨੋਟੀਫੀਕੇਸਨ ਲੁਕਾਓ</string>
     <string name="hide_notification_panel">ਕੀ ਇਸ ਐਪ ਲਈ ਪੈਨਲ ਤੋਂ ਨੋਟੀਫੀਕੇਸਨਾ ਲੁਕਾਉਣੀਆਂ ਹਨ? ਤੁਸੀਂ ਸੂਚਨਾ ਪੈਨਲ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਲੁਕੀਆਂ ਹੋਈਆਂ ਨੋਟੀਫੀਕੇਸਨਾ ਨੂੰ ਕੌਂਫਿਗਰ ਕਰ ਸਕਦੇ ਹੋ</string>
     <string name="dock_hidden_message_swipe">ਸਮਾਰਟ ਡੌਕ ਨੂੰ ਲੁਕਾ ਦਿੱਤਾ ਗਿਆ ਹੈ, ਤੁਸੀਂ ਇਸਨੂੰ ਇਸ ਤਰ੍ਹਾਂ ਦੁਬਾਰਾ ਐਕਟਿਵ ਕਰ ਸਕਦੇ ਹੋ:\n- ਸਕ੍ਰੀਨ (ਫੋਨ) ਦੇ ਹੇਠਾਂ ਤੋਂ ਉੱਪਰ ਵੱਲ ਸਵਾਈਪ ਕਰਕੇ\n- ਸਕ੍ਰੀਨ (ਡੈਸਕਟਾਪ) ਦੇ ਹੇਠਾਂ ਮਾਊਸ ਪੁਆਇੰਟਰ ਨੂੰ ਘੁੰਮਾ ਕੇ</string>

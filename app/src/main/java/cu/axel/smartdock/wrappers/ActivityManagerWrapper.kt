@@ -81,6 +81,25 @@ class ActivityManagerWrapper {
         }
     }
 
+    /**
+     * Force-stop a package's process (upstream #123): stronger than
+     * [removeTask], which only drops the task from recents. Mirrors the
+     * Wi-Fi wrapper's degradation — returns false if the wrapper is dead or
+     * the framework call throws, never escapes to the caller. Called from
+     * the dock app context menu ("Force stop") gated on Shizuku, the same
+     * privilege CLOSE already requires.
+     */
+    fun forceStop(packageName: String): Boolean {
+        val am = activityManager ?: return false
+        return try {
+            am.forceStopPackage(packageName, 0)
+            true
+        } catch (t: Throwable) {
+            Log.e(TAG, "forceStopPackage failed: $t")
+            false
+        }
+    }
+
     companion object {
         private const val TAG = "SmartDock"
     }

@@ -562,6 +562,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     actions.add(Action(R.drawable.ic_snap_top, getString(R.string.snap), MenuCommand.SNAP))
                 }
                 actions.add(Action(R.drawable.ic_close, getString(R.string.close), MenuCommand.CLOSE))
+                actions.add(Action(R.drawable.ic_power, getString(R.string.force_stop), MenuCommand.FORCE_STOP))
             }
             // Moving a running task to another display needs no special
             // privileges: relaunching it with a different launch display
@@ -1408,6 +1409,23 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     }
 
     /**
+     * Force-stop a running app's process (upstream #123): stronger than
+     * [closeTask], which only drops the task from recents. Uses the
+     * ActivityManager wrapper (Shizuku) — the menu entry is gated on
+     * hasShizukuPermission, the same privilege CLOSE needs; if the wrapper
+     * is dead or the call throws, the user gets an "unavailable" toast
+     * instead of a silent no-op (the Wi-Fi wrapper degradation pattern).
+     */
+    private fun forceStopApp(app: DockApp) {
+        val stopped = activityManagerWrapper?.forceStop(app.packageName) == true
+        Toast.makeText(
+            context,
+            if (stopped) R.string.force_stopped else R.string.force_stop_unavailable,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    /**
      * Moves a running task to another display. Relaunching an app with a
      * different launch display reparents the existing task to the target
      * display (ActivityStarter reuses the found task and moves it to the
@@ -1534,6 +1552,9 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                     windowManager.removeView(view)
                 } else if (action.command == MenuCommand.CLOSE) {
                     closeTask(app)
+                    windowManager.removeView(view)
+                } else if (action.command == MenuCommand.FORCE_STOP) {
+                    forceStopApp(app)
                     windowManager.removeView(view)
                 } else if (action.command == MenuCommand.BACK) {
                     actionsLv.adapter = AppActionsAdapter(context, getDockAppActions(app))
