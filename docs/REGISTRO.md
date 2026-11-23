@@ -380,3 +380,21 @@ Motivo: F5 del listado original = upstream #209 («[Feature] Freeform Size Inten
 - [x] Sin bump de versionCode (feature, no release). El corte será fork.12 en el próximo bump 1158/1.15.8.
 - [x] Sin dependencias nuevas; solo `org.json` (plataforma) y APIs ya en uso.
 - [ ] Pendiente de confirmación en dispositivo: crear un preset desde el diálogo Custom, verlo en el submenú Resize, aplicarlo a otra ventana, y borrarlo; el preview muestra píxeles correctos en display secundario.
+
+## 2026-11-23 (decimocuarta pasada) — corte de fork.12: release v1.15.8-fork.12 (`chore/release-fork.12`, `2851dcc`)
+
+Motivo: CI verde sobre `a5cfc6b` (F5 + docs), 3 commits acumulados desde el tag `v1.15.7-fork.11` (2 de feature + 1 de docs) sin bugs abiertos del fork — toca release. Bump simultáneo de las tres piezas (versionCode 1158, versionName 1.15.8, `fork_release_tag` v1.15.8-fork.12) en el mismo commit `2851dcc`, tercer corte con el triple bump.
+
+### Release
+
+- Tag `v1.15.8-fork.12` sobre `2851dcc` → `Release debug apk` publicó la release a las 15:36 UTC: `releases/latest` = `v1.15.8-fork.12`, asset `SmartDock-fork-debug.apk` (13.249.623 bytes ≈ 13,2 MB).
+- Body de la release editado con el resumen en inglés de F5 + link al CHANGELOG (paridad con fork.9–11; script `scripts/edit_fork12_body.py` fuera del repo).
+
+### Cierre (verificado)
+
+- [x] CI verde en el tag: 3/3 check-runs success (build sobre la rama 15:34, release 15:36, build sobre el tag 15:37; los dos workflows).
+- [x] Sin bump regresivo: 1158 > 1157; se instala encima de fork.11 sin desinstalar ni perder ajustes (mismo keystore debug, cert `4680C231…B54B41DB`).
+- [x] APK verificada: **versionCode 1158, versionName 1.15.8**, cert SHA-256 `4680C23198D542A0423DFD95F1A0D66A80100FA30CB72CAEDF107E41B54B41DB` (el mismo de fork.4–11), sha256 `50968e351dae21b139ffe06f372f443a992c8e9eb68e149d334a0bed8a07c84e`. Entregada al usuario como `SmartDock-fork-debug-v1.15.8-fork.12.apk`. Scripts de verificación: `verify_apk_signature.py`, `verify_fork12_updater.py` (nuevo, expectativas fork.12) y `verify_fork12_release.py` (nuevo, descarga el asset).
+- [x] Verificación updater (TODO OK): `releases/latest` == `v1.15.8-fork.12` == `fork_release_tag` del build → una instalación con fork.12 se reconoce «up to date»; una con fork.11 ve «update available» (1.15.8-fork.12 > 1.15.7-fork.11); la iteración same-version y fork.13 también detectadas.
+- [x] Sin cambios de código de la app en el corte: solo `app/build.gradle` + `strings.xml` (`fork_release_tag`) + `CHANGELOG-FORK.md`.
+- [ ] Pendiente de confirmación en dispositivo: con fork.11 instalada, el updater ofrece la actualización; con fork.12 instalada, «up to date»; crear/aplicar/borrar presets de ventana.
