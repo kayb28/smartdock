@@ -415,4 +415,8 @@
     <!-- App menu search: optional soft-keyboard override -->
     <string name="show_software_keyboard_in_menu_title">ਐਪ ਮੀਨੂ ਵਿੱਚ ਕੀਬੋਰਡ ਦਿਖਾਓ</string>
     <string name="show_software_keyboard_in_menu_summary">ਐਪ ਮੀਨੂ ਖੋਲ੍ਹਣ ਸਮੇਂ ਹਮੇਸ਼ਾ ਸਕ੍ਰੀਨ ਕੀਬੋਰਡ ਦਿਖਾਓ, ਭਾਵੇਂ ਭੌਤਿਕ ਕੀਬੋਰਡ ਜੁੜਿਆ ਹੋਵੇ</string>
+    <string name="notification_reply_hint">ਜਵਾਬ ਲਿਖੋ</string>
+    <string name="notification_send">ਭੇਜੋ</string>
+    <string name="notification_action_failed">ਕਾਰਵਾਈ ਨਹੀਂ ਚੱਲ ਸਕੀ</string>
+    <string name="notification_reply_empty">ਭੇਜਣ ਤੋਂ ਪਹਿਲਾਂ ਕੁਝ ਲਿਖੋ</string>
 </resources>

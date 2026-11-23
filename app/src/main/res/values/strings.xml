@@ -415,4 +415,8 @@
     <!-- App menu search: optional soft-keyboard override -->
     <string name="show_software_keyboard_in_menu_title">Show keyboard in app menu</string>
     <string name="show_software_keyboard_in_menu_summary">Always show the on-screen keyboard when opening the app menu, even with a physical keyboard attached</string>
+    <string name="notification_reply_hint">Type a reply</string>
+    <string name="notification_send">Send</string>
+    <string name="notification_action_failed">Could not run the action</string>
+    <string name="notification_reply_empty">Type something before sending</string>
 </resources>

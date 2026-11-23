@@ -414,4 +414,8 @@
     <!-- App menu search: optional soft-keyboard override -->
     <string name="show_software_keyboard_in_menu_title">Tastatur im App-Menü anzeigen</string>
     <string name="show_software_keyboard_in_menu_summary">Die Bildschirmtastatur beim Öffnen des App-Menüs immer anzeigen, auch bei angeschlossener physischer Tastatur</string>
+    <string name="notification_reply_hint">Antwort eingeben</string>
+    <string name="notification_send">Senden</string>
+    <string name="notification_action_failed">Aktion konnte nicht ausgeführt werden</string>
+    <string name="notification_reply_empty">Gib etwas ein, bevor du sendest</string>
 </resources>
