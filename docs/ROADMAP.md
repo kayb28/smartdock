@@ -10,7 +10,7 @@ _Fuente de la verdad del listado de features y de su orden de implementación. L
 | F5 | Zonas de anclado de ventanas (snap zones) | ⏳ **pendiente de triage** | — |
 | F6 | Colocación del dock (selector de pantalla del dock) | ✅ hecha | fork.10 (`0049dd0`) |
 | F7 | Geometría de ventana por app | ✅ hecha | fork.11 (`496250f`) |
-| F8 | Editor de combinaciones de teclado | 🚧 **en curso — fork.14** | rama `feature/shortcut-editor` |
+| F8 | Editor de combinaciones de teclado | ✅ **hecha** — entra en **fork.14** | rama `feature/shortcut-editor` (`b6ff68c`+`fe649ce`+`35471b1`) |
 | F9 | Matar tareas (force-stop) | ✅ hecha | fork.10 (`b716860`) |
 | F10 | Modo trackpad (el móvil como panel táctil del monitor) | 📋 triado (abajo) | — |
 | F11 | Escritorios virtuales / workspaces | 📋 triado (abajo) | — |

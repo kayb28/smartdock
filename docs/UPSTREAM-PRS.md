@@ -98,6 +98,12 @@ Los commits de la séptima sesión refinen los fixes de #263, #268 y #253 con ca
 - Superficie: `adapters/NotificationAdapter.kt` (dispatch de `Notification.Action`, fila de reply con `RemoteInput`, iconos de acciones multimedia vía `Action.getIcon()?.loadDrawable`) + **4 cadenas nuevas** en `values/strings.xml` y 6 locales. APIs públicas (`Notification.actions`, `PendingIntent.send`, `RemoteInput.addResultsToIntent`, `Icon.loadDrawable` API 23+): sin Shizuku, sin permisos nuevos.
 - Cherry-pick: **adapta** (cadenas nuevas a traducir a los locales de upstream — mismo caso que `a51c8b9`/`0be6597`). Autocontenida y sin privilegios: candidata natural junto a #209, con discusión previa por ser feature (no fix). Nota de diseño para el PR: el reply rellena `RemoteInput.addResultsToIntent(...)` **antes** del `actionIntent.send(context, 0, results)` — sin ese orden el reply llega vacío (no-op silencioso); los fallos de dispatch se comunican con toast, nunca en silencio (contrato de degradación del dock).
 
+
+### F8 — editor de combinaciones de teclado (sin issue upstream; feature)
+- Commits: `b6ff68c` (modelo puro `ShortcutBindings` + 32 tests JVM) + `fe649ce` (UI: `ShortcutEditorDialog` + `ShortcutCaptureDialog` + 31 cadenas × 6 locales) + `35471b1` (dispatch «bindings primero, defaults como fallback» en `DockService`).rama `feature/shortcut-editor` (2026-11-24). El dispatch es aditivo: el bloque fijo de `onKeyEvent` no se tocó.
+- Superficie: nuevo `utils/ShortcutBindings.kt` (modelo puro, JSON propio — no org.json — con degradación) + nuevos `dialogs/ShortcutCaptureDialog.kt` y `dialogs/ShortcutEditorDialog.kt` + `KeyboardPreferences` + `preferences_keyboard.xml` + `DockService.onKeyEvent` (inserta el dispatch antes del bloque fijo + 4 helpers privados) + **31 cadenas nuevas** en `values/strings.xml` y 6 locales.
+- Cherry-pick: **adapta** (cadenas nuevas a los locales de upstream; el bloque Alt fijo de upstream `onKeyEvent` puede diferir — el dispatch es aditivo y debería aplicar, pero conviene re-crear sobre la punta de upstream). Sin privilegios, sin permisos nuevos: APIs públicas (KeyEvent, SharedPreferences). Reutiliza el mecanismo AltGr de #167 y la máquina de Meta de #267 — enviar después de esos fixes o como un solo paquete de teclado.
+
 ## Orden de envío propuesto
 
 Los fixes puros de causa raíz primero (rápidos de revisar y de alto valor para usuarios de upstream), los multi-concern que requieren split después, las features al final, y el endurecimiento de wrappers el último por su superficie de política. **Los refinamientos de sesión 7 van antes que sus originales de sesión 5** (son más directos); el commit plegado de display secundario va con los fixes puros.
@@ -115,7 +121,8 @@ Los fixes puros de causa raíz primero (rápidos de revisar y de alto valor para
 11. **#263 fail-safe** — `62ee704` + `0c262fa` + `931b708` (si upstream los quiere separados del routing de sesión 7).
 12. **#209 presets de ventana** — `0be6597` (plegado de `e3a12bc`+`968b4e4`; adapta, cadenas). Feature pura que cierra un issue abierto: **candidato estrella**; discutir con upstream antes de abrir el PR (es la primera feature del paquete, no un fix).
 13. **F12 acciones de notificación** — `45b0148` (plegado de la serie F12; adapta, cadenas). Sin issue asignado; APIs públicas, alta valía upstream (ROADMAP F12) — discutir con upstream junto a #209.
-14. **Wrappers** (sin issue) — `f2f4727`, dependencia nueva + unseal global; **último**, tras discutir la política con upstream.
+14. **F8 editor de atajos** — `b6ff68c`+`fe649ce`+`35471b1` (adapta, cadenas; feature — discutir con upstream, mismo carril que #209/F12; depende conceptualmente de #167/#267 estar enviados).
+15. **Wrappers** (sin issue) — `f2f4727`, dependencia nueva + unseal global; **último**, tras discutir la política con upstream.
 
 Fuera del paquete (features puras, candidatas a discusión separada, no a PR de fix): `98ebb9a` (modo escritorio externo + Send to screen), `027da00` (backup JSON completo), `c2d3bb8`/`2247850` (mejoras de UX del fork), F7 geometría por app (`496250f`, feature que depende de Shizuku para leer `getTaskBounds` — probablemente también a discusión con upstream).
 

@@ -45,6 +45,8 @@ El fork (kayb28) nació de usarlo sobre un monitor USB-C: el soporte de display 
 
 20. **El relleno del release body de fork.13 (sesión 21)**: el único defecto abierto del corte — el body de la release en GitHub quedó vacío — se rellena con el patrón de fork.12 (intro + feature F12 + nota de instalación, en inglés) vía API, verificado por re-lectura. Sin cambios de código.
 
+21. **El editor de atajos de teclado (sesión 22, F8, fork.14 en pausa de corte)**: el bloque fijo de Alt+X de DockService se vuelve user-configurable — modelo puro `ShortcutBindings` con tests JVM desde el commit uno (JSON propio, no org.json, para poder testear el round-trip en JVM), diálogo de captura que reutiliza el mecanismo AltGr (#167) sin duplicar la máquina de Meta (#267), y dispatch «bindings primero, defaults como fallback» con el bloque fijo intacto. Reglas duras: Ctrl+Alt rechazado al guardar (lo que entrega AltGr no puede ser un binding muerto), Ctrl/Alt/Meta obligatorios, conflictos con nombre, gates `enable_*` vigentes incluso rebindeando. Primer build local completo del sandbox (JDK 17 en espacio de usuario + espejo Aliyun ante los 429 de mavenCentral) — lección 8 cumplida con puerta doble: hook + CI verde.
+
 ## Mapa de documentos
 
 | Documento | Qué contiene | Cuándo leerlo |
