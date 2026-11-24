@@ -130,6 +130,8 @@ import cu.axel.smartdock.utils.DeviceUtils
 import cu.axel.smartdock.utils.WindowPresets
 import cu.axel.smartdock.utils.IconPackUtils
 import cu.axel.smartdock.utils.KeyboardModifiers
+import cu.axel.smartdock.utils.ShortcutBindings
+import cu.axel.smartdock.utils.ShortcutBindingsStore
 import cu.axel.smartdock.utils.MetaMenuTracker
 import cu.axel.smartdock.utils.OnSwipeListener
 import cu.axel.smartdock.utils.Timers
@@ -225,6 +227,12 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
     // must not open the app menu (#267). Logic lives in MetaMenuTracker so it
     // can be unit-tested without android.jar.
     private val metaTracker = MetaMenuTracker()
+
+    // F8: parsed view of the user's custom shortcut bindings, kept in sync
+    // with the raw stored JSON (re-parsed only when it actually changes —
+    // SharedPreferences is already in-memory, so this stays cheap per event).
+    private var shortcutBindingsRaw: String? = null
+    private var shortcutBindings: List<ShortcutBindings.Binding> = emptyList()
     private var systemApp = false
     private var preferSecondaryDisplay = false
     // Labels of the deep shortcuts currently listed in the pin-shortcut
@@ -771,6 +779,12 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             return super.onKeyEvent(event)
 
         if (event.action == KeyEvent.ACTION_UP) {
+            // F8: user bindings dispatch first — a custom chord shadows the
+            // fixed defaults for that chord only; chords without a custom
+            // binding fall through to the fixed block below, so bindings
+            // and defaults coexist. The AltGr pass-through above already
+            // kept Ctrl+Alt chords (unsavable by the editor) out of here.
+            if (dispatchCustomShortcut(event)) return true
             if (event.isAltPressed) {
                 if (event.keyCode == KeyEvent.KEYCODE_L && sharedPreferences.getBoolean(
                         "enable_lock_desktop",
@@ -975,6 +989,136 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         }
 
         return super.onKeyEvent(event)
+    }
+
+    /**
+     * F8 shortcut editor: resolve the chord against the user's custom
+     * bindings and dispatch. The behaviors here must keep mirroring the
+     * fixed block below (single actions, same toasts/pref gates) — the
+     * catalog's prefKey/defaultEnabled pair mirrors the "enable_*" switches
+     * so a custom binding never bypasses a toggle the user turned off.
+     * Returns false when no binding matches, leaving the event to the fixed
+     * defaults.
+     */
+    private fun dispatchCustomShortcut(event: KeyEvent): Boolean {
+        val raw = PreferenceManager.getDefaultSharedPreferences(this)
+            .getString(ShortcutBindings.PREF_KEY, null)
+        if (raw != shortcutBindingsRaw) {
+            shortcutBindingsRaw = raw
+            shortcutBindings = ShortcutBindings.fromJson(raw)
+        }
+        if (shortcutBindings.isEmpty()) return false
+
+        val mods = ShortcutBindings.modsOf(
+            event.isCtrlPressed, event.isAltPressed, event.isShiftPressed, event.isMetaPressed
+        )
+        val action = ShortcutBindings.resolve(shortcutBindings, mods, event.keyCode)
+            ?: return false
+        if (!ShortcutBindingsStore.isActionEnabled(this, action)) return false
+        return dispatchShortcutAction(action, event)
+    }
+
+    private fun dispatchShortcutAction(
+        action: ShortcutBindings.ShortcutAction, event: KeyEvent
+    ): Boolean = when (action) {
+        ShortcutBindings.ShortcutAction.LOCK_DESKTOP -> {
+            lockScreen(); true
+        }
+        ShortcutBindings.ShortcutAction.OPEN_SETTINGS -> {
+            launchApp(null, null, Intent(Settings.ACTION_SETTINGS)); true
+        }
+        ShortcutBindings.ShortcutAction.OPEN_TERMINAL -> {
+            launchApp(null, sharedPreferences.getString("app_terminal", "com.termux")!!); true
+        }
+        ShortcutBindings.ShortcutAction.EXPAND_NOTIFICATIONS -> {
+            performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS); true
+        }
+        ShortcutBindings.ShortcutAction.TOGGLE_PIN -> {
+            togglePin(); true
+        }
+        ShortcutBindings.ShortcutAction.OPEN_MUSIC -> {
+            launchApp(null, sharedPreferences.getString("app_music", "")!!); true
+        }
+        ShortcutBindings.ShortcutAction.OPEN_BROWSER -> {
+            launchApp(null, sharedPreferences.getString("app_browser", "")!!); true
+        }
+        ShortcutBindings.ShortcutAction.OPEN_ASSIST -> {
+            launchApp(null, sharedPreferences.getString("app_assistant", "")!!); true
+        }
+        ShortcutBindings.ShortcutAction.OPEN_REC -> {
+            launchApp(null, sharedPreferences.getString("app_rec", "")!!); true
+        }
+        ShortcutBindings.ShortcutAction.GO_HOME -> {
+            startActivity(
+                Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            ); true
+        }
+        ShortcutBindings.ShortcutAction.TOGGLE_KEYBOARD -> {
+            toggleSoftKeyboard(); true
+        }
+        ShortcutBindings.ShortcutAction.SOFT_REBOOT -> {
+            // Same gate as the fixed Alt+F12: the soft-reboot switch in
+            // Advanced settings must be on even for a custom binding.
+            if (sharedPreferences.getBoolean("enable_soft_reboot", false))
+                DeviceUtils.softReboot()
+            true
+        }
+        ShortcutBindings.ShortcutAction.WINDOW_PORTRAIT -> {
+            resizeFirstTask("portrait")
+        }
+        ShortcutBindings.ShortcutAction.WINDOW_MAXIMIZE ->
+            windowActionWithShift(event, "maximized")
+        ShortcutBindings.ShortcutAction.WINDOW_TILED_LEFT ->
+            windowActionWithShift(event, "tiled-left")
+        ShortcutBindings.ShortcutAction.WINDOW_TILED_RIGHT ->
+            windowActionWithShift(event, "tiled-right")
+        ShortcutBindings.ShortcutAction.WINDOW_STANDARD ->
+            windowActionWithShift(event, "standard")
+        ShortcutBindings.ShortcutAction.NEW_INSTANCE -> {
+            if (tasks.isNotEmpty())
+                launchApp(null, tasks[0].packageName, newInstance = true)
+            true
+        }
+        ShortcutBindings.ShortcutAction.SEND_DISPLAY_1 -> sendFocusedToDisplay(0)
+        ShortcutBindings.ShortcutAction.SEND_DISPLAY_2 -> sendFocusedToDisplay(1)
+        ShortcutBindings.ShortcutAction.SEND_DISPLAY_3 -> sendFocusedToDisplay(2)
+        ShortcutBindings.ShortcutAction.SEND_DISPLAY_4 -> sendFocusedToDisplay(3)
+    }
+
+    /** Resize the first running task to a fixed mode (window actions). */
+    private fun resizeFirstTask(mode: String): Boolean {
+        if (tasks.isNotEmpty()) {
+            val task = tasks[0]
+            AppUtils.resizeTask(context, mode, task.id, dockHeight, task.displayId)
+        }
+        return true
+    }
+
+    /**
+     * Window action with the fixed block's Shift variant: Shift turns the
+     * resize into a new instance launched in that mode (same behavior as
+     * Alt+arrow).
+     */
+    private fun windowActionWithShift(event: KeyEvent, mode: String): Boolean {
+        if (tasks.isNotEmpty()) {
+            val task = tasks[0]
+            if (event.isShiftPressed)
+                launchApp(mode, task.packageName, newInstance = true, rememberMode = false)
+            else
+                AppUtils.resizeTask(context, mode, task.id, dockHeight, task.displayId)
+        }
+        return true
+    }
+
+    /** Send the first running task to the display at [index] (Alt+Shift+1..4). */
+    private fun sendFocusedToDisplay(index: Int): Boolean {
+        val displays = DeviceUtils.getDisplays(this)
+        if (tasks.isNotEmpty() && displays.size > index) {
+            val task = tasks[0]
+            launchApp(null, task.packageName, displayId = displays[index].displayId)
+        }
+        return true
     }
 
     private fun toggleSoftKeyboard() {
