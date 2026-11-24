@@ -127,5 +127,16 @@
         <item>primary</item>
         <item>external</item>
     </string-array>
+    <string-array name="snap_threshold_names" translatable="false">
+        <item>16 dp</item>
+        <item>24 dp</item>
+        <item>32 dp</item>
+        <item>48 dp</item>
+    </string-array>
+    <string-array name="snap_threshold_values" translatable="false">
+        <item>16</item>
+        <item>24</item>
+        <item>32</item>
+        <item>48</item>
+    </string-array>
 </resources>
-

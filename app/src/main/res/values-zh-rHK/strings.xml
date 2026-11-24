@@ -450,4 +450,8 @@
     <string name="shortcut_action_window_standard">還原視窗大小</string>
     <string name="shortcut_action_new_instance">為焦點應用程式開新視窗</string>
     <string name="shortcut_action_send_display">傳送到螢幕 %s</string>
+    <!-- F5 snap zones -->
+    <string name="enable_snap_zones_title">視窗貼靠到螢幕邊緣</string>
+    <string name="enable_snap_zones_summary">將視窗拖到螢幕邊緣或角落附近，即可將其放置在螢幕的一半或四分之一區域。移動視窗需要 Shizuku 或 root。</string>
+    <string name="snap_zone_threshold_title">貼靠區域大小</string>
 </resources>

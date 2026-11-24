@@ -84,6 +84,20 @@
             android:defaultValue="true" />
 
         <SwitchPreferenceCompat
+            android:key="enable_snap_zones"
+            android:summary="@string/enable_snap_zones_summary"
+            android:title="@string/enable_snap_zones_title"
+            android:defaultValue="false" />
+
+        <ListPreference
+            android:defaultValue="24"
+            android:dependency="enable_snap_zones"
+            android:entries="@array/snap_threshold_names"
+            android:entryValues="@array/snap_threshold_values"
+            android:key="snap_zone_threshold"
+            android:title="@string/snap_zone_threshold_title" />
+
+        <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="enable_soft_reboot"
             android:summary="@string/enable_soft_reboot_summary"

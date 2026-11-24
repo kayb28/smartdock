@@ -449,4 +449,8 @@
     <string name="shortcut_action_window_standard">恢复窗口大小</string>
     <string name="shortcut_action_new_instance">为焦点应用新建窗口</string>
     <string name="shortcut_action_send_display">发送到屏幕 %s</string>
+    <!-- F5 snap zones -->
+    <string name="enable_snap_zones_title">窗口贴靠到屏幕边缘</string>
+    <string name="enable_snap_zones_summary">将窗口拖到屏幕边缘或角落附近，即可将其放置在屏幕的一半或四分之一区域。移动窗口需要 Shizuku 或 root。</string>
+    <string name="snap_zone_threshold_title">贴靠区域大小</string>
 </resources>

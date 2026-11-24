@@ -449,4 +449,8 @@
     <string name="shortcut_action_window_standard">Fenstergröße wiederherstellen</string>
     <string name="shortcut_action_new_instance">Neues Fenster der fokussierten App</string>
     <string name="shortcut_action_send_display">Auf Bildschirm %s senden</string>
+    <!-- F5 snap zones -->
+    <string name="enable_snap_zones_title">Fenster an Bildschirmrändern einrasten</string>
+    <string name="enable_snap_zones_summary">Fenster nahe an einen Bildschirmrand oder eine Ecke ziehen, um sie in der Hälfte oder einem Viertel des Bildschirms zu platzieren. Das Verschieben von Fenstern benötigt Shizuku oder Root.</string>
+    <string name="snap_zone_threshold_title">Größe der Einrastzone</string>
 </resources>

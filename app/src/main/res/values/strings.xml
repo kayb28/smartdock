@@ -450,4 +450,8 @@
     <string name="shortcut_action_window_standard">Restore window size</string>
     <string name="shortcut_action_new_instance">New window of the focused app</string>
     <string name="shortcut_action_send_display">Send to screen %s</string>
+    <!-- F5 snap zones -->
+    <string name="enable_snap_zones_title">Snap windows to screen edges</string>
+    <string name="enable_snap_zones_summary">Drag a window near a screen edge or corner to place it in half or a quarter of the display. Moving windows needs Shizuku or root.</string>
+    <string name="snap_zone_threshold_title">Snap zone size</string>
 </resources>

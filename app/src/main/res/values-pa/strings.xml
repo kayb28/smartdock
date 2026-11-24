@@ -450,4 +450,8 @@
     <string name="shortcut_action_window_standard">ਵਿੰਡੋ ਦਾ ਆਕਾਰ ਬਹਾਲ ਕਰੋ</string>
     <string name="shortcut_action_new_instance">ਫੋਕਸ ਐਪ ਦੀ ਨਵੀਂ ਵਿੰਡੋ</string>
     <string name="shortcut_action_send_display">ਸਕ੍ਰੀਨ %s \'ਤੇ ਭੇਜੋ</string>
+    <!-- F5 snap zones -->
+    <string name="enable_snap_zones_title">ਵਿੰਡੋਆਂ ਸਕਰੀਨ ਕਿਨਾਰਿਆਂ ਨਾਲ ਲਗਾਓ</string>
+    <string name="enable_snap_zones_summary">ਵਿੰਡੋ ਨੂੰ ਸਕਰੀਨ ਦੇ ਕਿਨਾਰੇ ਜਾਂ ਕੋਨੇ ਦੇ ਨੇੜੇ ਘਸੀਟੋ ਤਾਂ ਜੋ ਇਸਨੂੰ ਸਕਰੀਨ ਦੇ ਅੱਧ ਜਾਂ ਇੱਕ ਚੌਥਾਈ ਵਿੱਚ ਰੱਖਿਆ ਜਾ ਸਕੇ। ਵਿੰਡੋਆਂ ਹਿਲਾਉਣ ਲਈ Shizuku ਜਾਂ root ਚਾਹੀਦਾ ਹੈ।</string>
+    <string name="snap_zone_threshold_title">ਸਨੈਪ ਜ਼ੋਨ ਦਾ ਆਕਾਰ</string>
 </resources>

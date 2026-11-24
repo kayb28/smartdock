@@ -447,4 +447,8 @@
     <string name="shortcut_action_window_standard">Restaurar tamaño de ventana</string>
     <string name="shortcut_action_new_instance">Nueva ventana de la app enfocada</string>
     <string name="shortcut_action_send_display">Enviar a la pantalla %s</string>
+    <!-- F5 snap zones -->
+    <string name="enable_snap_zones_title">Acoplar ventanas a los bordes de la pantalla</string>
+    <string name="enable_snap_zones_summary">Arrastra una ventana cerca de un borde o esquina de la pantalla para colocarla en la mitad o un cuarto de la pantalla. Mover ventanas necesita Shizuku o root.</string>
+    <string name="snap_zone_threshold_title">Tamaño de la zona de anclado</string>
 </resources>

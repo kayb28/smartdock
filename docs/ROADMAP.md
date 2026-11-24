@@ -7,7 +7,7 @@ _Fuente de la verdad del listado de features y de su orden de implementación. L
 | # | Feature | Estado | Dónde vive |
 |---|---|---|---|
 | F1–F4 | Ítems tempranos del listado (la zona de estado — F1 — ya existía completa en el fork y solo se reportó; REGISTRO §octava pasada) | sin pendientes conocidos | — |
-| F5 | Zonas de anclado de ventanas (snap zones) | ⏳ **pendiente de triage** | — |
+| F5 | Zonas de anclado de ventanas (snap zones) | 🚧 **en curso** (triage = spec del handoff 2026-11-24: medio borde / cuarto esquina, umbral configurable, sin Shizuku deshabilitado con razón visible; detección de arrastre por polling de `getTaskBounds` — decisión documentada en REGISTRO) | rama `feature/snap-zones` |
 | F6 | Colocación del dock (selector de pantalla del dock) | ✅ hecha | fork.10 (`0049dd0`) |
 | F7 | Geometría de ventana por app | ✅ hecha | fork.11 (`496250f`) |
 | F8 | Editor de combinaciones de teclado | ✅ **hecha** — entra en **fork.14** | rama `feature/shortcut-editor` (`b6ff68c`+`fe649ce`+`35471b1`) |
@@ -26,7 +26,7 @@ _Fuente de la verdad del listado de features y de su orden de implementación. L
 - **F12 primero (fork.13)**: la más barata del lote — el panel de notificaciones ya existe y todo lo que falta son APIs públicas; cierra la sensación de «sistema operativo» del dock sin tocar permisos ni la capa de ventanas. Decisión del 2026-11-24 (el checkbox de confirmación del dueño, abierto desde el 23, se cierra con delegación al agente): F12 estaba terminada y F8 sin empezar — en la práctica F12 sale antes que F8 sí o sí, y el plan de releases se reajusta en consecuencia (F12 = **fork.13**, no fork.14).
 - **F11 justo después de F8**: la conmutación por atajos consume el registro de combinaciones que F8 construye, y su modelo de estado sale con tests desde el día uno.
 - **F10 al final**: la más diferencial y la de mayor plumbing (wrapper nuevo de inyección + capa de gestos); conviene construirla sobre la capa de ventanas ya consolidada y con el patrón de wrappers maduro.
-- **F5 (snap zones) pendiente de triage**: sin análisis propio todavía; se le asignará hueco cuando se trie (conviene mirar su interacción con los presets de geometría y F7 antes de programarla).
+- **F5 (snap zones)**: implementada tras F8 (sesión del 2026-11-24, rama `feature/snap-zones`) — el handoff del dueño trajo su spec, cerrando el triage pendiente. Almacenamiento: ninguno (comportamiento runtime con toggle + umbral en Advanced); la geometría de zona es modelo puro testeado (`utils/SnapZones.kt`), separada de los presets de #209 y de la geometría por app de F7 (misma disciplina de ejes distintos). Detección de arrastre: el sistema arrastra las tareas freeform por su cuenta — el dock **no puede interceptar el gesto**; el watcher sondea `getTaskBounds` (camino Shizuku existente) y lee «arrastre» = bounds cambiando, «soltar» = ~400 ms estables. Sin Shizuku: la función queda inerte y el toggle lo declara (honestidad del contrato).
 - El orden propuesto el 2026-11-23 queda **decidido** el 2026-11-24: F12 primero por estar terminada; el resto (F8 → F11 → F10) se mantiene por sus dependencias.
 
 ## Triage de los tres nuevos

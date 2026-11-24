@@ -30,6 +30,7 @@ import android.content.pm.ShortcutInfo
 import android.content.res.Configuration
 import android.graphics.PorterDuff
 import android.graphics.Rect
+import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.hardware.usb.UsbManager
 import android.media.AudioManager
@@ -41,6 +42,7 @@ import android.net.Uri
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
+import android.os.SystemClock
 import android.os.IBinder
 import android.os.Looper
 import android.os.Process
@@ -122,6 +124,7 @@ import cu.axel.smartdock.receivers.SoundEventsReceiver
 import cu.axel.smartdock.utils.AppUtils
 import cu.axel.smartdock.utils.ColorUtils
 import cu.axel.smartdock.utils.ColorUtils.getMainColors
+import cu.axel.smartdock.utils.SnapZones
 import cu.axel.smartdock.utils.CrashLog
 import cu.axel.smartdock.utils.DockServiceState
 import cu.axel.smartdock.utils.UpdateChecker
@@ -377,6 +380,10 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
                 CrashLog.log(packageName, "createViews fallback also failed", t2)
             }
         }
+
+        // F5: the drag watcher self-disables while the toggle is off and
+        // while no task exists, so it costs nothing but a pref read when idle.
+        startSnapWatcher()
 
         //Listen for launcher messages
         launcherMessageReceiver = object : BroadcastReceiver() {
@@ -1119,6 +1126,203 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
             launchApp(null, task.packageName, displayId = displays[index].displayId)
         }
         return true
+    }
+
+    // ---- F5: snap zones (drag a window near a display edge to tile it) ----
+    //
+    // The dock cannot intercept the system's own freeform drag, so the
+    // watcher polls the focused task's bounds (the privileged getTaskBounds
+    // mirror): changing bounds = a drag is happening, bounds stable for
+    // ~400 ms = the drag ended (or the user is holding the window still —
+    // snapping a held window into the shown preview is the accepted v1
+    // trade-off, documented in REGISTRO). While dragging, the pure model
+    // SnapZones classifies the window center against the display's usable
+    // area and a non-touchable preview overlay shows where the window will
+    // land; at rest with an active zone, resizeTask applies it.
+
+    private var snapPreview: View? = null
+    private var snapPreviewZone: SnapZones.SnapZone? = null
+    private var snapPreviewDisplayId = Int.MIN_VALUE
+    private var snapLastBounds: Rect? = null
+    private var snapLastMoveAt = 0L
+    private var snapDragging = false
+    private var snapAppliedAt = 0L
+
+    private fun startSnapWatcher() {
+        dockHandler.postDelayed({ snapTick() }, 300)
+    }
+
+    private fun snapTick() {
+        dockHandler.postDelayed({ snapTick() }, 200)
+        val wrapper = activityManagerWrapper
+        if (!::tasks.isInitialized || !sharedPreferences.getBoolean(
+                "enable_snap_zones", false
+            ) || wrapper == null || tasks.isEmpty()
+        ) {
+            if (snapPreview != null) hideSnapPreview()
+            snapDragging = false
+            snapLastBounds = null
+            return
+        }
+        val task = tasks[0]
+        val bounds = wrapper.getTaskBounds(task.id)
+        if (bounds == null || bounds.isEmpty) {
+            snapDragging = false
+            snapLastBounds = null
+            if (snapPreview != null) hideSnapPreview()
+            return
+        }
+        val now = SystemClock.elapsedRealtime()
+        // Our own applied snap echoes back as a bounds change; ignore that
+        // window so the watcher never re-snaps its own result.
+        if (now - snapAppliedAt < 800) {
+            snapLastBounds = Rect(bounds)
+            return
+        }
+        if (snapLastBounds == null || bounds != snapLastBounds) {
+            snapLastBounds = Rect(bounds)
+            snapLastMoveAt = now
+            snapDragging = true
+        }
+        if (!snapDragging) return
+        if (now - snapLastMoveAt > 400) {
+            // Bounds stable: the drag ended. An active zone applies now.
+            snapDragging = false
+            val zone = snapPreviewZone
+            hideSnapPreview()
+            if (zone != null) applySnap(task, zone)
+        } else {
+            updateSnapPreview(task, bounds)
+        }
+    }
+
+    /**
+     * Usable area of a display for tiling: below the status bar, above the
+     * dock (the same computation the preset geometry uses), as absolute
+     * coordinates ready for resizeTask. Null when the display list is not
+     * ready (boot race, vanished display) — the caller just skips a tick.
+     */
+    private fun snapUsableArea(displayId: Int): Rect? {
+        val displayBounds = DeviceUtils.getDisplayBounds(this, displayId)
+        if (displayBounds.isEmpty) return null
+        val statusBar = DeviceUtils.getStatusBarHeight(this)
+        val navHeight = DeviceUtils.getNavBarHeight(this)
+        val usableHeight = if (DeviceUtils.shouldApplyNavbarFix())
+            displayBounds.height() - max(dockHeight, navHeight) - statusBar
+        else displayBounds.height() - dockHeight - statusBar
+        return Rect(
+            displayBounds.left, displayBounds.top + statusBar,
+            displayBounds.left + displayBounds.width(),
+            displayBounds.top + statusBar + usableHeight
+        )
+    }
+
+    private fun updateSnapPreview(task: AppTask, bounds: Rect) {
+        val displayId = AppUtils.resolveDisplayId(this, task.displayId)
+        val usable = snapUsableArea(displayId)
+        if (usable == null) {
+            if (snapPreview != null) hideSnapPreview()
+            return
+        }
+        val threshold = Utils.dpToPx(
+            this,
+            sharedPreferences.getString("snap_zone_threshold", "24")!!.toIntOrNull() ?: 24
+        )
+        val zone = SnapZones.zoneFor(
+            usable.width(), usable.height(),
+            bounds.centerX() - usable.left, bounds.centerY() - usable.top,
+            threshold
+        )
+        snapPreviewZone = zone
+        if (zone == null) {
+            if (snapPreview != null) hideSnapPreview()
+            return
+        }
+        // The preview can only be drawn where the dock draws overlays: the
+        // default display or its configured secondary. On any other display
+        // the resize still applies — the preview is the only part skipped.
+        if (displayId != Display.DEFAULT_DISPLAY &&
+            displayId != DeviceUtils.getSecondaryDisplay(this)?.displayId
+        ) {
+            if (snapPreview != null) hideSnapPreview()
+            return
+        }
+        val target = SnapZones.boundsFor(
+            zone, usable.left, usable.top, usable.width(), usable.height()
+        )
+        showSnapPreview(
+            displayId, Rect(target.left, target.top, target.right, target.bottom)
+        )
+    }
+
+    /**
+     * Apply the shown zone to the dragged task: percent-of-usable-area
+     * bounds through the same Shizuku resize path as the window presets. A
+     * failed resize is logged, never fatal; a successful one is muted for
+     * 800 ms so the echo of our own resize is not read as a new drag.
+     */
+    private fun applySnap(task: AppTask, zone: SnapZones.SnapZone) {
+        val displayId = AppUtils.resolveDisplayId(this, task.displayId)
+        val usable = snapUsableArea(displayId) ?: return
+        val snapRect = SnapZones.boundsFor(
+            zone, usable.left, usable.top, usable.width(), usable.height()
+        )
+        try {
+            activityManagerWrapper?.resizeTask(
+                task.id, Rect(snapRect.left, snapRect.top, snapRect.right, snapRect.bottom)
+            )
+            snapAppliedAt = SystemClock.elapsedRealtime()
+        } catch (e: Exception) {
+            Log.e(packageName, "applySnap failed: $e")
+        }
+    }
+
+    /**
+     * Non-touchable, non-focusable overlay frame on the task's display
+     * (window-context routing, fork.9 precedent). The frame is updated in
+     * place as the zone changes and removed on drag end / idle.
+     */
+    private fun showSnapPreview(displayId: Int, rect: Rect) {
+        if (snapPreview != null && snapPreviewDisplayId != displayId) hideSnapPreview()
+        snapPreviewDisplayId = displayId
+        val params = WindowManager.LayoutParams().apply {
+            type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            format = PixelFormat.TRANSLUCENT
+            flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+            gravity = Gravity.TOP or Gravity.START
+            width = rect.width()
+            height = rect.height()
+            x = rect.left
+            y = rect.top
+        }
+        val existing = snapPreview
+        if (existing == null) {
+            val preview = View(this)
+            val background = AppCompatResources
+                .getDrawable(this, R.drawable.round_rect)?.mutate()
+            val colors = getMainColors(sharedPreferences, this)
+            background?.setColorFilter(colors[0], PorterDuff.Mode.SRC_ATOP)
+            background?.alpha = 90
+            preview.background = background
+            windowManager.addView(preview, params)
+            snapPreview = preview
+        } else {
+            windowManager.updateViewLayout(existing, params)
+        }
+    }
+
+    private fun hideSnapPreview() {
+        snapPreview?.let {
+            try {
+                windowManager.removeView(it)
+            } catch (_: Exception) {
+            }
+        }
+        snapPreview = null
+        snapPreviewZone = null
+        snapPreviewDisplayId = Int.MIN_VALUE
     }
 
     private fun toggleSoftKeyboard() {
@@ -2965,6 +3169,7 @@ class DockService : AccessibilityService(), OnSharedPreferenceChangeListener, On
         if (::displayListener.isInitialized && ::displayManager.isInitialized)
             displayManager.unregisterDisplayListener(displayListener)
         connectivityManager.unregisterNetworkCallback(wifiNetworkCallback)
+        hideSnapPreview()
         removeAllViews()
         unbindService(notificationServiceConnection)
         super.onDestroy()

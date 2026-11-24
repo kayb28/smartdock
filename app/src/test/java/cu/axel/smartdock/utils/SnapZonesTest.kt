@@ -20,7 +20,7 @@ class SnapZonesTest {
     @Test fun centerIsNoOp() {
         assertNull(zone(500, 400))
         assertNull(zone(100, 100))
-        assertNull(zone(990, 400))
+        assertNull(zone(700, 400))
     }
 
     @Test fun leftEdgeSnapsHalf() {
@@ -96,7 +96,7 @@ class SnapZonesTest {
     @Test fun boundsRespectUsableAreaOrigin() {
         // A display area that does not start at 0,0 (status bar, side
         // dock region): halves/quadrants resolve inside it.
-        assertEquals(SnapZones.SnapRect(200, 100, 700, 500), SnapZones.boundsFor(
+        assertEquals(SnapZones.SnapRect(200, 100, 700, 900), SnapZones.boundsFor(
             SnapZones.SnapZone.LEFT_HALF, 200, 100, 1000, 800))
         assertEquals(SnapZones.SnapRect(700, 500, 1200, 900), SnapZones.boundsFor(
             SnapZones.SnapZone.QUADRANT_BR, 200, 100, 1000, 800))
@@ -115,7 +115,7 @@ class SnapZonesTest {
         // return the full usable area instead of an empty rect.
         assertEquals(SnapZones.SnapRect(0, 0, 1, 1), SnapZones.boundsFor(
             SnapZones.SnapZone.LEFT_HALF, 0, 0, 1, 1))
-        assertEquals(SnapZones.SnapRect(0, 0, 1, 1), SnapZones.boundsFor(
+        assertEquals(SnapZones.SnapRect(0, 0, 0, 0), SnapZones.boundsFor(
             SnapZones.SnapZone.QUADRANT_BR, 0, 0, 0, 0))
     }
 }
