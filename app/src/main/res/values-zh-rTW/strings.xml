@@ -418,4 +418,35 @@
     <string name="notification_send">傳送</string>
     <string name="notification_action_failed">無法執行該動作</string>
     <string name="notification_reply_empty">傳送前請先輸入內容</string>
+    <!-- F8 shortcut editor -->
+    <string name="shortcut_editor_title">自訂鍵盤快速鍵</string>
+    <string name="shortcut_editor_summary">指定觸發每個 Dock 動作的按鍵組合。自訂組合與預設組合並存；Ctrl+Alt 保留給 AltGr 使用。</string>
+    <string name="shortcut_editor_capture_hint">按下新的按鍵組合</string>
+    <string name="shortcut_editor_current">目前：%s</string>
+    <string name="shortcut_editor_conflict">此組合已被 %s 使用</string>
+    <string name="shortcut_editor_altgr_reserved">Ctrl+Alt 組合保留給 AltGr，以便繼續輸入 @ 等字元</string>
+    <string name="shortcut_editor_needs_modifier">組合必須包含 Ctrl、Alt 或 Meta</string>
+    <string name="shortcut_editor_reset">還原預設組合</string>
+    <string name="shortcut_editor_reset_confirm">要還原每個動作的預設組合嗎？</string>
+    <string name="shortcut_editor_saved">組合已儲存</string>
+    <string name="shortcut_editor_reset_done">已還原預設組合</string>
+    <string name="shortcut_action_lock_desktop">鎖定桌面</string>
+    <string name="shortcut_action_open_settings">開啟系統設定</string>
+    <string name="shortcut_action_open_terminal">開啟終端機</string>
+    <string name="shortcut_action_expand_notifications">展開快速設定</string>
+    <string name="shortcut_action_toggle_pin">釘選或取消釘選 Dock</string>
+    <string name="shortcut_action_open_music">開啟音樂播放器</string>
+    <string name="shortcut_action_open_browser">開啟瀏覽器</string>
+    <string name="shortcut_action_open_assist">開啟助理</string>
+    <string name="shortcut_action_open_rec">開啟螢幕錄製器</string>
+    <string name="shortcut_action_go_home">返回主畫面</string>
+    <string name="shortcut_action_toggle_keyboard">切換螢幕鍵盤</string>
+    <string name="shortcut_action_soft_reboot">軟重新啟動</string>
+    <string name="shortcut_action_window_portrait">直向視窗</string>
+    <string name="shortcut_action_window_maximize">最大化視窗</string>
+    <string name="shortcut_action_window_tiled_left">視窗靠左並排</string>
+    <string name="shortcut_action_window_tiled_right">視窗靠右並排</string>
+    <string name="shortcut_action_window_standard">還原視窗大小</string>
+    <string name="shortcut_action_new_instance">為焦點應用程式開新視窗</string>
+    <string name="shortcut_action_send_display">傳送到螢幕 %s</string>
 </resources>

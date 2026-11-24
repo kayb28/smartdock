@@ -418,4 +418,35 @@
     <string name="notification_send">发送</string>
     <string name="notification_action_failed">无法执行该操作</string>
     <string name="notification_reply_empty">发送前请先输入内容</string>
+    <!-- F8 shortcut editor -->
+    <string name="shortcut_editor_title">自定义键盘快捷键</string>
+    <string name="shortcut_editor_summary">为每个 Dock 操作指定触发用的按键组合。自定义组合与默认组合并存；Ctrl+Alt 保留给 AltGr 使用。</string>
+    <string name="shortcut_editor_capture_hint">按下新的按键组合</string>
+    <string name="shortcut_editor_current">当前：%s</string>
+    <string name="shortcut_editor_conflict">该组合已被 %s 使用</string>
+    <string name="shortcut_editor_altgr_reserved">Ctrl+Alt 组合为 AltGr 保留，以便继续输入 @ 等字符</string>
+    <string name="shortcut_editor_needs_modifier">组合必须包含 Ctrl、Alt 或 Meta</string>
+    <string name="shortcut_editor_reset">恢复默认组合</string>
+    <string name="shortcut_editor_reset_confirm">恢复每个操作的默认组合？</string>
+    <string name="shortcut_editor_saved">组合已保存</string>
+    <string name="shortcut_editor_reset_done">已恢复默认组合</string>
+    <string name="shortcut_action_lock_desktop">锁定桌面</string>
+    <string name="shortcut_action_open_settings">打开系统设置</string>
+    <string name="shortcut_action_open_terminal">打开终端</string>
+    <string name="shortcut_action_expand_notifications">展开快速设置</string>
+    <string name="shortcut_action_toggle_pin">固定或取消固定 Dock</string>
+    <string name="shortcut_action_open_music">打开音乐播放器</string>
+    <string name="shortcut_action_open_browser">打开浏览器</string>
+    <string name="shortcut_action_open_assist">打开助手</string>
+    <string name="shortcut_action_open_rec">打开屏幕录制器</string>
+    <string name="shortcut_action_go_home">回到主屏幕</string>
+    <string name="shortcut_action_toggle_keyboard">切换屏幕键盘</string>
+    <string name="shortcut_action_soft_reboot">软重启</string>
+    <string name="shortcut_action_window_portrait">竖屏窗口</string>
+    <string name="shortcut_action_window_maximize">最大化窗口</string>
+    <string name="shortcut_action_window_tiled_left">窗口靠左平铺</string>
+    <string name="shortcut_action_window_tiled_right">窗口靠右平铺</string>
+    <string name="shortcut_action_window_standard">恢复窗口大小</string>
+    <string name="shortcut_action_new_instance">为焦点应用新建窗口</string>
+    <string name="shortcut_action_send_display">发送到屏幕 %s</string>
 </resources>

@@ -419,4 +419,35 @@
     <string name="notification_send">Send</string>
     <string name="notification_action_failed">Could not run the action</string>
     <string name="notification_reply_empty">Type something before sending</string>
+    <!-- F8 shortcut editor -->
+    <string name="shortcut_editor_title">Custom keyboard shortcuts</string>
+    <string name="shortcut_editor_summary">Record which key combination triggers each dock action. Custom combinations work next to the defaults; Ctrl+Alt stays reserved for AltGr.</string>
+    <string name="shortcut_editor_capture_hint">Press the new key combination</string>
+    <string name="shortcut_editor_current">Current: %s</string>
+    <string name="shortcut_editor_conflict">This combination is already used by %s</string>
+    <string name="shortcut_editor_altgr_reserved">Ctrl+Alt combinations are reserved so AltGr keeps typing characters like @</string>
+    <string name="shortcut_editor_needs_modifier">The combination must include Ctrl, Alt or Meta</string>
+    <string name="shortcut_editor_reset">Restore default combinations</string>
+    <string name="shortcut_editor_reset_confirm">Restore the default combination of every action?</string>
+    <string name="shortcut_editor_saved">Combination saved</string>
+    <string name="shortcut_editor_reset_done">Default combinations restored</string>
+    <string name="shortcut_action_lock_desktop">Lock the desktop</string>
+    <string name="shortcut_action_open_settings">Open system settings</string>
+    <string name="shortcut_action_open_terminal">Open terminal</string>
+    <string name="shortcut_action_expand_notifications">Expand quick settings</string>
+    <string name="shortcut_action_toggle_pin">Pin or unpin the dock</string>
+    <string name="shortcut_action_open_music">Open the music player</string>
+    <string name="shortcut_action_open_browser">Open the browser</string>
+    <string name="shortcut_action_open_assist">Open the assistant</string>
+    <string name="shortcut_action_open_rec">Open the screen recorder</string>
+    <string name="shortcut_action_go_home">Go home</string>
+    <string name="shortcut_action_toggle_keyboard">Toggle the on-screen keyboard</string>
+    <string name="shortcut_action_soft_reboot">Soft reboot</string>
+    <string name="shortcut_action_window_portrait">Portrait window</string>
+    <string name="shortcut_action_window_maximize">Maximize window</string>
+    <string name="shortcut_action_window_tiled_left">Tile window left</string>
+    <string name="shortcut_action_window_tiled_right">Tile window right</string>
+    <string name="shortcut_action_window_standard">Restore window size</string>
+    <string name="shortcut_action_new_instance">New window of the focused app</string>
+    <string name="shortcut_action_send_display">Send to screen %s</string>
 </resources>

@@ -416,4 +416,35 @@
     <string name="notification_send">Enviar</string>
     <string name="notification_action_failed">No se pudo ejecutar la acción</string>
     <string name="notification_reply_empty">Escribe algo antes de enviar</string>
+    <!-- F8 shortcut editor -->
+    <string name="shortcut_editor_title">Atajos de teclado personalizados</string>
+    <string name="shortcut_editor_summary">Elige qué combinación dispara cada acción del dock. Las personalizadas conviven con las predeterminadas; Ctrl+Alt queda reservado para AltGr.</string>
+    <string name="shortcut_editor_capture_hint">Pulsa la nueva combinación de teclas</string>
+    <string name="shortcut_editor_current">Actual: %s</string>
+    <string name="shortcut_editor_conflict">Esta combinación ya la usa %s</string>
+    <string name="shortcut_editor_altgr_reserved">Las combinaciones Ctrl+Alt quedan reservadas para que AltGr siga escribiendo caracteres como @</string>
+    <string name="shortcut_editor_needs_modifier">La combinación debe incluir Ctrl, Alt o Meta</string>
+    <string name="shortcut_editor_reset">Restaurar combinaciones predeterminadas</string>
+    <string name="shortcut_editor_reset_confirm">¿Restaurar la combinación predeterminada de cada acción?</string>
+    <string name="shortcut_editor_saved">Combinación guardada</string>
+    <string name="shortcut_editor_reset_done">Combinaciones predeterminadas restauradas</string>
+    <string name="shortcut_action_lock_desktop">Bloquear el escritorio</string>
+    <string name="shortcut_action_open_settings">Abrir ajustes del sistema</string>
+    <string name="shortcut_action_open_terminal">Abrir terminal</string>
+    <string name="shortcut_action_expand_notifications">Abrir ajustes rápidos</string>
+    <string name="shortcut_action_toggle_pin">Fijar o soltar el dock</string>
+    <string name="shortcut_action_open_music">Abrir el reproductor de música</string>
+    <string name="shortcut_action_open_browser">Abrir el navegador</string>
+    <string name="shortcut_action_open_assist">Abrir el asistente</string>
+    <string name="shortcut_action_open_rec">Abrir la grabadora de pantalla</string>
+    <string name="shortcut_action_go_home">Ir al inicio</string>
+    <string name="shortcut_action_toggle_keyboard">Alternar el teclado en pantalla</string>
+    <string name="shortcut_action_soft_reboot">Reinicio suave</string>
+    <string name="shortcut_action_window_portrait">Ventana vertical</string>
+    <string name="shortcut_action_window_maximize">Maximizar ventana</string>
+    <string name="shortcut_action_window_tiled_left">Acoplar ventana a la izquierda</string>
+    <string name="shortcut_action_window_tiled_right">Acoplar ventana a la derecha</string>
+    <string name="shortcut_action_window_standard">Restaurar tamaño de ventana</string>
+    <string name="shortcut_action_new_instance">Nueva ventana de la app enfocada</string>
+    <string name="shortcut_action_send_display">Enviar a la pantalla %s</string>
 </resources>

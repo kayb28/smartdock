@@ -1,5 +1,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
+        android:title="@string/shortcut_editor_title">
+        <Preference
+            android:key="shortcut_editor"
+            android:summary="@string/shortcut_editor_summary"
+            android:title="@string/shortcut_editor_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="@string/general">
         <SwitchPreferenceCompat
             android:key="enable_open_menu"

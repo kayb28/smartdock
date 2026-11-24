@@ -419,4 +419,35 @@
     <string name="notification_send">ਭੇਜੋ</string>
     <string name="notification_action_failed">ਕਾਰਵਾਈ ਨਹੀਂ ਚੱਲ ਸਕੀ</string>
     <string name="notification_reply_empty">ਭੇਜਣ ਤੋਂ ਪਹਿਲਾਂ ਕੁਝ ਲਿਖੋ</string>
+    <!-- F8 shortcut editor -->
+    <string name="shortcut_editor_title">ਕਸਟਮ ਕੀਬੋਰਡ ਸ਼ਾਰਟਕੱਟ</string>
+    <string name="shortcut_editor_summary">ਚੁਣੋ ਕਿ ਡੌਕ ਦੀ ਹਰ ਕਾਰਵਾਈ ਕਿਹੜੀ ਕੀਬੋਰਡ ਕੰਬੀਨੇਸ਼ਨ ਨਾਲ ਚੱਲੇ। ਕਸਟਮ ਕੰਬੀਨੇਸ਼ਨ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਦੇ ਨਾਲ-ਨਾਲ ਕੰਮ ਕਰਦੇ ਹਨ; Ctrl+Alt AltGr ਲਈ ਰਾਖਵਾਂ ਹੈ।</string>
+    <string name="shortcut_editor_capture_hint">ਨਵੀਂ ਕੀਬੋਰਡ ਕੰਬੀਨੇਸ਼ਨ ਦਬਾਓ</string>
+    <string name="shortcut_editor_current">ਮੌਜੂਦਾ: %s</string>
+    <string name="shortcut_editor_conflict">ਇਹ ਕੰਬੀਨੇਸ਼ਨ ਪਹਿਲਾਂ ਹੀ %s ਵਰਤਦਾ ਹੈ</string>
+    <string name="shortcut_editor_altgr_reserved">Ctrl+Alt ਕੰਬੀਨੇਸ਼ਨ ਰਾਖਵੇਂ ਹਨ ਤਾਂ ਜੋ AltGr @ ਵਰਗੇ ਅੱਖਰ ਲਿਖਦਾ ਰਹੇ</string>
+    <string name="shortcut_editor_needs_modifier">ਕੰਬੀਨੇਸ਼ਨ ਵਿੱਚ Ctrl, Alt ਜਾਂ Meta ਸ਼ਾਮਲ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ</string>
+    <string name="shortcut_editor_reset">ਪੂਰਵ-ਨਿਰਧਾਰਤ ਕੰਬੀਨੇਸ਼ਨ ਬਹਾਲ ਕਰੋ</string>
+    <string name="shortcut_editor_reset_confirm">ਹਰ ਕਾਰਵਾਈ ਦਾ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਕੰਬੀਨੇਸ਼ਨ ਬਹਾਲ ਕਰਨਾ ਹੈ?</string>
+    <string name="shortcut_editor_saved">ਕੰਬੀਨੇਸ਼ਨ ਸੰਭਾਲਿਆ ਗਿਆ</string>
+    <string name="shortcut_editor_reset_done">ਪੂਰਵ-ਨਿਰਧਾਰਤ ਕੰਬੀਨੇਸ਼ਨ ਬਹਾਲ ਹੋ ਗਏ</string>
+    <string name="shortcut_action_lock_desktop">ਡੈਸਕਟਾਪ ਲਾਕ ਕਰੋ</string>
+    <string name="shortcut_action_open_settings">ਸਿਸਟਮ ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ</string>
+    <string name="shortcut_action_open_terminal">ਟਰਮੀਨਲ ਖੋਲ੍ਹੋ</string>
+    <string name="shortcut_action_expand_notifications">ਕੁਇੱਕ ਸੈਟਿੰਗਾਂ ਖੋਲ੍ਹੋ</string>
+    <string name="shortcut_action_toggle_pin">ਡੌਕ ਪਿੰਨ ਜਾਂ ਅਨਪਿੰਨ ਕਰੋ</string>
+    <string name="shortcut_action_open_music">ਸੰਗੀਤ ਪਲੇਅਰ ਖੋਲ੍ਹੋ</string>
+    <string name="shortcut_action_open_browser">ਬਰਾਊਜ਼ਰ ਖੋਲ੍ਹੋ</string>
+    <string name="shortcut_action_open_assist">ਸਹਾਇਕ ਖੋਲ੍ਹੋ</string>
+    <string name="shortcut_action_open_rec">ਸਕ੍ਰੀਨ ਰਿਕਾਰਡਰ ਖੋਲ੍ਹੋ</string>
+    <string name="shortcut_action_go_home">ਹੋਮ \'ਤੇ ਜਾਓ</string>
+    <string name="shortcut_action_toggle_keyboard">ਆਨ-ਸਕ੍ਰੀਨ ਕੀਬੋਰਡ ਟੌਗਲ ਕਰੋ</string>
+    <string name="shortcut_action_soft_reboot">ਸਾਫਟ ਰੀਬੂਟ</string>
+    <string name="shortcut_action_window_portrait">ਪੋਰਟਰੇਟ ਵਿੰਡੋ</string>
+    <string name="shortcut_action_window_maximize">ਵਿੰਡੋ ਵੱਧ ਤੋਂ ਵੱਧ ਕਰੋ</string>
+    <string name="shortcut_action_window_tiled_left">ਵਿੰਡੋ ਖੱਬੇ ਪਾਸੇ ਲਗਾਓ</string>
+    <string name="shortcut_action_window_tiled_right">ਵਿੰਡੋ ਸੱਜੇ ਪਾਸੇ ਲਗਾਓ</string>
+    <string name="shortcut_action_window_standard">ਵਿੰਡੋ ਦਾ ਆਕਾਰ ਬਹਾਲ ਕਰੋ</string>
+    <string name="shortcut_action_new_instance">ਫੋਕਸ ਐਪ ਦੀ ਨਵੀਂ ਵਿੰਡੋ</string>
+    <string name="shortcut_action_send_display">ਸਕ੍ਰੀਨ %s \'ਤੇ ਭੇਜੋ</string>
 </resources>

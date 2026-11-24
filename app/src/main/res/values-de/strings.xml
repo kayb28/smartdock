@@ -418,4 +418,35 @@
     <string name="notification_send">Senden</string>
     <string name="notification_action_failed">Aktion konnte nicht ausgeführt werden</string>
     <string name="notification_reply_empty">Gib etwas ein, bevor du sendest</string>
+    <!-- F8 shortcut editor -->
+    <string name="shortcut_editor_title">Eigene Tastenkombinationen</string>
+    <string name="shortcut_editor_summary">Festlegen, welche Tastenkombination jede Dock-Aktion auslöst. Eigene Kombinationen gelten zusätzlich zu den Standardkombinationen; Strg+Alt bleibt für AltGr reserviert.</string>
+    <string name="shortcut_editor_capture_hint">Neue Tastenkombination drücken</string>
+    <string name="shortcut_editor_current">Aktuell: %s</string>
+    <string name="shortcut_editor_conflict">Diese Kombination wird bereits von %s verwendet</string>
+    <string name="shortcut_editor_altgr_reserved">Strg+Alt-Kombinationen sind reserviert, damit AltGr Zeichen wie @ tippen kann</string>
+    <string name="shortcut_editor_needs_modifier">Die Kombination muss Strg, Alt oder Meta enthalten</string>
+    <string name="shortcut_editor_reset">Standardkombinationen wiederherstellen</string>
+    <string name="shortcut_editor_reset_confirm">Die Standardkombination jeder Aktion wiederherstellen?</string>
+    <string name="shortcut_editor_saved">Kombination gespeichert</string>
+    <string name="shortcut_editor_reset_done">Standardkombinationen wiederhergestellt</string>
+    <string name="shortcut_action_lock_desktop">Desktop sperren</string>
+    <string name="shortcut_action_open_settings">Systemeinstellungen öffnen</string>
+    <string name="shortcut_action_open_terminal">Terminal öffnen</string>
+    <string name="shortcut_action_expand_notifications">Schnelleinstellungen aufklappen</string>
+    <string name="shortcut_action_toggle_pin">Dock anheften oder lösen</string>
+    <string name="shortcut_action_open_music">Musikplayer öffnen</string>
+    <string name="shortcut_action_open_browser">Browser öffnen</string>
+    <string name="shortcut_action_open_assist">Assistent öffnen</string>
+    <string name="shortcut_action_open_rec">Bildschirmrekorder öffnen</string>
+    <string name="shortcut_action_go_home">Zum Startbildschirm</string>
+    <string name="shortcut_action_toggle_keyboard">Bildschirmtastatur ein-/ausschalten</string>
+    <string name="shortcut_action_soft_reboot">Soft-Neustart</string>
+    <string name="shortcut_action_window_portrait">Fenster im Hochformat</string>
+    <string name="shortcut_action_window_maximize">Fenster maximieren</string>
+    <string name="shortcut_action_window_tiled_left">Fenster links andocken</string>
+    <string name="shortcut_action_window_tiled_right">Fenster rechts andocken</string>
+    <string name="shortcut_action_window_standard">Fenstergröße wiederherstellen</string>
+    <string name="shortcut_action_new_instance">Neues Fenster der fokussierten App</string>
+    <string name="shortcut_action_send_display">Auf Bildschirm %s senden</string>
 </resources>
