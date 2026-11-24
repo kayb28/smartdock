@@ -7,7 +7,7 @@ _Fuente de la verdad del listado de features y de su orden de implementación. L
 | # | Feature | Estado | Dónde vive |
 |---|---|---|---|
 | F1–F4 | Ítems tempranos del listado (la zona de estado — F1 — ya existía completa en el fork y solo se reportó; REGISTRO §octava pasada) | sin pendientes conocidos | — |
-| F5 | Zonas de anclado de ventanas (snap zones) | 🚧 **en curso** (triage = spec del handoff 2026-11-24: medio borde / cuarto esquina, umbral configurable, sin Shizuku deshabilitado con razón visible; detección de arrastre por polling de `getTaskBounds` — decisión documentada en REGISTRO) | rama `feature/snap-zones` |
+| F5 | Zonas de anclado de ventanas (snap zones) | ✅ **hecha** — entra en **fork.14** | rama `feature/snap-zones` (`00554b5`+`26191c5`) |
 | F6 | Colocación del dock (selector de pantalla del dock) | ✅ hecha | fork.10 (`0049dd0`) |
 | F7 | Geometría de ventana por app | ✅ hecha | fork.11 (`496250f`) |
 | F8 | Editor de combinaciones de teclado | ✅ **hecha** — entra en **fork.14** | rama `feature/shortcut-editor` (`b6ff68c`+`fe649ce`+`35471b1`) |

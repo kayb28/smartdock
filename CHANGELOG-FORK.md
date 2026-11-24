@@ -3,6 +3,10 @@
 _Changelog formal de las releases del fork de Smart Dock. Formato Keep a Changelog, en español._
 _Upstream mantiene su propio changelog en `fastlane/metadata/android/en-US/changelogs/`; aquí solo el fork._
 
+### Añadido
+
+- **Zonas de anclado (snap zones)** (F5, rama `feature/snap-zones`): arrastrar una ventana freeform cerca de un borde de la pantalla la encaja en la mitad correspondiente; cerca de una esquina, en un cuarto. Como las ventanas del dock son tareas freeform del sistema, el dock no puede interceptar el gesto: un watcher sondea los bounds de la tarea enfocada (`getTaskBounds` vía Shizuku, el mismo camino del resize) — bounds cambiando = arrastre, ~400 ms estables = soltar — y mientras arrastra un overlay no-táctil en el display de la tarea muestra la zona destino; al soltar, `resizeTask` aplica los bounds porcentuales del área usable (bajo la status bar, sobre el dock — la misma área que la geometría de presets), con la guardia anti-ventana-de-tamaño-cero de siempre. Toggle «Snap windows to screen edges» (default off) + tamaño de la zona (16/24/32/48 dp) en Ajustes → Avanzado; sin Shizuku la función queda inerte y el toggle lo declara. Compromiso honesto v1: una pausa larga mid-drag dispara el snap con la ventana aún en la mano (cae donde el preview ya mostraba). Geometría de zonas como modelo puro `SnapZones` con 13 tests JVM.
+
 ## [v1.15.9-fork.13] — 2026-11-24
 
 Publicada como GitHub Release (APK `SmartDock-fork-debug.apk`, el nombre real del asset en todas las releases del fork; el tag lo identifica el build vía `fork_release_tag` en Settings → About). Base: `v1.15.8-fork.12` + 1 commit de feature plegado (rama `feature/notification-actions`, `45b0148`, fast-forward) + documentación de las sesiones 18–20. versionCode 1159. El updater compara el tag del build contra `releases/latest` de GitHub (`UpdateCheckerTest.ownReleaseIsNotNewerThanItself` sigue garantizando el auto-reconocimiento «up to date»).

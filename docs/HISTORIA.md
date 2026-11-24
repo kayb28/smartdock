@@ -47,6 +47,8 @@ El fork (kayb28) nació de usarlo sobre un monitor USB-C: el soporte de display 
 
 21. **El editor de atajos de teclado (sesión 22, F8, fork.14 en pausa de corte)**: el bloque fijo de Alt+X de DockService se vuelve user-configurable — modelo puro `ShortcutBindings` con tests JVM desde el commit uno (JSON propio, no org.json, para poder testear el round-trip en JVM), diálogo de captura que reutiliza el mecanismo AltGr (#167) sin duplicar la máquina de Meta (#267), y dispatch «bindings primero, defaults como fallback» con el bloque fijo intacto. Reglas duras: Ctrl+Alt rechazado al guardar (lo que entrega AltGr no puede ser un binding muerto), Ctrl/Alt/Meta obligatorios, conflictos con nombre, gates `enable_*` vigentes incluso rebindeando. Primer build local completo del sandbox (JDK 17 en espacio de usuario + espejo Aliyun ante los 429 de mavenCentral) — lección 8 cumplida con puerta doble: hook + CI verde.
 
+22. **Las zonas de anclado (sesión 23, F5)**: arrastrar una ventana cerca de un borde o esquina la encaja en media o cuarta parte del display — sin interceptar el gesto (imposible sobre tareas freeform del sistema): un watcher sondea `getTaskBounds` vía Shizuku y lee arrastre/soltar de la estabilidad de los bounds; el modelo puro `SnapZones` clasifica el centro de la ventana y resuelve bounds porcentuales con la guardia de tamaño cero; overlay preview no-táctil enrutado al display de la tarea. Toggle + umbral en Advanced (default off), sin Shizuku inerte y declarado. Segunda feature del lote nuevo en main el mismo día que F8.
+
 ## Mapa de documentos
 
 | Documento | Qué contiene | Cuándo leerlo |

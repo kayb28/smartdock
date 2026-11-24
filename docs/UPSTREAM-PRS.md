@@ -104,6 +104,12 @@ Los commits de la séptima sesión refinen los fixes de #263, #268 y #253 con ca
 - Superficie: nuevo `utils/ShortcutBindings.kt` (modelo puro, JSON propio — no org.json — con degradación) + nuevos `dialogs/ShortcutCaptureDialog.kt` y `dialogs/ShortcutEditorDialog.kt` + `KeyboardPreferences` + `preferences_keyboard.xml` + `DockService.onKeyEvent` (inserta el dispatch antes del bloque fijo + 4 helpers privados) + **31 cadenas nuevas** en `values/strings.xml` y 6 locales.
 - Cherry-pick: **adapta** (cadenas nuevas a los locales de upstream; el bloque Alt fijo de upstream `onKeyEvent` puede diferir — el dispatch es aditivo y debería aplicar, pero conviene re-crear sobre la punta de upstream). Sin privilegios, sin permisos nuevos: APIs públicas (KeyEvent, SharedPreferences). Reutiliza el mecanismo AltGr de #167 y la máquina de Meta de #267 — enviar después de esos fixes o como un solo paquete de teclado.
 
+
+### F5 — zonas de anclado (snap zones; sin issue upstream; feature)
+- Commits: `00554b5` (modelo puro `SnapZones` + 13 tests JVM) + `26191c5` (watcher de `getTaskBounds` + preview overlay + `resizeTask` + ajustes + 3 cadenas × 6 locales). Rama `feature/snap-zones` (2026-11-24).
+- Superficie: nuevo `utils/SnapZones.kt` (android-free) + `DockService` (watcher, preview, applySnap — bloque propio, no toca código existente salvo el arranque en `onServiceConnected` y `hideSnapPreview()` en `onDestroy`) + `preferences_advanced.xml` + arrays + **3 cadenas nuevas** × locales.
+- Cherry-pick: **adapta** (cadenas a locales de upstream; re-crear sobre la punta). Depende del wrapper Shizuku `getTaskBounds`/`resizeTask` — mismo carril de discusión que F7 (feature dependiente de privilegios). El mecanismo de detección (polling de bounds, snap al estabilizar ~400 ms) es una decisión de diseño del fork: documentarla en la descripción del PR.
+
 ## Orden de envío propuesto
 
 Los fixes puros de causa raíz primero (rápidos de revisar y de alto valor para usuarios de upstream), los multi-concern que requieren split después, las features al final, y el endurecimiento de wrappers el último por su superficie de política. **Los refinamientos de sesión 7 van antes que sus originales de sesión 5** (son más directos); el commit plegado de display secundario va con los fixes puros.
@@ -122,7 +128,8 @@ Los fixes puros de causa raíz primero (rápidos de revisar y de alto valor para
 12. **#209 presets de ventana** — `0be6597` (plegado de `e3a12bc`+`968b4e4`; adapta, cadenas). Feature pura que cierra un issue abierto: **candidato estrella**; discutir con upstream antes de abrir el PR (es la primera feature del paquete, no un fix).
 13. **F12 acciones de notificación** — `45b0148` (plegado de la serie F12; adapta, cadenas). Sin issue asignado; APIs públicas, alta valía upstream (ROADMAP F12) — discutir con upstream junto a #209.
 14. **F8 editor de atajos** — `b6ff68c`+`fe649ce`+`35471b1` (adapta, cadenas; feature — discutir con upstream, mismo carril que #209/F12; depende conceptualmente de #167/#267 estar enviados).
-15. **Wrappers** (sin issue) — `f2f4727`, dependencia nueva + unseal global; **último**, tras discutir la política con upstream.
+15. **F5 snap zones** — `00554b5`+`26191c5` (adapta, cadenas; feature con dependencia Shizuku — carril F7/F8, discusión previa).
+16. **Wrappers** (sin issue) — `f2f4727`, dependencia nueva + unseal global; **último**, tras discutir la política con upstream.
 
 Fuera del paquete (features puras, candidatas a discusión separada, no a PR de fix): `98ebb9a` (modo escritorio externo + Send to screen), `027da00` (backup JSON completo), `c2d3bb8`/`2247850` (mejoras de UX del fork), F7 geometría por app (`496250f`, feature que depende de Shizuku para leer `getTaskBounds` — probablemente también a discusión con upstream).
 
