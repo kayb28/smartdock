@@ -43,6 +43,8 @@ El fork (kayb28) nació de usarlo sobre un monitor USB-C: el soporte de display 
 18. **La corrección de F12 y el hook que estaba mudo (sesión 18, relevo de agente)**: el lookup de iconos de las acciones multimedia vuelve a ser real (`Action.getIcon()?.loadDrawable` en vez del `getIdentifier` imposible que degradaba todo a texto en silencio), las dos claims sin verificar del roadmap quedan marcadas/corregidas, la puerta de calidad local corre por primera vez fuera de CI (`./gradlew build` completo en verde) y se descubre que el pre-push hook no ejecutaba el build desde que existe el chequeo de ramas (stdin agotado por el primer control) — arreglado y verificado en vivo. En la revisión del dueño posterior, la rama F12 se pliega al tratamiento de siempre (commit único `45b0148`, causa raíz, inglés) y el fix erróneo sale del historial.
 19. **F12 y el corte de fork.13 (sesiones 19–20)**: numeración del roadmap reconciliada con la lista original del dueño (F5 = zonas de anclado pendientes de triage, F6 = colocación del dock, F9 = matar tareas; los presets quedan como entrada aparte de upstream #209), orden de implementación decidido (F12 → F8 → F11 → F10), F12 mergeara en main (`81bdd89`) y releaseada como `v1.15.9-fork.13` (bump 1159 / 1.15.9 / `fork_release_tag`, verificación del updater verde).
 
+20. **El relleno del release body de fork.13 (sesión 21)**: el único defecto abierto del corte — el body de la release en GitHub quedó vacío — se rellena con el patrón de fork.12 (intro + feature F12 + nota de instalación, en inglés) vía API, verificado por re-lectura. Sin cambios de código.
+
 ## Mapa de documentos
 
 | Documento | Qué contiene | Cuándo leerlo |

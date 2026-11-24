@@ -506,3 +506,17 @@ Motivo: correcciones del dueño sobre la documentación (numeración barajada de
 
 - [x] Release `v1.15.9-fork.13` publicada y verificada: `releases/latest == v1.15.9-fork.13 == fork_release_tag` del build (el updater auto-reconoce su release), **CI 5/5 verde** sobre `8cb300e` (Release debug apk + Build project sobre el tag, Build project + Build debug apk sobre main, Build project sobre la rama), asset `SmartDock-fork-debug.apk` (13.2 MB) verificado — badging **versionCode 1159 / versionName 1.15.9**, cert SHA-256 `4680c231…b54b41db` (keystore del fork: se actualiza encima de fork.12 sin desinstalar) y `fork_release_tag` incrustado `v1.15.9-fork.13` en `resources.arsc`.
 - [ ] Pendientes del dueño: triage de F5 (snap zones); decisión de envío a upstream.
+
+## 2026-11-24 (vigésimo primera pasada) — relleno del release body de fork.13 (`chore/fork13-release-body`)
+
+Motivo: el único defecto abierto del cierre de fork.13 — el body de la release en GitHub quedó vacío (solo el link de comparación autogenerado, 97 chars) porque el corte no incluyó la redacción. Patrón de fork.12 (intro + feature + nota de instalación, en inglés, sin código).
+
+### Hecho
+
+- **Release body de `v1.15.9-fork.13` rellenado vía API** (PATCH a la release): intro «One new feature, cutting the notification-actions work (F12)», feature detallada (dispatch de `Notification.Action` vía `actionIntent.send`, reply inline con `RemoteInput`, iconos multimedia vía `Action.getIcon()?.loadDrawable`, fallos visibles por toast, sin permisos nuevos ni Shizuku) + nota de la corrección de iconos + «Installs over fork.12 without uninstalling» con link a `CHANGELOG-FORK.md`. Verificado re-leyendo la release: body de 818 chars, draft `false`, assets intactos.
+- Sin cambios de código; el tag, el asset y el updater no se tocan.
+
+### Cierre
+
+- [x] Release `v1.15.9-fork.13` completa: body con el patrón de fork.12, verificada por re-lectura de la API.
+- [ ] Pendientes del dueño: bugs del QA de fork.13; triage de F5; decisión de envío a upstream y orden de la siguiente tanda (F8/F10/F11).
